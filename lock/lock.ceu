@@ -1,0 +1,25 @@
+native _open();
+input int PRESS;
+
+loop do
+  loop do
+    var int first = await PRESS;
+    if first != 1 then
+      break;
+    end
+    var int second = await PRESS;
+    if second != 2 then
+      break;
+    end
+    var int third = await PRESS;
+    if third != 3 then
+      break;
+    end
+    var int fourth = await PRESS;
+    if fourth != 4 then
+      break;
+    end
+    _open();
+  end
+end
+
