@@ -1,0 +1,35 @@
+input int TOP_CHANGED;
+input int BOTTOM_CHANGED;
+input int HEIGHT_CHANGED;
+native _printf;
+
+par do
+  var int top = 10;
+  var int bottom = 20;
+  var int height = 10;
+  par do
+    every top in TOP_CHANGED do
+      bottom = top + height;
+      _printf("top changed, so I set bottom to %d\n", bottom);
+    end
+  with
+    every bottom in BOTTOM_CHANGED do
+      top = bottom - height;
+      _printf("bottom changed, so I set top to %d\n", top);
+    end
+  with
+    every height in HEIGHT_CHANGED do
+      top = bottom - height / 2;
+      bottom = top + height;
+      _printf("height changed so I set top to %d and bottom to %d\n", top, bottom);
+    end
+  end
+with
+  async do
+    emit TOP_CHANGED => 0;
+    emit TOP_CHANGED => 1;
+    emit BOTTOM_CHANGED => 100;
+    emit HEIGHT_CHANGED => 100;
+  end
+  escape 0;
+end
