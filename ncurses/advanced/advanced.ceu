@@ -1,0 +1,80 @@
+// based on examples from
+// "Introduction to the Unix Curses"
+// by Norman Matloff
+native do
+  ##include <curses.h>
+end
+native _move();
+native _delch();
+native _insch();
+native _refresh();
+native _initscr();
+native _cbreak();
+native _noecho();
+native @nohold _getmaxyx();
+native _clear();
+native _endwin();
+input int GETCH;
+input int START;
+
+var _WINDOW* wnd;
+finalize
+  wnd = _initscr();
+with
+  _endwin();
+end
+
+_cbreak();
+_noecho();
+var int nrows;
+var int ncols;
+_getmaxyx(wnd, nrows, ncols);
+_clear();
+_refresh();
+
+var int r = 0;
+var int c = 0;
+
+function (char dc)=>void draw
+do
+  _move(r, c);
+  _delch();
+  _insch(dc);
+  _refresh();
+  c = c + 1;
+  if c == ncols then
+    c = 0;
+    r = r + 1;
+    if r == nrows then
+      r = 0;
+    end
+  end
+end
+
+par/or do
+  loop do
+    await 3s;
+    draw('f');
+    draw('i');
+    draw('z');
+    draw('z');
+  end
+with
+  loop do
+    await 5s;
+    draw('b');
+    draw('u');
+    draw('z');
+    draw('z');
+  end
+with
+  loop do
+    var int d = await GETCH;
+    if d == 'q' then
+      break;
+    end
+    draw(d);
+  end
+end
+
+escape 0;
