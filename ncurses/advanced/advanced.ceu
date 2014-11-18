@@ -17,23 +17,10 @@ native _endwin();
 input int GETCH;
 input int START;
 
-var _WINDOW* wnd;
-finalize
-  wnd = _initscr();
-with
-  _endwin();
-end
-
-_cbreak();
-_noecho();
-var int nrows;
-var int ncols;
-_getmaxyx(wnd, nrows, ncols);
-_clear();
-_refresh();
-
 var int r = 0;
 var int c = 0;
+var int ncols;
+var int nrows;
 
 function (char dc)=>void draw
 do
@@ -68,6 +55,18 @@ with
     draw('z');
   end
 with
+  var _WINDOW* wnd;
+  finalize
+    wnd = _initscr();
+  with
+    _endwin();
+  end
+
+  _cbreak();
+  _noecho();
+  _getmaxyx(wnd, nrows, ncols);
+  _clear();
+  _refresh();
   loop do
     var int d = await GETCH;
     if d == 'q' then
