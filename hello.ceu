@@ -3,20 +3,14 @@ input void A;
 input void B;
 input void C;
 
-par do
-  loop do
-    await A;
-    _printf("From Ceu: A\n");
-  end
+par/and do
+  await A;
+  _printf("From Ceu: A\n");
 with
-  loop do
-    await B;
-    _printf("From Ceu: B\n");
-  end
-with
-  loop do
-    await C;
-    _printf("From Ceu: C\n");
-  end
+  await B;
+  _printf("From Ceu: B\n");
 end
+await C;
+_printf("From Ceu: C\n");
 
+escape 0;

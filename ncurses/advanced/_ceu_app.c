@@ -569,16 +569,16 @@ extern void* CEU_SYS_VEC[CEU_SYS_MAX];
 #define CEU_IN_START 245
 #define CEU_OUT_n 0
       /* CEU_IN_, CEU_OUT_ */
-#define CEU_FUN_getmaxyx
+#define CEU_FUN_insch
 #define CEU_FUN_initscr
-#define CEU_FUN_endwin
-#define CEU_FUN_clear
 #define CEU_FUNdraw
+#define CEU_FUN_clear
+#define CEU_FUN_getmaxyx
 #define CEU_FUN_noecho
 #define CEU_FUN_cbreak
-#define CEU_FUN_insch
-#define CEU_FUN_move
+#define CEU_FUN_endwin
 #define CEU_FUN_refresh
+#define CEU_FUN_move
 #define CEU_FUN_delch
    /* CEU_FUN_ */
 
@@ -2967,17 +2967,14 @@ typedef struct CEU_Main {
 int _ret_0;
         union {
             struct { /* BLOCK ln=1 */
-            u8 __fin_200_1: 1;
               #line 20 "advanced.ceu"
-WINDOW* wnd;
-              #line 29 "advanced.ceu"
-int nrows;
-              #line 30 "advanced.ceu"
-int ncols;
-              #line 35 "advanced.ceu"
 int r;
-              #line 36 "advanced.ceu"
+              #line 21 "advanced.ceu"
 int c;
+              #line 22 "advanced.ceu"
+int ncols;
+              #line 23 "advanced.ceu"
+int nrows;
               union {
                 union {
                   union {
@@ -3006,23 +3003,17 @@ int c;
                   };
                   union {
                   };
-                      struct { /* BLOCK ln=24 */
-                        union {
-                        };
-                      };
                   union {
                   };
                   union {
                   };
                   union {
                   };
-                  union {
-                  };
-                    struct { /* BLOCK ln=40 */
+                    struct { /* BLOCK ln=27 */
                       union {
-                          struct { /* BLOCK ln=46 */
+                          struct { /* BLOCK ln=33 */
                             union {
-                                struct { /* BLOCK ln=49 */
+                                struct { /* BLOCK ln=36 */
                                   union {
                                   };
                                 };
@@ -3031,33 +3022,40 @@ int c;
                       };
                     };
                   struct {
-                    struct { /* BLOCK ln=55 */
+                    struct { /* BLOCK ln=42 */
                       union {
-                          struct { /* BLOCK ln=56 */
+                          struct { /* BLOCK ln=43 */
                             union {
-                                s32 __wclk_155;
+                                s32 __wclk_138;
                             };
                           };
                       };
                     };
-                    struct { /* BLOCK ln=63 */
+                    struct { /* BLOCK ln=50 */
                       union {
-                          struct { /* BLOCK ln=64 */
+                          struct { /* BLOCK ln=51 */
                             union {
-                                s32 __wclk_166;
+                                s32 __wclk_149;
                             };
                           };
                       };
                     };
-                    struct { /* BLOCK ln=71 */
+                    struct { /* BLOCK ln=58 */
+                    u8 __fin_192_1: 1;
                       union {
-                          struct { /* BLOCK ln=72 */
+                        union {
+                        };
+                            struct { /* BLOCK ln=62 */
+                              union {
+                              };
+                            };
+                          struct { /* BLOCK ln=71 */
                             union {
                               union {
                                 union {
                                 };
                               };
-                                struct { /* BLOCK ln=74 */
+                                struct { /* BLOCK ln=73 */
                                   union {
                                   };
                                 };
@@ -3092,13 +3090,12 @@ enum {
     Main_Awake_DT_4 = 4,
     Main_Awake_DT_5 = 5,
     Main_Awake_GETCH_6 = 6,
-    Main_Clear_7 = 7,
-    Main_Block__fin_8 = 8,
-    Main_Block_fin_cnt_9 = 9,
+    Main_Block__fin_7 = 7,
+    Main_Block_fin_cnt_8 = 8,
+    Main_Clear_9 = 9,
     Main_Clear_10 = 10,
-    Main_Clear_11 = 11,
-    Class_Main = 12,
-    Main_Class_free_Main_13 = 13,
+    Class_Main = 11,
+    Main_Class_free_Main_12 = 12,
 
 };
 
@@ -3184,106 +3181,106 @@ static void ceu_stack_clr () {
 
 /* FUNCTIONS_C */
 void CEU_Main_draw (tceu_app* _ceu_app, tceu_org* __ceu_org, char dc)
-{/* NODE: Block 152 */
+{/* NODE: Block 135 */
 
-#line 40 "advanced.ceu"
+#line 27 "advanced.ceu"
     {
-#line 40 "advanced.ceu"
-    char __ceu_dc_7
-#line 40 "advanced.ceu"
+#line 27 "advanced.ceu"
+    char __ceu_dc_6
+#line 27 "advanced.ceu"
      = dc
-#line 40 "advanced.ceu"
-    ;/* NODE: Stmts 151 */
+#line 27 "advanced.ceu"
+    ;/* NODE: Stmts 134 */
 
-#line 40 "advanced.ceu"
-    {/* NODE: CallStmt 119 */
+#line 27 "advanced.ceu"
+    {/* NODE: CallStmt 102 */
 
-#line 40 "advanced.ceu"
-    move(((CEU_Main*)__ceu_org)->r,((CEU_Main*)__ceu_org)->c);/* NODE: CallStmt 120 */
+#line 27 "advanced.ceu"
+    move(((CEU_Main*)__ceu_org)->r,((CEU_Main*)__ceu_org)->c);/* NODE: CallStmt 103 */
 
-#line 41 "advanced.ceu"
-    delch();/* NODE: CallStmt 121 */
+#line 28 "advanced.ceu"
+    delch();/* NODE: CallStmt 104 */
 
-#line 42 "advanced.ceu"
-    insch(__ceu_dc_7);/* NODE: CallStmt 122 */
+#line 29 "advanced.ceu"
+    insch(__ceu_dc_6);/* NODE: CallStmt 105 */
 
-#line 43 "advanced.ceu"
-    refresh();/* NODE: SetExp 257 */
+#line 30 "advanced.ceu"
+    refresh();/* NODE: SetExp 254 */
 
-#line 44 "advanced.ceu"
+#line 31 "advanced.ceu"
 /* SET: c */
-#line 44 "advanced.ceu"
-    ((CEU_Main*)__ceu_org)->c = (((CEU_Main*)__ceu_org)->c+1);/* NODE: If 259 */
+#line 31 "advanced.ceu"
+    ((CEU_Main*)__ceu_org)->c = (((CEU_Main*)__ceu_org)->c+1);/* NODE: If 256 */
 
-#line 45 "advanced.ceu"
+#line 32 "advanced.ceu"
     if ((((CEU_Main*)__ceu_org)->c==((CEU_Main*)__ceu_org)->ncols)) {
-/* NODE: Block 149 */
+/* NODE: Block 132 */
 
-#line 46 "advanced.ceu"
-    {/* NODE: Stmts 148 */
+#line 33 "advanced.ceu"
+    {/* NODE: Stmts 131 */
 
-#line 46 "advanced.ceu"
-    {/* NODE: SetExp 260 */
+#line 33 "advanced.ceu"
+    {/* NODE: SetExp 257 */
 
-#line 46 "advanced.ceu"
+#line 33 "advanced.ceu"
 /* SET: c */
-#line 46 "advanced.ceu"
-    ((CEU_Main*)__ceu_org)->c = 0;/* NODE: SetExp 261 */
+#line 33 "advanced.ceu"
+    ((CEU_Main*)__ceu_org)->c = 0;/* NODE: SetExp 258 */
 
-#line 47 "advanced.ceu"
+#line 34 "advanced.ceu"
 /* SET: r */
-#line 47 "advanced.ceu"
-    ((CEU_Main*)__ceu_org)->r = (((CEU_Main*)__ceu_org)->r+1);/* NODE: If 263 */
+#line 34 "advanced.ceu"
+    ((CEU_Main*)__ceu_org)->r = (((CEU_Main*)__ceu_org)->r+1);/* NODE: If 260 */
 
-#line 48 "advanced.ceu"
+#line 35 "advanced.ceu"
     if ((((CEU_Main*)__ceu_org)->r==((CEU_Main*)__ceu_org)->nrows)) {
-/* NODE: Block 146 */
+/* NODE: Block 129 */
 
-#line 49 "advanced.ceu"
-    {/* NODE: Stmts 145 */
+#line 36 "advanced.ceu"
+    {/* NODE: Stmts 128 */
 
-#line 49 "advanced.ceu"
-    {/* NODE: SetExp 264 */
+#line 36 "advanced.ceu"
+    {/* NODE: SetExp 261 */
 
-#line 49 "advanced.ceu"
+#line 36 "advanced.ceu"
 /* SET: r */
-#line 49 "advanced.ceu"
+#line 36 "advanced.ceu"
     ((CEU_Main*)__ceu_org)->r = 0;
-#line 49 "advanced.ceu"
+#line 36 "advanced.ceu"
     }
-#line 49 "advanced.ceu"
-/* CLEAR: Block (49) */
-#line 49 "advanced.ceu"
+#line 36 "advanced.ceu"
+/* CLEAR: Block (36) */
+#line 36 "advanced.ceu"
     }
-#line 49 "advanced.ceu"
+#line 36 "advanced.ceu"
     /* switch to 1st trail */
 /* TODO: only if not joining with outer prio */
 /*_ceu_go->trl = &__ceu_org->trls[ 0 ]; */
 } else {
-/* NODE: Nothing 262 */
+/* NODE: Nothing 259 */
 }
 
-#line 46 "advanced.ceu"
+#line 33 "advanced.ceu"
     }
-#line 46 "advanced.ceu"
-/* CLEAR: Block (46) */
-#line 46 "advanced.ceu"
+#line 33 "advanced.ceu"
+/* CLEAR: Block (33) */
+#line 33 "advanced.ceu"
     }
-#line 46 "advanced.ceu"
+#line 33 "advanced.ceu"
     /* switch to 1st trail */
 /* TODO: only if not joining with outer prio */
 /*_ceu_go->trl = &__ceu_org->trls[ 0 ]; */
 } else {
-/* NODE: Nothing 258 */
+/* NODE: Nothing 255 */
 }
 
-#line 40 "advanced.ceu"
+#line 27 "advanced.ceu"
     }
-#line 40 "advanced.ceu"
-/* CLEAR: Block (40) */
-#line 40 "advanced.ceu"
+#line 27 "advanced.ceu"
+/* CLEAR: Block (27) */
+#line 27 "advanced.ceu"
     }
-#line 40 "advanced.ceu"
+#line 27 "advanced.ceu"
     /* switch to 1st trail */
 /* TODO: only if not joining with outer prio */
 /*_ceu_go->trl = &__ceu_org->trls[ 0 ]; */
@@ -3362,14 +3359,6 @@ _ceu_go->org->cls = 0;
 /* NODE: SetBlock 204 */
 /* NODE: Block 200 */
 
-#line 1 "_ceu_cpp_advanced.ceu.in"
-    /*  FINALIZE */
-_ceu_go->org->trls[ 3 ].evt   = CEU_IN__CLEAR;
-_ceu_go->org->trls[ 3 ].lbl   = Main_Block__fin_8;
-_ceu_go->org->trls[ 3 ].seqno = _ceu_app->seqno-1; /* awake now */
-
-#line 1 "_ceu_cpp_advanced.ceu.in"
-    ((CEU_Main*)_ceu_go->org)->__fin_200_1 = 0;
 #line 1 "_ceu_cpp_advanced.ceu.in"
     {/* NODE: Stmts 199 */
 
@@ -3450,75 +3439,46 @@ _ceu_go->org->trls[ 3 ].seqno = _ceu_app->seqno-1; /* awake now */
     {/* NODE: Nothing 296 */
 
 #line 18 "advanced.ceu"
-    }/* NODE: Stmts 241 */
+    }/* NODE: Stmts 243 */
 
 #line 20 "advanced.ceu"
     {/* NODE: Dcl_var 240 */
+/* NODE: SetExp 244 */
 
 #line 20 "advanced.ceu"
-    }/* NODE: Finalize 98 */
+/* SET: r */
+#line 20 "advanced.ceu"
+    ((CEU_Main*)_ceu_go->org)->r = 0;
+#line 20 "advanced.ceu"
+    }/* NODE: Stmts 248 */
 
 #line 21 "advanced.ceu"
-    ((CEU_Main*)_ceu_go->org)->__fin_200_1 = 1;/* NODE: SetExp 242 */
-
-#line 22 "advanced.ceu"
-/* SET: wnd */
-#line 22 "advanced.ceu"
-    ((CEU_Main*)_ceu_go->org)->wnd = initscr();/* NODE: CallStmt 99 */
-
-#line 27 "advanced.ceu"
-    cbreak();/* NODE: CallStmt 100 */
-
-#line 28 "advanced.ceu"
-    noecho();/* NODE: Stmts 244 */
-
-#line 29 "advanced.ceu"
-    {/* NODE: Dcl_var 243 */
-
-#line 29 "advanced.ceu"
-    }/* NODE: Stmts 246 */
-
-#line 30 "advanced.ceu"
     {/* NODE: Dcl_var 245 */
+/* NODE: SetExp 249 */
 
-#line 30 "advanced.ceu"
-    }/* NODE: CallStmt 105 */
-
-#line 31 "advanced.ceu"
-    getmaxyx(((CEU_Main*)_ceu_go->org)->wnd,((CEU_Main*)_ceu_go->org)->nrows,((CEU_Main*)_ceu_go->org)->ncols);/* NODE: CallStmt 106 */
-
-#line 32 "advanced.ceu"
-    clear();/* NODE: CallStmt 107 */
-
-#line 33 "advanced.ceu"
-    refresh();/* NODE: Stmts 250 */
-
-#line 35 "advanced.ceu"
-    {/* NODE: Dcl_var 247 */
-/* NODE: SetExp 251 */
-
-#line 35 "advanced.ceu"
-/* SET: r */
-#line 35 "advanced.ceu"
-    ((CEU_Main*)_ceu_go->org)->r = 0;
-#line 35 "advanced.ceu"
-    }/* NODE: Stmts 255 */
-
-#line 36 "advanced.ceu"
-    {/* NODE: Dcl_var 252 */
-/* NODE: SetExp 256 */
-
-#line 36 "advanced.ceu"
+#line 21 "advanced.ceu"
 /* SET: c */
-#line 36 "advanced.ceu"
+#line 21 "advanced.ceu"
     ((CEU_Main*)_ceu_go->org)->c = 0;
-#line 36 "advanced.ceu"
-    }/* NODE: Dcl_fun 118 */
+#line 21 "advanced.ceu"
+    }/* NODE: Stmts 251 */
+
+#line 22 "advanced.ceu"
+    {/* NODE: Dcl_var 250 */
+
+#line 22 "advanced.ceu"
+    }/* NODE: Stmts 253 */
+
+#line 23 "advanced.ceu"
+    {/* NODE: Dcl_var 252 */
+
+#line 23 "advanced.ceu"
+    }/* NODE: Dcl_fun 101 */
 /* NODE: ParOr 193 */
 
-#line 54 "advanced.ceu"
+#line 41 "advanced.ceu"
 /* ParOr: spawn subs */
-#line 54 "advanced.ceu"
+#line 41 "advanced.ceu"
     /* TODO: function? */
 {
     tceu_trl* trl = &_ceu_go->org->trls[ 1 ];
@@ -3527,7 +3487,7 @@ _ceu_go->org->trls[ 3 ].seqno = _ceu_app->seqno-1; /* awake now */
     trl->stk = _ceu_go->stki;
 }
 
-#line 54 "advanced.ceu"
+#line 41 "advanced.ceu"
     /* TODO: function? */
 {
     tceu_trl* trl = &_ceu_go->org->trls[ 2 ];
@@ -3535,191 +3495,232 @@ _ceu_go->org->trls[ 3 ].seqno = _ceu_app->seqno-1; /* awake now */
     trl->lbl = Main_ParOr_sub_3_2;
     trl->stk = _ceu_go->stki;
 }
-/* NODE: Block 164 */
+/* NODE: Block 147 */
 
-#line 55 "advanced.ceu"
-    {/* NODE: Stmts 163 */
+#line 42 "advanced.ceu"
+    {/* NODE: Stmts 146 */
 
-#line 55 "advanced.ceu"
-    {/* NODE: Loop 265 */
+#line 42 "advanced.ceu"
+    {/* NODE: Loop 262 */
 
-#line 55 "advanced.ceu"
+#line 42 "advanced.ceu"
     for (;;) {
-/* NODE: Block 161 */
+/* NODE: Block 144 */
 
-#line 56 "advanced.ceu"
-    {/* NODE: Stmts 160 */
+#line 43 "advanced.ceu"
+    {/* NODE: Stmts 143 */
 
-#line 56 "advanced.ceu"
-    {/* NODE: AwaitT 155 */
+#line 43 "advanced.ceu"
+    {/* NODE: AwaitT 138 */
 
-#line 56 "advanced.ceu"
-    ceu_out_wclock(_ceu_app, (s32)3000000, &((CEU_Main*)_ceu_go->org)->__wclk_155, NULL);
-_CEU_NO_155_:
+#line 43 "advanced.ceu"
+    ceu_out_wclock(_ceu_app, (s32)3000000, &((CEU_Main*)_ceu_go->org)->__wclk_138, NULL);
+_CEU_NO_138_:
     _ceu_go->trl->evt = CEU_IN__WCLOCK;
     _ceu_go->trl->lbl = Main_Awake_DT_4;
 
-#line 56 "advanced.ceu"
+#line 43 "advanced.ceu"
     	return RET_HALT;
-#line 56 "advanced.ceu"
+#line 43 "advanced.ceu"
     case Main_Awake_DT_4:;
 
-#line 56 "advanced.ceu"
-        if (!ceu_out_wclock(_ceu_app, _ceu_go->evtp.dt, NULL, &((CEU_Main*)_ceu_go->org)->__wclk_155) )
-        goto _CEU_NO_155_;
+#line 43 "advanced.ceu"
+        if (!ceu_out_wclock(_ceu_app, _ceu_go->evtp.dt, NULL, &((CEU_Main*)_ceu_go->org)->__wclk_138) )
+        goto _CEU_NO_138_;
 
-#line 56 "advanced.ceu"
+#line 43 "advanced.ceu"
     #ifdef CEU_DEBUG_TRAILS
 #ifndef CEU_OS
 fprintf(stderr, "\tOK!\n");
 #endif
 #endif
-/* NODE: CallStmt 156 */
+/* NODE: CallStmt 139 */
 
-#line 57 "advanced.ceu"
-    CEU_Main_draw(_ceu_app,(tceu_org*)((CEU_Main*)_ceu_go->org),'f');/* NODE: CallStmt 157 */
+#line 44 "advanced.ceu"
+    CEU_Main_draw(_ceu_app,(tceu_org*)((CEU_Main*)_ceu_go->org),'f');/* NODE: CallStmt 140 */
 
-#line 58 "advanced.ceu"
-    CEU_Main_draw(_ceu_app,(tceu_org*)((CEU_Main*)_ceu_go->org),'i');/* NODE: CallStmt 158 */
+#line 45 "advanced.ceu"
+    CEU_Main_draw(_ceu_app,(tceu_org*)((CEU_Main*)_ceu_go->org),'i');/* NODE: CallStmt 141 */
 
-#line 59 "advanced.ceu"
-    CEU_Main_draw(_ceu_app,(tceu_org*)((CEU_Main*)_ceu_go->org),'z');/* NODE: CallStmt 159 */
+#line 46 "advanced.ceu"
+    CEU_Main_draw(_ceu_app,(tceu_org*)((CEU_Main*)_ceu_go->org),'z');/* NODE: CallStmt 142 */
 
-#line 60 "advanced.ceu"
+#line 47 "advanced.ceu"
     CEU_Main_draw(_ceu_app,(tceu_org*)((CEU_Main*)_ceu_go->org),'z');
-#line 56 "advanced.ceu"
+#line 43 "advanced.ceu"
     }
-#line 56 "advanced.ceu"
-/* CLEAR: Block (56) */
-#line 56 "advanced.ceu"
+#line 43 "advanced.ceu"
+/* CLEAR: Block (43) */
+#line 43 "advanced.ceu"
     }
-#line 56 "advanced.ceu"
+#line 43 "advanced.ceu"
     /* switch to 1st trail */
 /* TODO: only if not joining with outer prio */
 /*_ceu_go->trl = &_ceu_go->org->trls[ 0 ]; */
 
-#line 55 "advanced.ceu"
+#line 42 "advanced.ceu"
     }
 
-#line 55 "advanced.ceu"
+#line 42 "advanced.ceu"
     }
-#line 55 "advanced.ceu"
-/* CLEAR: Block (55) */
-#line 55 "advanced.ceu"
+#line 42 "advanced.ceu"
+/* CLEAR: Block (42) */
+#line 42 "advanced.ceu"
     }
-#line 54 "advanced.ceu"
-case Main_ParOr_sub_2_1:;/* NODE: Block 175 */
+#line 41 "advanced.ceu"
+case Main_ParOr_sub_2_1:;/* NODE: Block 158 */
 
-#line 63 "advanced.ceu"
-    {/* NODE: Stmts 174 */
+#line 50 "advanced.ceu"
+    {/* NODE: Stmts 157 */
 
-#line 63 "advanced.ceu"
-    {/* NODE: Loop 266 */
+#line 50 "advanced.ceu"
+    {/* NODE: Loop 263 */
 
-#line 63 "advanced.ceu"
+#line 50 "advanced.ceu"
     for (;;) {
-/* NODE: Block 172 */
+/* NODE: Block 155 */
 
-#line 64 "advanced.ceu"
-    {/* NODE: Stmts 171 */
+#line 51 "advanced.ceu"
+    {/* NODE: Stmts 154 */
 
-#line 64 "advanced.ceu"
-    {/* NODE: AwaitT 166 */
+#line 51 "advanced.ceu"
+    {/* NODE: AwaitT 149 */
 
-#line 64 "advanced.ceu"
-    ceu_out_wclock(_ceu_app, (s32)5000000, &((CEU_Main*)_ceu_go->org)->__wclk_166, NULL);
-_CEU_NO_166_:
+#line 51 "advanced.ceu"
+    ceu_out_wclock(_ceu_app, (s32)5000000, &((CEU_Main*)_ceu_go->org)->__wclk_149, NULL);
+_CEU_NO_149_:
     _ceu_go->trl->evt = CEU_IN__WCLOCK;
     _ceu_go->trl->lbl = Main_Awake_DT_5;
 
-#line 64 "advanced.ceu"
+#line 51 "advanced.ceu"
     	return RET_HALT;
-#line 64 "advanced.ceu"
+#line 51 "advanced.ceu"
     case Main_Awake_DT_5:;
 
-#line 64 "advanced.ceu"
-        if (!ceu_out_wclock(_ceu_app, _ceu_go->evtp.dt, NULL, &((CEU_Main*)_ceu_go->org)->__wclk_166) )
-        goto _CEU_NO_166_;
+#line 51 "advanced.ceu"
+        if (!ceu_out_wclock(_ceu_app, _ceu_go->evtp.dt, NULL, &((CEU_Main*)_ceu_go->org)->__wclk_149) )
+        goto _CEU_NO_149_;
 
-#line 64 "advanced.ceu"
+#line 51 "advanced.ceu"
     #ifdef CEU_DEBUG_TRAILS
 #ifndef CEU_OS
 fprintf(stderr, "\tOK!\n");
 #endif
 #endif
-/* NODE: CallStmt 167 */
+/* NODE: CallStmt 150 */
 
-#line 65 "advanced.ceu"
-    CEU_Main_draw(_ceu_app,(tceu_org*)((CEU_Main*)_ceu_go->org),'b');/* NODE: CallStmt 168 */
+#line 52 "advanced.ceu"
+    CEU_Main_draw(_ceu_app,(tceu_org*)((CEU_Main*)_ceu_go->org),'b');/* NODE: CallStmt 151 */
 
-#line 66 "advanced.ceu"
-    CEU_Main_draw(_ceu_app,(tceu_org*)((CEU_Main*)_ceu_go->org),'u');/* NODE: CallStmt 169 */
+#line 53 "advanced.ceu"
+    CEU_Main_draw(_ceu_app,(tceu_org*)((CEU_Main*)_ceu_go->org),'u');/* NODE: CallStmt 152 */
 
-#line 67 "advanced.ceu"
-    CEU_Main_draw(_ceu_app,(tceu_org*)((CEU_Main*)_ceu_go->org),'z');/* NODE: CallStmt 170 */
+#line 54 "advanced.ceu"
+    CEU_Main_draw(_ceu_app,(tceu_org*)((CEU_Main*)_ceu_go->org),'z');/* NODE: CallStmt 153 */
 
-#line 68 "advanced.ceu"
+#line 55 "advanced.ceu"
     CEU_Main_draw(_ceu_app,(tceu_org*)((CEU_Main*)_ceu_go->org),'z');
-#line 64 "advanced.ceu"
+#line 51 "advanced.ceu"
     }
-#line 64 "advanced.ceu"
-/* CLEAR: Block (64) */
-#line 64 "advanced.ceu"
+#line 51 "advanced.ceu"
+/* CLEAR: Block (51) */
+#line 51 "advanced.ceu"
     }
-#line 64 "advanced.ceu"
+#line 51 "advanced.ceu"
     /* switch to 1st trail */
 /* TODO: only if not joining with outer prio */
 /*_ceu_go->trl = &_ceu_go->org->trls[ 1 ]; */
 
-#line 63 "advanced.ceu"
+#line 50 "advanced.ceu"
     }
 
-#line 63 "advanced.ceu"
+#line 50 "advanced.ceu"
     }
-#line 63 "advanced.ceu"
-/* CLEAR: Block (63) */
-#line 63 "advanced.ceu"
+#line 50 "advanced.ceu"
+/* CLEAR: Block (50) */
+#line 50 "advanced.ceu"
     }
-#line 54 "advanced.ceu"
+#line 41 "advanced.ceu"
 case Main_ParOr_sub_3_2:;/* NODE: Block 192 */
 
-#line 71 "advanced.ceu"
-    {/* NODE: Stmts 191 */
+#line 58 "advanced.ceu"
+    /*  FINALIZE */
+_ceu_go->org->trls[ 3 ].evt   = CEU_IN__CLEAR;
+_ceu_go->org->trls[ 3 ].lbl   = Main_Block__fin_7;
+_ceu_go->org->trls[ 3 ].seqno = _ceu_app->seqno-1; /* awake now */
 
-#line 71 "advanced.ceu"
-    {/* NODE: Loop 267 */
+#line 58 "advanced.ceu"
+    ((CEU_Main*)_ceu_go->org)->__fin_192_1 = 0;
+#line 58 "advanced.ceu"
+    {
+#line 58 "advanced.ceu"
+    WINDOW* __ceu_wnd_8
+#line 58 "advanced.ceu"
+    ;/* NODE: Stmts 191 */
 
-#line 71 "advanced.ceu"
+#line 58 "advanced.ceu"
+    {/* NODE: Stmts 265 */
+
+#line 58 "advanced.ceu"
+    {/* NODE: Dcl_var 264 */
+
+#line 58 "advanced.ceu"
+    }/* NODE: Finalize 170 */
+
+#line 59 "advanced.ceu"
+    ((CEU_Main*)_ceu_go->org)->__fin_192_1 = 1;/* NODE: SetExp 266 */
+
+#line 60 "advanced.ceu"
+/* SET: wnd */
+#line 60 "advanced.ceu"
+    __ceu_wnd_8 = initscr();/* NODE: CallStmt 171 */
+
+#line 65 "advanced.ceu"
+    cbreak();/* NODE: CallStmt 172 */
+
+#line 66 "advanced.ceu"
+    noecho();/* NODE: CallStmt 173 */
+
+#line 67 "advanced.ceu"
+    getmaxyx(__ceu_wnd_8,((CEU_Main*)_ceu_go->org)->nrows,((CEU_Main*)_ceu_go->org)->ncols);/* NODE: CallStmt 174 */
+
+#line 68 "advanced.ceu"
+    clear();/* NODE: CallStmt 175 */
+
+#line 69 "advanced.ceu"
+    refresh();/* NODE: Loop 267 */
+
+#line 70 "advanced.ceu"
     for (;;) {
 /* NODE: Block 189 */
 
-#line 72 "advanced.ceu"
+#line 71 "advanced.ceu"
     {
-#line 72 "advanced.ceu"
+#line 71 "advanced.ceu"
     int __ceu_d_9
-#line 72 "advanced.ceu"
+#line 71 "advanced.ceu"
     ;/* NODE: Stmts 188 */
 
-#line 72 "advanced.ceu"
+#line 71 "advanced.ceu"
     {/* NODE: Stmts 271 */
 
-#line 72 "advanced.ceu"
+#line 71 "advanced.ceu"
     {/* NODE: Dcl_var 268 */
 /* NODE: Stmts 272 */
 
-#line 72 "advanced.ceu"
+#line 71 "advanced.ceu"
     {/* NODE: AwaitExt 178 */
 
-#line 72 "advanced.ceu"
+#line 71 "advanced.ceu"
         _ceu_go->trl->evt = CEU_IN_GETCH;
     _ceu_go->trl->lbl = Main_Awake_GETCH_6;
 
-#line 72 "advanced.ceu"
+#line 71 "advanced.ceu"
     	return RET_HALT;
-#line 72 "advanced.ceu"
+#line 71 "advanced.ceu"
     case Main_Awake_GETCH_6:;
 
-#line 72 "advanced.ceu"
+#line 71 "advanced.ceu"
     #ifdef CEU_DEBUG_TRAILS
 #ifndef CEU_OS
 fprintf(stderr, "\tOK!\n");
@@ -3727,60 +3728,39 @@ fprintf(stderr, "\tOK!\n");
 #endif
 /* NODE: SetExp 274 */
 
-#line 72 "advanced.ceu"
+#line 71 "advanced.ceu"
 /* SET: d */
-#line 72 "advanced.ceu"
+#line 71 "advanced.ceu"
     __ceu_d_9 = (_ceu_go->evtp.v);
-#line 72 "advanced.ceu"
+#line 71 "advanced.ceu"
     }
-#line 72 "advanced.ceu"
+#line 71 "advanced.ceu"
     }/* NODE: If 276 */
 
-#line 73 "advanced.ceu"
+#line 72 "advanced.ceu"
     if ((__ceu_d_9=='q')) {
 /* NODE: Block 185 */
 
-#line 74 "advanced.ceu"
+#line 73 "advanced.ceu"
     {/* NODE: Stmts 184 */
 
-#line 74 "advanced.ceu"
+#line 73 "advanced.ceu"
     {/* NODE: Break 183 */
 
-#line 74 "advanced.ceu"
+#line 73 "advanced.ceu"
     break;
-#line 74 "advanced.ceu"
+#line 73 "advanced.ceu"
     }
-#line 74 "advanced.ceu"
-/* CLEAR: Block (74) */
-#line 74 "advanced.ceu"
+#line 73 "advanced.ceu"
+/* CLEAR: Block (73) */
+#line 73 "advanced.ceu"
     }} else {
 /* NODE: Nothing 275 */
 }
 /* NODE: CallStmt 187 */
 
-#line 76 "advanced.ceu"
+#line 75 "advanced.ceu"
     CEU_Main_draw(_ceu_app,(tceu_org*)((CEU_Main*)_ceu_go->org),__ceu_d_9);
-#line 72 "advanced.ceu"
-    }
-#line 72 "advanced.ceu"
-/* CLEAR: Block (72) */
-#line 72 "advanced.ceu"
-    }
-#line 72 "advanced.ceu"
-    /* switch to 1st trail */
-/* TODO: only if not joining with outer prio */
-/*_ceu_go->trl = &_ceu_go->org->trls[ 2 ]; */
-
-#line 71 "advanced.ceu"
-    }
-
-#line 71 "advanced.ceu"
-/* CLEAR: Loop (71) */
-#line 71 "advanced.ceu"
-    /* switch to 1st trail */
-/* TODO: only if not joining with outer prio */
-_ceu_go->trl = &_ceu_go->org->trls[ 2 ];
-
 #line 71 "advanced.ceu"
     }
 #line 71 "advanced.ceu"
@@ -3792,95 +3772,128 @@ _ceu_go->trl = &_ceu_go->org->trls[ 2 ];
 /* TODO: only if not joining with outer prio */
 /*_ceu_go->trl = &_ceu_go->org->trls[ 2 ]; */
 
-#line 54 "advanced.ceu"
+#line 70 "advanced.ceu"
+    }
+
+#line 70 "advanced.ceu"
+/* CLEAR: Loop (70) */
+#line 70 "advanced.ceu"
+    /* switch to 1st trail */
+/* TODO: only if not joining with outer prio */
+_ceu_go->trl = &_ceu_go->org->trls[ 2 ];
+
+#line 58 "advanced.ceu"
+    }
+#line 58 "advanced.ceu"
+    _ceu_go->lbl = Main_Block_fin_cnt_8;
+goto _CEU_GOTO_;
+/*return RET_GOTO;*/
+
+#line 58 "advanced.ceu"
+case Main_Block__fin_7:;
+#line 58 "advanced.ceu"
+    if (((CEU_Main*)_ceu_go->org)->__fin_192_1) {
+/* NODE: Finally 169 */
+/* NODE: Block 168 */
+
+#line 62 "advanced.ceu"
+    {/* NODE: Stmts 167 */
+
+#line 62 "advanced.ceu"
+    {/* NODE: CallStmt 166 */
+
+#line 62 "advanced.ceu"
+    endwin();
+#line 62 "advanced.ceu"
+    }
+#line 62 "advanced.ceu"
+/* CLEAR: Block (62) */
+#line 62 "advanced.ceu"
+    }
+#line 62 "advanced.ceu"
+    /* switch to 1st trail */
+/* TODO: only if not joining with outer prio */
+/*_ceu_go->trl = &_ceu_go->org->trls[ 2 ]; */
+}
+
+#line 58 "advanced.ceu"
+    	return RET_HALT;
+#line 58 "advanced.ceu"
+case Main_Block_fin_cnt_8:;
+#line 58 "advanced.ceu"
+/* CLEAR: Block (58) */
+#line 58 "advanced.ceu"
+    /* trails[1] points to ORG blk */
+{
+    tceu_trl* trl = &_ceu_go->org->trls[ 2 ];
+    trl->evt = CEU_IN__STK;
+    trl->stk = _ceu_go->stki;
+    trl->lbl = Main_Clear_9;
+}
+return ceu_sys_clear(_ceu_go, 3,                     &_ceu_go->org->trls[ 4 ]);
+
+case Main_Clear_9:;
+
+#line 58 "advanced.ceu"
+    }
+#line 58 "advanced.ceu"
+    /* switch to 1st trail */
+/* TODO: only if not joining with outer prio */
+/*_ceu_go->trl = &_ceu_go->org->trls[ 2 ]; */
+
+#line 41 "advanced.ceu"
 /* PAROR JOIN */
-#line 54 "advanced.ceu"
+#line 41 "advanced.ceu"
     _ceu_go->lbl = Main_ParOr_out_3;
 goto _CEU_GOTO_;
 /*return RET_GOTO;*/
 
-#line 54 "advanced.ceu"
+#line 41 "advanced.ceu"
 case Main_ParOr_out_3:;
-#line 54 "advanced.ceu"
-/* CLEAR: ParOr (54) */
-#line 54 "advanced.ceu"
+#line 41 "advanced.ceu"
+/* CLEAR: ParOr (41) */
+#line 41 "advanced.ceu"
     /* trails[1] points to ORG blk */
 {
     tceu_trl* trl = &_ceu_go->org->trls[ 0 ];
     trl->evt = CEU_IN__STK;
     trl->stk = _ceu_go->stki;
-    trl->lbl = Main_Clear_7;
+    trl->lbl = Main_Clear_10;
 }
-return ceu_sys_clear(_ceu_go, 1,                     &_ceu_go->org->trls[ 3 ]);
+return ceu_sys_clear(_ceu_go, 1,                     &_ceu_go->org->trls[ 4 ]);
 
-case Main_Clear_7:;
+case Main_Clear_10:;
 
-#line 54 "advanced.ceu"
+#line 41 "advanced.ceu"
     /* switch to 1st trail */
 /* TODO: only if not joining with outer prio */
 _ceu_go->trl = &_ceu_go->org->trls[ 0 ];
 /* NODE: Stmts 280 */
 
-#line 80 "advanced.ceu"
+#line 79 "advanced.ceu"
     {/* NODE: SetExp 278 */
 
-#line 80 "advanced.ceu"
+#line 79 "advanced.ceu"
 /* SET: _ret */
-#line 80 "advanced.ceu"
+#line 79 "advanced.ceu"
     ((CEU_Main*)_ceu_go->org)->_ret_0 = 0;
-#line 80 "advanced.ceu"
+#line 79 "advanced.ceu"
     #ifdef CEU_RET
     _ceu_app->ret = ((CEU_Main*)_ceu_go->org)->_ret_0;
 #endif
 /* NODE: Escape 279 */
 
-#line 80 "advanced.ceu"
+#line 79 "advanced.ceu"
     _ceu_go->lbl = Main_Set_out_0;
 goto _CEU_GOTO_;
 /*return RET_GOTO;*/
 
-#line 80 "advanced.ceu"
+#line 79 "advanced.ceu"
     }
 #line 4 "advanced.ceu"
     }
 #line 1 "_ceu_cpp_advanced.ceu.in"
     }
-#line 1 "_ceu_cpp_advanced.ceu.in"
-    _ceu_go->lbl = Main_Block_fin_cnt_9;
-goto _CEU_GOTO_;
-/*return RET_GOTO;*/
-
-#line 1 "_ceu_cpp_advanced.ceu.in"
-case Main_Block__fin_8:;
-#line 1 "_ceu_cpp_advanced.ceu.in"
-    if (((CEU_Main*)_ceu_go->org)->__fin_200_1) {
-/* NODE: Finally 97 */
-/* NODE: Block 96 */
-
-#line 24 "advanced.ceu"
-    {/* NODE: Stmts 95 */
-
-#line 24 "advanced.ceu"
-    {/* NODE: CallStmt 94 */
-
-#line 24 "advanced.ceu"
-    endwin();
-#line 24 "advanced.ceu"
-    }
-#line 24 "advanced.ceu"
-/* CLEAR: Block (24) */
-#line 24 "advanced.ceu"
-    }
-#line 24 "advanced.ceu"
-    /* switch to 1st trail */
-/* TODO: only if not joining with outer prio */
-/*_ceu_go->trl = &_ceu_go->org->trls[ 0 ]; */
-}
-
-#line 1 "_ceu_cpp_advanced.ceu.in"
-    	return RET_HALT;
-#line 1 "_ceu_cpp_advanced.ceu.in"
-case Main_Block_fin_cnt_9:;
 #line 1 "_ceu_cpp_advanced.ceu.in"
 /* CLEAR: Block (1) */
 #line 1 "_ceu_cpp_advanced.ceu.in"
@@ -3891,18 +3904,6 @@ case Main_Block_fin_cnt_9:;
 case Main_Set_out_0:;
 #line 1 "_ceu_cpp_advanced.ceu.in"
 /* CLEAR: SetBlock (1) */
-#line 1 "_ceu_cpp_advanced.ceu.in"
-    /* trails[1] points to ORG blk */
-{
-    tceu_trl* trl = &_ceu_go->org->trls[ 0 ];
-    trl->evt = CEU_IN__STK;
-    trl->stk = _ceu_go->stki;
-    trl->lbl = Main_Clear_11;
-}
-return ceu_sys_clear(_ceu_go, 1,                     &_ceu_go->org->trls[ 4 ]);
-
-case Main_Clear_11:;
-
 #line 1 "_ceu_cpp_advanced.ceu.in"
     /* switch to 1st trail */
 /* TODO: only if not joining with outer prio */

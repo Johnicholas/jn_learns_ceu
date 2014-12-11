@@ -1,11 +1,9 @@
-extern "C" {
 #include <stdio.h>
 #include <assert.h>
 #include "_ceu_app.h"
 #include "_ceu_app.c"
-}
 
-#define PROGRAM "abracadabra"
+#define PROGRAM "bac"
 
 int main (int argc, char *argv[])
 {

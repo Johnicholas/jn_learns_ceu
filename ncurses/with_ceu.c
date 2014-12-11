@@ -1,3 +1,6 @@
+#define CEU_DEBUG_TRAILS
+#include <stdio.h>
+
 #include "_ceu_app.h"
 #include "_ceu_app.c"
 

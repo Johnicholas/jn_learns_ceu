@@ -539,16 +539,16 @@ extern void* CEU_SYS_VEC[CEU_SYS_MAX];
 #define CEU_IN_START 245
 #define CEU_OUT_n 0
       /* CEU_IN_, CEU_OUT_ */
-#define CEU_FUN_getmaxyx
+#define CEU_FUN_insch
 #define CEU_FUN_initscr
-#define CEU_FUN_endwin
-#define CEU_FUN_clear
 #define CEU_FUNdraw
+#define CEU_FUN_clear
+#define CEU_FUN_getmaxyx
 #define CEU_FUN_noecho
 #define CEU_FUN_cbreak
-#define CEU_FUN_insch
-#define CEU_FUN_move
+#define CEU_FUN_endwin
 #define CEU_FUN_refresh
+#define CEU_FUN_move
 #define CEU_FUN_delch
    /* CEU_FUN_ */
 
