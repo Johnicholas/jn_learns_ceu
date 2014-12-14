@@ -1,0 +1,153 @@
+native @nohold _SDL_DestroyWindow();
+native @nohold _SDL_DestroyRenderer();
+native @nohold _SDL_GetWindowSize();
+native @nohold _SDL_CreateRenderer();
+native @nohold _SDL_RenderPresent();
+native @nohold _SDL_SetRenderColor();
+native @nohold _SDL_RenderFillRect();
+
+input void SDL_REDRAW; // redraw the screen
+input void SDL_QUIT; // the user has quit
+
+// create a named object from an object class at a location
+input (int, int, int) CREATE;
+// destroy an object
+input int DESTROY;
+// advance the animation clock by a specified amount
+input int SDL_DT;
+// move an object in a straight line to a destination
+input (int, int, int) MOVE;
+// teleport an object to a location
+input (int, int, int) PLACE; 
+
+var _SDL_Window* win;
+finalize
+  win = _SDL_CreateWindow("Animator", 500, 400, 800, 600, _SDL_WINDOW_SHOWN);
+with
+  _SDL_DestroyWindow(win);
+end
+var int ren_w;
+var int ren_h;
+_SDL_GetWindowSize(win, &ren_w, &ren_h);
+finalize
+  _REN = _SDL_CreateRenderer(win, -1, 0);
+with
+  _SDL_DestroyRenderer(_REN);
+end
+
+interface Kind with
+  function (int x, int y)=>void render_at;
+  var float speed;
+end
+
+class SmallSquare with
+  interface Kind;
+  var int r;
+  var int g;
+  var int b;
+do
+  function (int x, int y)=> void render_at do
+    var _SDL_Rect rect;
+    rect.x = x;
+    rect.y = y;
+    rect.w = 10;
+    rect.h = 10;
+    _SDL_SetRenderDrawColor(_REN, r, g, b, 255);
+    _SDL_RenderFillRect(_REN, &rect);
+  end
+end
+
+var SmallSquare red with
+  this.r = 255;
+  this.g = 0;
+  this.b = 0;
+  this.speed = 0.1;
+end;
+
+class Object with
+  var Kind& kind;
+  var int objid;
+  var float x;
+  var float y;
+  var bool moving;
+  var int dest_x;
+  var int dest_y;
+do
+  par/or do
+    var int incoming_id = await DESTROY until incoming_id == this.objid;
+  with
+    every SDL_REDRAW do
+      kind.render_at(x, y);
+    end
+  with
+    var int dt;
+    every dt in SDL_DT do
+      if this.moving then
+        var int dx = dest_x - x;
+        var int dy = dest_y - y;
+        var float f = (kind.speed * dt) / _sqrt(dx * dx + dy * dy);
+        if f >= 1 then
+          x = dest_x;
+          y = dest_y;
+          moving = false;
+        else
+          x = x + dx * f;
+          y = y + dy * f;
+        end
+      end
+    end
+  with
+    loop do
+      var int incoming_id, new_dest_x, new_dest_y;
+      loop do
+        (incoming_id, new_dest_x, new_dest_y) = await MOVE;
+        if incoming_id == this.objid then
+          break;
+        end
+      end
+      dest_x = new_dest_x;
+      dest_y = new_dest_y;
+      moving = true;
+    end
+  with
+    loop do
+      var int incoming_id, new_x, new_y;
+      loop do
+         (incoming_id, new_x, new_y) = await PLACE;
+         if incoming_id == this.objid then
+           break;
+         end
+      end
+      x = new_x;
+      y = new_y;
+    end
+  end
+end
+
+par/or do
+  await SDL_QUIT;
+with
+  var _SDL_Rect r;
+  r.x = 0;
+  r.y = 0;
+  r.w = ren_w;
+  r.h = ren_h;
+  every SDL_REDRAW do
+    _SDL_SetRenderDrawColor(_REN, 0, 0, 0, 255); // black
+    _SDL_RenderFillRect(_REN, &r);
+  end
+with
+  pool Object[] objects;
+  loop do
+    var int id, x, y;
+    (id, x, y) = await CREATE;
+    spawn Object in objects with
+      this.kind = red;
+      this.objid = id;
+      this.x = x;
+      this.y = y;
+    end;
+  end
+end
+
+escape 0;

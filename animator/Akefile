@@ -1,0 +1,14 @@
+run: a.out input.txt
+	./a.out <input.txt
+
+a.out: cc main.c _ceu_app.c _ceu_app.h
+	bash cc main.c
+
+_ceu_app.c: animator.ceu
+	ceu animator.ceu
+
+_ceu_app.h: animator.ceu
+	ceu animator.ceu
+
+clean:
+	rm a.out _ceu_app.c _ceu_app.h

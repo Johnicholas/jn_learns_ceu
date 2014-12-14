@@ -1,0 +1,7 @@
+create 1 500 500
+create 2 500 100
+move 1 10 10
+move 2 10 10
+dt 1000
+destroy 1
+dt 10000
