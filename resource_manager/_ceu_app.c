@@ -3242,12 +3242,14 @@ typedef struct CEU_ResourceManager {
       struct { /* BLOCK ln=36 */
         #line 36 "hello.ceu"
 CEU_Channel c;
-      tceu_org_lnk __lnks_192_1[2];
+      tceu_org_lnk __lnks_204_1[2];
 CEU_POOL_DCL(resources,CEU_Worker,6)
-      tceu_org_lnk __lnks_192_2[2];
-        #line 38 "hello.ceu"
-int nextid;
+      tceu_org_lnk __lnks_204_2[2];
         #line 39 "hello.ceu"
+int nextid;
+        #line 38 "hello.ceu"
+int count;
+        #line 40 "hello.ceu"
 Queue queue;
         union {
           union {
@@ -3258,31 +3260,29 @@ Queue queue;
           };
           union {
           };
+          union {
+          };
           struct {
-            struct { /* BLOCK ln=43 */
-              #line 43 "hello.ceu"
-int details_6;
+            struct { /* BLOCK ln=44 */
+              #line 44 "hello.ceu"
+int details_7;
               union {
                 union {
                 };
                   union {
                     union {
                     };
-                    struct { /* BLOCK ln=45 */
-                      #line 45 "hello.ceu"
-CEU_Worker* foo_7;
+                    struct { /* BLOCK ln=46 */
                       union {
-                        union {
-                              struct { /* BLOCK ln=46 */
-                                union {
-                                };
-                              };
-                        };
-                          struct { /* BLOCK ln=51 */
+                          struct { /* BLOCK ln=47 */
                             union {
+                                  struct { /* BLOCK ln=48 */
+                                    union {
+                                    };
+                                  };
                             };
                           };
-                          struct { /* BLOCK ln=53 */
+                          struct { /* BLOCK ln=55 */
                             union {
                             };
                           };
@@ -3291,24 +3291,24 @@ CEU_Worker* foo_7;
                   };
               };
             };
-            struct { /* BLOCK ln=58 */
+            struct { /* BLOCK ln=60 */
               union {
                   union {
-                    struct { /* BLOCK ln=59 */
+                    struct { /* BLOCK ln=61 */
                       union {
-                          struct { /* BLOCK ln=60 */
-                            #line 61 "hello.ceu"
+                          struct { /* BLOCK ln=62 */
+                            #line 63 "hello.ceu"
 CEU_Worker* foo_8;
                             union {
                               union {
-                                    struct { /* BLOCK ln=62 */
+                                    struct { /* BLOCK ln=64 */
                                       union {
                                       };
                                     };
                               };
                             };
                           };
-                          struct { /* BLOCK ln=69 */
+                          struct { /* BLOCK ln=71 */
                             union {
                             };
                           };
@@ -3334,10 +3334,10 @@ typedef struct CEU_Main {
       struct { /* BLOCK ln=1 */
         union {
             struct { /* BLOCK ln=1 */
-              #line 75 "hello.ceu"
+              #line 78 "hello.ceu"
 CEU_ResourceManager r;
-            tceu_org_lnk __lnks_211_1[2];
-              #line 77 "hello.ceu"
+            tceu_org_lnk __lnks_223_1[2];
+              #line 80 "hello.ceu"
 int details;
               union {
                 union {
@@ -3364,7 +3364,7 @@ int details;
                     union {
                       union {
                       };
-                      struct { /* BLOCK ln=79 */
+                      struct { /* BLOCK ln=82 */
                         union {
                           union {
                           };
@@ -3484,72 +3484,72 @@ static void ceu_stack_clr () {
 #endif
 
 #ifdef CEU_ORGS
-static void _ceu_constr_120 (tceu_app* _ceu_app, tceu_org* __ceu_org, tceu_go* _ceu_go) {
-/* NODE: Dcl_constr 120 */
-/* NODE: Block 119 */
+static void _ceu_constr_124 (tceu_app* _ceu_app, tceu_org* __ceu_org, tceu_go* _ceu_go) {
+/* NODE: Dcl_constr 124 */
+/* NODE: Block 123 */
 
-#line 46 "hello.ceu"
-    {/* NODE: Stmts 118 */
+#line 48 "hello.ceu"
+    {/* NODE: Stmts 122 */
 
-#line 46 "hello.ceu"
-    {/* NODE: SetExp 298 */
-
-#line 46 "hello.ceu"
-/* SET: . */
-#line 46 "hello.ceu"
-    ((CEU_Worker*)__ceu_org)->id = (((CEU_ResourceManager*)_ceu_go->org)->nextid+1);/* NODE: SetExp 299 */
-
-#line 47 "hello.ceu"
-/* SET: . */
-#line 47 "hello.ceu"
-    ((CEU_Worker*)__ceu_org)->details = ((CEU_ResourceManager*)_ceu_go->org)->details_6;/* NODE: SetExp 300 */
+#line 48 "hello.ceu"
+    {/* NODE: SetExp 309 */
 
 #line 48 "hello.ceu"
 /* SET: . */
 #line 48 "hello.ceu"
+    ((CEU_Worker*)__ceu_org)->id = ((CEU_ResourceManager*)_ceu_go->org)->nextid;/* NODE: SetExp 310 */
+
+#line 49 "hello.ceu"
+/* SET: . */
+#line 49 "hello.ceu"
+    ((CEU_Worker*)__ceu_org)->details = ((CEU_ResourceManager*)_ceu_go->org)->details_7;/* NODE: SetExp 311 */
+
+#line 50 "hello.ceu"
+/* SET: . */
+#line 50 "hello.ceu"
     ((CEU_Worker*)__ceu_org)->done_channel = (&((CEU_ResourceManager*)_ceu_go->org)->c);
-#line 46 "hello.ceu"
+#line 48 "hello.ceu"
     }
-#line 46 "hello.ceu"
-/* CLEAR: Block (46) */
-#line 46 "hello.ceu"
+#line 48 "hello.ceu"
+/* CLEAR: Block (48) */
+#line 48 "hello.ceu"
     }
-#line 46 "hello.ceu"
+#line 48 "hello.ceu"
     /* switch to 1st trail */
 /* TODO: only if not joining with outer prio */
 /*_ceu_go->trl = &_ceu_go->org->trls[ 3 ]; */
 }
-static void _ceu_constr_170 (tceu_app* _ceu_app, tceu_org* __ceu_org, tceu_go* _ceu_go) {
-/* NODE: Dcl_constr 170 */
-/* NODE: Block 169 */
+static void _ceu_constr_177 (tceu_app* _ceu_app, tceu_org* __ceu_org, tceu_go* _ceu_go) {
+/* NODE: Dcl_constr 177 */
+/* NODE: Block 176 */
 
-#line 62 "hello.ceu"
-    {/* NODE: Stmts 168 */
+#line 64 "hello.ceu"
+    {/* NODE: Stmts 175 */
 
-#line 62 "hello.ceu"
-    {/* NODE: SetExp 311 */
-
-#line 62 "hello.ceu"
-/* SET: . */
-#line 62 "hello.ceu"
-    ((CEU_Worker*)__ceu_org)->id = ((CEU_ResourceManager*)_ceu_go->org)->nextid;/* NODE: SetExp 312 */
-
-#line 63 "hello.ceu"
-/* SET: . */
-#line 63 "hello.ceu"
-    ((CEU_Worker*)__ceu_org)->details = pop((&((CEU_ResourceManager*)_ceu_go->org)->queue));/* NODE: SetExp 313 */
+#line 64 "hello.ceu"
+    {/* NODE: SetExp 323 */
 
 #line 64 "hello.ceu"
 /* SET: . */
 #line 64 "hello.ceu"
+    ((CEU_Worker*)__ceu_org)->id = ((CEU_ResourceManager*)_ceu_go->org)->nextid;/* NODE: SetExp 324 */
+
+#line 65 "hello.ceu"
+/* SET: . */
+#line 65 "hello.ceu"
+    ((CEU_Worker*)__ceu_org)->details = pop((&((CEU_ResourceManager*)_ceu_go->org)->queue));/* NODE: SetExp 325 */
+
+#line 66 "hello.ceu"
+/* SET: . */
+#line 66 "hello.ceu"
     ((CEU_Worker*)__ceu_org)->done_channel = (&((CEU_ResourceManager*)_ceu_go->org)->c);
-#line 62 "hello.ceu"
+#line 64 "hello.ceu"
     }
-#line 62 "hello.ceu"
-/* CLEAR: Block (62) */
-#line 62 "hello.ceu"
+#line 64 "hello.ceu"
+/* CLEAR: Block (64) */
+#line 64 "hello.ceu"
     }
-#line 62 "hello.ceu"
+#line 64 "hello.ceu"
     /* switch to 1st trail */
 /* TODO: only if not joining with outer prio */
 /*_ceu_go->trl = &_ceu_go->org->trls[ 4 ]; */
@@ -3611,7 +3611,7 @@ fprintf(stderr, "TRK: o.%p / l.%d\n", _ceu_go->org, _ceu_go->lbl);
 #endif
 
     switch (_ceu_go->lbl) {
-        /* NODE: Root 348 */
+        /* NODE: Root 361 */
 /* NODE: Dcl_cls 0 */
 
 #line 10 "hello.ceu"
@@ -3620,16 +3620,16 @@ case Class_Channel:;
     #ifdef CEU_IFCS
 _ceu_go->org->cls = 0;
 #endif
-/* NODE: Block 247 */
+/* NODE: Block 259 */
 
 #line 10 "hello.ceu"
-    {/* NODE: Stmts 246 */
+    {/* NODE: Stmts 258 */
 
 #line 10 "hello.ceu"
-    {/* NODE: Block 50 */
+    {/* NODE: Block 51 */
 
 #line 14 "hello.ceu"
-    {/* NODE: Stmts 49 */
+    {/* NODE: Stmts 50 */
 
 #line 14 "hello.ceu"
     {
@@ -3672,41 +3672,41 @@ case Class_Worker:;
     #ifdef CEU_IFCS
 _ceu_go->org->cls = 1;
 #endif
-/* NODE: Block 266 */
+/* NODE: Block 278 */
 
 #line 16 "hello.ceu"
-    {/* NODE: Stmts 265 */
+    {/* NODE: Stmts 277 */
 
 #line 16 "hello.ceu"
-    {/* NODE: Block 81 */
+    {/* NODE: Block 82 */
 
 #line 21 "hello.ceu"
-    {/* NODE: Stmts 80 */
+    {/* NODE: Stmts 81 */
 
 #line 21 "hello.ceu"
-    {/* NODE: CallStmt 59 */
+    {/* NODE: CallStmt 60 */
 
 #line 21 "hello.ceu"
-    printf("Worker starts a remote task working on %d\n",((CEU_Worker*)_ceu_go->org)->details);/* NODE: Stmts 258 */
+    printf("Worker #%d starts a remote task working on %d\n",((CEU_Worker*)_ceu_go->org)->id,((CEU_Worker*)_ceu_go->org)->details);/* NODE: Stmts 270 */
 
 #line 22 "hello.ceu"
-    {/* NODE: Dcl_var 257 */
+    {/* NODE: Dcl_var 269 */
 
 #line 22 "hello.ceu"
-    }/* NODE: Loop 259 */
+    }/* NODE: Loop 271 */
 
 #line 23 "hello.ceu"
     for (;;) {
-/* NODE: Block 74 */
+/* NODE: Block 75 */
 
 #line 24 "hello.ceu"
-    {/* NODE: Stmts 73 */
+    {/* NODE: Stmts 74 */
 
 #line 24 "hello.ceu"
-    {/* NODE: Stmts 260 */
+    {/* NODE: Stmts 272 */
 
 #line 24 "hello.ceu"
-    {/* NODE: AwaitExt 64 */
+    {/* NODE: AwaitExt 65 */
 
 #line 24 "hello.ceu"
         _ceu_go->trl->evt = CEU_IN_REMOTE_WORKER_DONE;
@@ -3723,24 +3723,24 @@ _ceu_go->org->cls = 1;
 fprintf(stderr, "\tOK!\n");
 #endif
 #endif
-/* NODE: SetExp 262 */
+/* NODE: SetExp 274 */
 
 #line 24 "hello.ceu"
 /* SET: reply_to */
 #line 24 "hello.ceu"
     ((CEU_Worker*)_ceu_go->org)->reply_to = (_ceu_go->evtp.v);
 #line 24 "hello.ceu"
-    }/* NODE: If 264 */
+    }/* NODE: If 276 */
 
 #line 25 "hello.ceu"
     if ((((CEU_Worker*)_ceu_go->org)->reply_to==((CEU_Worker*)_ceu_go->org)->id)) {
-/* NODE: Block 71 */
+/* NODE: Block 72 */
 
 #line 26 "hello.ceu"
-    {/* NODE: Stmts 70 */
+    {/* NODE: Stmts 71 */
 
 #line 26 "hello.ceu"
-    {/* NODE: Break 69 */
+    {/* NODE: Break 70 */
 
 #line 26 "hello.ceu"
     break;
@@ -3750,7 +3750,7 @@ fprintf(stderr, "\tOK!\n");
 /* CLEAR: Block (26) */
 #line 26 "hello.ceu"
     }} else {
-/* NODE: Nothing 263 */
+/* NODE: Nothing 275 */
 }
 
 #line 24 "hello.ceu"
@@ -3773,10 +3773,10 @@ fprintf(stderr, "\tOK!\n");
     /* switch to 1st trail */
 /* TODO: only if not joining with outer prio */
 _ceu_go->trl = &_ceu_go->org->trls[ 0 ];
-/* NODE: CallStmt 76 */
+/* NODE: CallStmt 77 */
 
 #line 29 "hello.ceu"
-    printf("Worker done with task, looking for new task\n");/* NODE: EmitInt 79 */
+    printf("Worker done with task, looking for new task\n");/* NODE: EmitInt 80 */
 
 #line 30 "hello.ceu"
     _ceu_go->stk[_ceu_go->stki].evtp = _ceu_go->evtp;
@@ -3845,37 +3845,37 @@ case Class_ResourceManager:;
     #ifdef CEU_IFCS
 _ceu_go->org->cls = 2;
 #endif
-/* NODE: Block 316 */
+/* NODE: Block 329 */
 
 #line 33 "hello.ceu"
-    {/* NODE: Stmts 315 */
+    {/* NODE: Stmts 328 */
 
 #line 33 "hello.ceu"
-    {/* NODE: Block 192 */
+    {/* NODE: Block 204 */
 
 #line 36 "hello.ceu"
     {
 #line 36 "hello.ceu"
     /* TODO: CEU_OS */
-ceu_out_org_trail(_ceu_go->org, 1, (tceu_org_lnk*) &((CEU_ResourceManager*)_ceu_go->org)->__lnks_192_1);
+ceu_out_org_trail(_ceu_go->org, 1, (tceu_org_lnk*) &((CEU_ResourceManager*)_ceu_go->org)->__lnks_204_1);
 
 #line 36 "hello.ceu"
     ceu_pool_init(&((CEU_ResourceManager*)_ceu_go->org)->resources,6,sizeof(CEU_Worker),(byte**)&((CEU_ResourceManager*)_ceu_go->org)->resources_queue, (byte*)&((CEU_ResourceManager*)_ceu_go->org)->resources_mem);
 
 #line 36 "hello.ceu"
     /* TODO: CEU_OS */
-ceu_out_org_trail(_ceu_go->org, 2, (tceu_org_lnk*) &((CEU_ResourceManager*)_ceu_go->org)->__lnks_192_2);
+ceu_out_org_trail(_ceu_go->org, 2, (tceu_org_lnk*) &((CEU_ResourceManager*)_ceu_go->org)->__lnks_204_2);
 
 #line 36 "hello.ceu"
     /* switch to blk trail */
 _ceu_go->trl = &_ceu_go->org->trls[ 3 ];
-/* NODE: Stmts 191 */
+/* NODE: Stmts 203 */
 
 #line 36 "hello.ceu"
-    {/* NODE: Stmts 273 */
+    {/* NODE: Stmts 285 */
 
 #line 36 "hello.ceu"
-    {/* NODE: Dcl_var 272 */
+    {/* NODE: Dcl_var 284 */
 
 #line 36 "hello.ceu"
 /* start org: c */
@@ -3905,37 +3905,48 @@ _ceu_go->org, 1);
 case ResourceManager_Start_cnt_6:;
 
 #line 36 "hello.ceu"
-    }/* NODE: Stmts 275 */
+    }/* NODE: Stmts 287 */
 
 #line 37 "hello.ceu"
-    {/* NODE: Dcl_pool 274 */
+    {/* NODE: Dcl_pool 286 */
 
 #line 37 "hello.ceu"
-    }/* NODE: Stmts 279 */
+    }/* NODE: Stmts 291 */
 
 #line 38 "hello.ceu"
-    {/* NODE: Dcl_var 276 */
-/* NODE: SetExp 280 */
+    {/* NODE: Dcl_var 288 */
+/* NODE: SetExp 292 */
 
 #line 38 "hello.ceu"
+/* SET: count */
+#line 38 "hello.ceu"
+    ((CEU_ResourceManager*)_ceu_go->org)->count = 0;
+#line 38 "hello.ceu"
+    }/* NODE: Stmts 296 */
+
+#line 39 "hello.ceu"
+    {/* NODE: Dcl_var 293 */
+/* NODE: SetExp 297 */
+
+#line 39 "hello.ceu"
 /* SET: nextid */
-#line 38 "hello.ceu"
-    ((CEU_ResourceManager*)_ceu_go->org)->nextid = 0;
-#line 38 "hello.ceu"
-    }/* NODE: Stmts 282 */
-
 #line 39 "hello.ceu"
-    {/* NODE: Dcl_var 281 */
-
+    ((CEU_ResourceManager*)_ceu_go->org)->nextid = 1;
 #line 39 "hello.ceu"
-    }/* NODE: CallStmt 96 */
+    }/* NODE: Stmts 299 */
 
 #line 40 "hello.ceu"
-    init((&((CEU_ResourceManager*)_ceu_go->org)->queue));/* NODE: ParEver 190 */
+    {/* NODE: Dcl_var 298 */
 
-#line 42 "hello.ceu"
+#line 40 "hello.ceu"
+    }/* NODE: CallStmt 100 */
+
+#line 41 "hello.ceu"
+    init((&((CEU_ResourceManager*)_ceu_go->org)->queue));/* NODE: ParEver 202 */
+
+#line 43 "hello.ceu"
 /* ParEver: spawn subs */
-#line 42 "hello.ceu"
+#line 43 "hello.ceu"
     /* TODO: function? */
 {
     tceu_trl* trl = &_ceu_go->org->trls[ 4 ];
@@ -3943,284 +3954,94 @@ case ResourceManager_Start_cnt_6:;
     trl->lbl = ResourceManager_ParEver_sub_2_7;
     trl->stk = _ceu_go->stki;
 }
-/* NODE: Block 140 */
-
-#line 43 "hello.ceu"
-    {/* NODE: Stmts 139 */
-
-#line 43 "hello.ceu"
-    {/* NODE: Stmts 284 */
-
-#line 43 "hello.ceu"
-    {/* NODE: Dcl_var 283 */
-
-#line 43 "hello.ceu"
-    }/* NODE: Loop 288 */
+/* NODE: Block 147 */
 
 #line 44 "hello.ceu"
+    {/* NODE: Stmts 146 */
+
+#line 44 "hello.ceu"
+    {/* NODE: Stmts 301 */
+
+#line 44 "hello.ceu"
+    {/* NODE: Dcl_var 300 */
+
+#line 44 "hello.ceu"
+    }/* NODE: Loop 305 */
+
+#line 45 "hello.ceu"
     for (;;) {
-/* NODE: Stmts 287 */
+/* NODE: Stmts 304 */
 
-#line 44 "hello.ceu"
-    {/* NODE: Stmts 289 */
+#line 45 "hello.ceu"
+    {/* NODE: Stmts 306 */
 
-#line 44 "hello.ceu"
-    {/* NODE: AwaitInt 285 */
+#line 45 "hello.ceu"
+    {/* NODE: AwaitInt 302 */
 
-#line 44 "hello.ceu"
-    _CEU_NO_285_:
+#line 45 "hello.ceu"
+    _CEU_NO_302_:
     _ceu_go->trl->evt = 2;
     _ceu_go->trl->lbl = ResourceManager_Awake_go_task_9;
 
-#line 44 "hello.ceu"
+#line 45 "hello.ceu"
     	return RET_HALT;
-#line 44 "hello.ceu"
+#line 45 "hello.ceu"
     case ResourceManager_Awake_go_task_9:;
 
-#line 44 "hello.ceu"
+#line 45 "hello.ceu"
     #ifdef CEU_ORGS
     if ((tceu_org*)((CEU_ResourceManager*)_ceu_go->org) != _ceu_go->evto) {
-        _ceu_go->trl->seqno = _ceu_app->seqno-1;   /* awake again */
-        goto _CEU_NO_285_;
-    }
-#endif
-
-#line 44 "hello.ceu"
-    #ifdef CEU_DEBUG_TRAILS
-#ifndef CEU_OS
-fprintf(stderr, "\tOK!\n");
-#endif
-#endif
-/* NODE: SetExp 291 */
-
-#line 44 "hello.ceu"
-/* SET: details */
-#line 44 "hello.ceu"
-    ((CEU_ResourceManager*)_ceu_go->org)->details_6 = (_ceu_go->evtp.v);
-#line 44 "hello.ceu"
-    }/* NODE: Block 137 */
-
-#line 45 "hello.ceu"
-    {/* NODE: Stmts 136 */
-
-#line 45 "hello.ceu"
-    {/* NODE: Stmts 295 */
-
-#line 45 "hello.ceu"
-    {/* NODE: Dcl_var 292 */
-/* NODE: Spawn 121 */
-
-#line 45 "hello.ceu"
-    {
-    tceu_org* __ceu_new;
-
-#line 45 "hello.ceu"
-        __ceu_new = (tceu_org*) ceu_pool_alloc((tceu_pool*)(&((CEU_ResourceManager*)_ceu_go->org)->resources));
-/* NODE: SetExp 297 */
-
-#line 45 "hello.ceu"
-/* SET: foo */
-#line 45 "hello.ceu"
-    ((CEU_ResourceManager*)_ceu_go->org)->foo_7 = ((CEU_Worker*)__ceu_new);
-#line 45 "hello.ceu"
-        if (__ceu_new != NULL) {
-
-#line 45 "hello.ceu"
-    __ceu_new->pool = (&((CEU_ResourceManager*)_ceu_go->org)->resources);
-#line 45 "hello.ceu"
-/* start org: dyn */
-#line 45 "hello.ceu"
-    /* each org has its own trail on enclosing block */
-{
-    int i;
-    for (i=0; i<1; i++) {
-        /* resets org memory and starts org.trail[0]=Class_XXX */
-        ceu_out_org(_ceu_app, ((tceu_org*) __ceu_new),2,Class_Worker,
-                _ceu_go->stki+1,    /* run now */
-#ifdef CEU_NEWS
-                1,
-#endif
-_ceu_go->org, 2);
-/* TODO: currently idx is always "1" for all interfaces access because pools 
- * are all together there. When we have separate trls for pools, we'll have to 
- * indirectly access the offset in the interface. */
-
-#line 45 "hello.ceu"
-            _ceu_constr_120(_ceu_app, ((tceu_org*) __ceu_new), _ceu_go);
-
-#line 45 "hello.ceu"
-        }
-}
-
-#line 45 "hello.ceu"
-    /* TODO: CEU_OS */
-    return ceu_out_org_spawn(_ceu_go, ResourceManager_Spawn_cont_10,((tceu_org*) __ceu_new),Class_Worker);
-case ResourceManager_Spawn_cont_10:;
-
-#line 45 "hello.ceu"
-        }
-}
-
-#line 45 "hello.ceu"
-    }/* NODE: If 135 */
-
-#line 50 "hello.ceu"
-    if (((CEU_ResourceManager*)_ceu_go->org)->foo_7) {
-/* NODE: Block 130 */
-
-#line 51 "hello.ceu"
-    {/* NODE: Stmts 129 */
-
-#line 51 "hello.ceu"
-    {/* NODE: SetExp 301 */
-
-#line 51 "hello.ceu"
-/* SET: nextid */
-#line 51 "hello.ceu"
-    ((CEU_ResourceManager*)_ceu_go->org)->nextid = (((CEU_ResourceManager*)_ceu_go->org)->nextid+1);
-#line 51 "hello.ceu"
-    }
-#line 51 "hello.ceu"
-/* CLEAR: Block (51) */
-#line 51 "hello.ceu"
-    }
-#line 51 "hello.ceu"
-    /* switch to 1st trail */
-/* TODO: only if not joining with outer prio */
-/*_ceu_go->trl = &_ceu_go->org->trls[ 3 ]; */
-} else {
-/* NODE: Block 134 */
-
-#line 53 "hello.ceu"
-    {/* NODE: Stmts 133 */
-
-#line 53 "hello.ceu"
-    {/* NODE: CallStmt 131 */
-
-#line 53 "hello.ceu"
-    printf("All workers are unavailable, so ResourceManager stores the task in a queue\n");/* NODE: CallStmt 132 */
-
-#line 54 "hello.ceu"
-    push((&((CEU_ResourceManager*)_ceu_go->org)->queue),((CEU_ResourceManager*)_ceu_go->org)->details_6);
-#line 53 "hello.ceu"
-    }
-#line 53 "hello.ceu"
-/* CLEAR: Block (53) */
-#line 53 "hello.ceu"
-    }
-#line 53 "hello.ceu"
-    /* switch to 1st trail */
-/* TODO: only if not joining with outer prio */
-/*_ceu_go->trl = &_ceu_go->org->trls[ 3 ]; */
-}
-
-#line 45 "hello.ceu"
-    }
-#line 45 "hello.ceu"
-/* CLEAR: Block (45) */
-#line 45 "hello.ceu"
-    }
-#line 45 "hello.ceu"
-    /* switch to 1st trail */
-/* TODO: only if not joining with outer prio */
-/*_ceu_go->trl = &_ceu_go->org->trls[ 3 ]; */
-
-#line 44 "hello.ceu"
-    }
-#line 44 "hello.ceu"
-    }
-
-#line 43 "hello.ceu"
-    }
-#line 43 "hello.ceu"
-/* CLEAR: Block (43) */
-#line 43 "hello.ceu"
-    }
-#line 42 "hello.ceu"
-case ResourceManager_ParEver_sub_2_7:;/* NODE: Block 189 */
-
-#line 58 "hello.ceu"
-    {/* NODE: Stmts 188 */
-
-#line 58 "hello.ceu"
-    {/* NODE: Loop 304 */
-
-#line 58 "hello.ceu"
-    for (;;) {
-/* NODE: Stmts 303 */
-
-#line 58 "hello.ceu"
-    {/* NODE: AwaitInt 302 */
-
-#line 58 "hello.ceu"
-    _CEU_NO_302_:
-    _ceu_go->trl->evt = 2;
-    _ceu_go->trl->lbl = ResourceManager_Awake_done_11;
-
-#line 58 "hello.ceu"
-    	return RET_HALT;
-#line 58 "hello.ceu"
-    case ResourceManager_Awake_done_11:;
-
-#line 58 "hello.ceu"
-    #ifdef CEU_ORGS
-    if ((tceu_org*)(&((CEU_ResourceManager*)_ceu_go->org)->c) != _ceu_go->evto) {
         _ceu_go->trl->seqno = _ceu_app->seqno-1;   /* awake again */
         goto _CEU_NO_302_;
     }
 #endif
 
-#line 58 "hello.ceu"
+#line 45 "hello.ceu"
     #ifdef CEU_DEBUG_TRAILS
 #ifndef CEU_OS
 fprintf(stderr, "\tOK!\n");
 #endif
 #endif
-/* NODE: Block 186 */
+/* NODE: SetExp 308 */
 
-#line 59 "hello.ceu"
-    {/* NODE: Stmts 185 */
+#line 45 "hello.ceu"
+/* SET: details */
+#line 45 "hello.ceu"
+    ((CEU_ResourceManager*)_ceu_go->org)->details_7 = (_ceu_go->evtp.v);
+#line 45 "hello.ceu"
+    }/* NODE: Block 144 */
 
-#line 59 "hello.ceu"
-    {/* NODE: If 184 */
+#line 46 "hello.ceu"
+    {/* NODE: Stmts 143 */
 
-#line 59 "hello.ceu"
-    if ((!empty((&((CEU_ResourceManager*)_ceu_go->org)->queue)))) {
-/* NODE: Block 180 */
+#line 46 "hello.ceu"
+    {/* NODE: If 142 */
 
-#line 60 "hello.ceu"
-    {/* NODE: Stmts 179 */
+#line 46 "hello.ceu"
+    if ((((CEU_ResourceManager*)_ceu_go->org)->count<5)) {
+/* NODE: Block 137 */
 
-#line 60 "hello.ceu"
-    {/* NODE: CallStmt 149 */
+#line 47 "hello.ceu"
+    {/* NODE: Stmts 136 */
 
-#line 60 "hello.ceu"
-    printf("ResourceManager sees something is done and queue is nonempty, so starting work on something\n");/* NODE: Stmts 308 */
+#line 47 "hello.ceu"
+    {/* NODE: Spawn 125 */
 
-#line 61 "hello.ceu"
-    {/* NODE: Dcl_var 305 */
-/* NODE: Spawn 171 */
-
-#line 61 "hello.ceu"
+#line 47 "hello.ceu"
     {
     tceu_org* __ceu_new;
 
-#line 61 "hello.ceu"
+#line 47 "hello.ceu"
         __ceu_new = (tceu_org*) ceu_pool_alloc((tceu_pool*)(&((CEU_ResourceManager*)_ceu_go->org)->resources));
-/* NODE: SetExp 310 */
 
-#line 61 "hello.ceu"
-/* SET: foo */
-#line 61 "hello.ceu"
-    ((CEU_ResourceManager*)_ceu_go->org)->foo_8 = ((CEU_Worker*)__ceu_new);
-#line 61 "hello.ceu"
+#line 47 "hello.ceu"
         if (__ceu_new != NULL) {
 
-#line 61 "hello.ceu"
+#line 47 "hello.ceu"
     __ceu_new->pool = (&((CEU_ResourceManager*)_ceu_go->org)->resources);
-#line 61 "hello.ceu"
+#line 47 "hello.ceu"
 /* start org: dyn */
-#line 61 "hello.ceu"
+#line 47 "hello.ceu"
     /* each org has its own trail on enclosing block */
 {
     int i;
@@ -4236,86 +4057,275 @@ _ceu_go->org, 2);
  * are all together there. When we have separate trls for pools, we'll have to 
  * indirectly access the offset in the interface. */
 
-#line 61 "hello.ceu"
-            _ceu_constr_170(_ceu_app, ((tceu_org*) __ceu_new), _ceu_go);
+#line 47 "hello.ceu"
+            _ceu_constr_124(_ceu_app, ((tceu_org*) __ceu_new), _ceu_go);
 
-#line 61 "hello.ceu"
+#line 47 "hello.ceu"
         }
 }
 
+#line 47 "hello.ceu"
+    /* TODO: CEU_OS */
+    return ceu_out_org_spawn(_ceu_go, ResourceManager_Spawn_cont_10,((tceu_org*) __ceu_new),Class_Worker);
+case ResourceManager_Spawn_cont_10:;
+
+#line 47 "hello.ceu"
+        }
+}
+/* NODE: SetExp 312 */
+
+#line 52 "hello.ceu"
+/* SET: nextid */
+#line 52 "hello.ceu"
+    ((CEU_ResourceManager*)_ceu_go->org)->nextid = (((CEU_ResourceManager*)_ceu_go->org)->nextid+1);/* NODE: SetExp 313 */
+
+#line 53 "hello.ceu"
+/* SET: count */
+#line 53 "hello.ceu"
+    ((CEU_ResourceManager*)_ceu_go->org)->count = (((CEU_ResourceManager*)_ceu_go->org)->count+1);
+#line 47 "hello.ceu"
+    }
+#line 47 "hello.ceu"
+/* CLEAR: Block (47) */
+#line 47 "hello.ceu"
+    }
+#line 47 "hello.ceu"
+    /* switch to 1st trail */
+/* TODO: only if not joining with outer prio */
+/*_ceu_go->trl = &_ceu_go->org->trls[ 3 ]; */
+} else {
+/* NODE: Block 141 */
+
+#line 55 "hello.ceu"
+    {/* NODE: Stmts 140 */
+
+#line 55 "hello.ceu"
+    {/* NODE: CallStmt 138 */
+
+#line 55 "hello.ceu"
+    printf("All workers are unavailable, so ResourceManager stores the task in a queue\n");/* NODE: CallStmt 139 */
+
+#line 56 "hello.ceu"
+    push((&((CEU_ResourceManager*)_ceu_go->org)->queue),((CEU_ResourceManager*)_ceu_go->org)->details_7);
+#line 55 "hello.ceu"
+    }
+#line 55 "hello.ceu"
+/* CLEAR: Block (55) */
+#line 55 "hello.ceu"
+    }
+#line 55 "hello.ceu"
+    /* switch to 1st trail */
+/* TODO: only if not joining with outer prio */
+/*_ceu_go->trl = &_ceu_go->org->trls[ 3 ]; */
+}
+
+#line 46 "hello.ceu"
+    }
+#line 46 "hello.ceu"
+/* CLEAR: Block (46) */
+#line 46 "hello.ceu"
+    }
+#line 46 "hello.ceu"
+    /* switch to 1st trail */
+/* TODO: only if not joining with outer prio */
+/*_ceu_go->trl = &_ceu_go->org->trls[ 3 ]; */
+
+#line 45 "hello.ceu"
+    }
+#line 45 "hello.ceu"
+    }
+
+#line 44 "hello.ceu"
+    }
+#line 44 "hello.ceu"
+/* CLEAR: Block (44) */
+#line 44 "hello.ceu"
+    }
+#line 43 "hello.ceu"
+case ResourceManager_ParEver_sub_2_7:;/* NODE: Block 201 */
+
+#line 60 "hello.ceu"
+    {/* NODE: Stmts 200 */
+
+#line 60 "hello.ceu"
+    {/* NODE: Loop 316 */
+
+#line 60 "hello.ceu"
+    for (;;) {
+/* NODE: Stmts 315 */
+
+#line 60 "hello.ceu"
+    {/* NODE: AwaitInt 314 */
+
+#line 60 "hello.ceu"
+    _CEU_NO_314_:
+    _ceu_go->trl->evt = 2;
+    _ceu_go->trl->lbl = ResourceManager_Awake_done_11;
+
+#line 60 "hello.ceu"
+    	return RET_HALT;
+#line 60 "hello.ceu"
+    case ResourceManager_Awake_done_11:;
+
+#line 60 "hello.ceu"
+    #ifdef CEU_ORGS
+    if ((tceu_org*)(&((CEU_ResourceManager*)_ceu_go->org)->c) != _ceu_go->evto) {
+        _ceu_go->trl->seqno = _ceu_app->seqno-1;   /* awake again */
+        goto _CEU_NO_314_;
+    }
+#endif
+
+#line 60 "hello.ceu"
+    #ifdef CEU_DEBUG_TRAILS
+#ifndef CEU_OS
+fprintf(stderr, "\tOK!\n");
+#endif
+#endif
+/* NODE: Block 198 */
+
 #line 61 "hello.ceu"
+    {/* NODE: Stmts 197 */
+
+#line 61 "hello.ceu"
+    {/* NODE: If 196 */
+
+#line 61 "hello.ceu"
+    if ((!empty((&((CEU_ResourceManager*)_ceu_go->org)->queue)))) {
+/* NODE: Block 187 */
+
+#line 62 "hello.ceu"
+    {/* NODE: Stmts 186 */
+
+#line 62 "hello.ceu"
+    {/* NODE: CallStmt 156 */
+
+#line 62 "hello.ceu"
+    printf("ResourceManager sees something is done and queue is nonempty, so starting work on something\n");/* NODE: Stmts 320 */
+
+#line 63 "hello.ceu"
+    {/* NODE: Dcl_var 317 */
+/* NODE: Spawn 178 */
+
+#line 63 "hello.ceu"
+    {
+    tceu_org* __ceu_new;
+
+#line 63 "hello.ceu"
+        __ceu_new = (tceu_org*) ceu_pool_alloc((tceu_pool*)(&((CEU_ResourceManager*)_ceu_go->org)->resources));
+/* NODE: SetExp 322 */
+
+#line 63 "hello.ceu"
+/* SET: foo */
+#line 63 "hello.ceu"
+    ((CEU_ResourceManager*)_ceu_go->org)->foo_8 = ((CEU_Worker*)__ceu_new);
+#line 63 "hello.ceu"
+        if (__ceu_new != NULL) {
+
+#line 63 "hello.ceu"
+    __ceu_new->pool = (&((CEU_ResourceManager*)_ceu_go->org)->resources);
+#line 63 "hello.ceu"
+/* start org: dyn */
+#line 63 "hello.ceu"
+    /* each org has its own trail on enclosing block */
+{
+    int i;
+    for (i=0; i<1; i++) {
+        /* resets org memory and starts org.trail[0]=Class_XXX */
+        ceu_out_org(_ceu_app, ((tceu_org*) __ceu_new),2,Class_Worker,
+                _ceu_go->stki+1,    /* run now */
+#ifdef CEU_NEWS
+                1,
+#endif
+_ceu_go->org, 2);
+/* TODO: currently idx is always "1" for all interfaces access because pools 
+ * are all together there. When we have separate trls for pools, we'll have to 
+ * indirectly access the offset in the interface. */
+
+#line 63 "hello.ceu"
+            _ceu_constr_177(_ceu_app, ((tceu_org*) __ceu_new), _ceu_go);
+
+#line 63 "hello.ceu"
+        }
+}
+
+#line 63 "hello.ceu"
     /* TODO: CEU_OS */
     return ceu_out_org_spawn(_ceu_go, ResourceManager_Spawn_cont_12,((tceu_org*) __ceu_new),Class_Worker);
 case ResourceManager_Spawn_cont_12:;
 
-#line 61 "hello.ceu"
+#line 63 "hello.ceu"
         }
 }
 
-#line 61 "hello.ceu"
-    }/* NODE: CallStmt 173 */
+#line 63 "hello.ceu"
+    }/* NODE: CallStmt 180 */
 
-#line 66 "hello.ceu"
-    assert(((CEU_ResourceManager*)_ceu_go->org)->foo_8);/* NODE: SetExp 314 */
+#line 68 "hello.ceu"
+    assert(((CEU_ResourceManager*)_ceu_go->org)->foo_8);/* NODE: SetExp 326 */
 
-#line 67 "hello.ceu"
+#line 69 "hello.ceu"
 /* SET: nextid */
-#line 67 "hello.ceu"
+#line 69 "hello.ceu"
     ((CEU_ResourceManager*)_ceu_go->org)->nextid = (((CEU_ResourceManager*)_ceu_go->org)->nextid+1);
+#line 62 "hello.ceu"
+    }
+#line 62 "hello.ceu"
+/* CLEAR: Block (62) */
+#line 62 "hello.ceu"
+    }
+#line 62 "hello.ceu"
+    /* switch to 1st trail */
+/* TODO: only if not joining with outer prio */
+/*_ceu_go->trl = &_ceu_go->org->trls[ 4 ]; */
+} else {
+/* NODE: Block 195 */
+
+#line 71 "hello.ceu"
+    {/* NODE: Stmts 194 */
+
+#line 71 "hello.ceu"
+    {/* NODE: CallStmt 188 */
+
+#line 71 "hello.ceu"
+    printf("ResourceManager sees something is done and queue is empty, so something is now idle\n");/* NODE: SetExp 327 */
+
+#line 72 "hello.ceu"
+/* SET: count */
+#line 72 "hello.ceu"
+    ((CEU_ResourceManager*)_ceu_go->org)->count = (((CEU_ResourceManager*)_ceu_go->org)->count-1);
+#line 71 "hello.ceu"
+    }
+#line 71 "hello.ceu"
+/* CLEAR: Block (71) */
+#line 71 "hello.ceu"
+    }
+#line 71 "hello.ceu"
+    /* switch to 1st trail */
+/* TODO: only if not joining with outer prio */
+/*_ceu_go->trl = &_ceu_go->org->trls[ 4 ]; */
+}
+
+#line 61 "hello.ceu"
+    }
+#line 61 "hello.ceu"
+/* CLEAR: Block (61) */
+#line 61 "hello.ceu"
+    }
+#line 61 "hello.ceu"
+    /* switch to 1st trail */
+/* TODO: only if not joining with outer prio */
+/*_ceu_go->trl = &_ceu_go->org->trls[ 4 ]; */
+
+#line 60 "hello.ceu"
+    }
+#line 60 "hello.ceu"
+    }
+
 #line 60 "hello.ceu"
     }
 #line 60 "hello.ceu"
 /* CLEAR: Block (60) */
 #line 60 "hello.ceu"
-    }
-#line 60 "hello.ceu"
-    /* switch to 1st trail */
-/* TODO: only if not joining with outer prio */
-/*_ceu_go->trl = &_ceu_go->org->trls[ 4 ]; */
-} else {
-/* NODE: Block 183 */
-
-#line 69 "hello.ceu"
-    {/* NODE: Stmts 182 */
-
-#line 69 "hello.ceu"
-    {/* NODE: CallStmt 181 */
-
-#line 69 "hello.ceu"
-    printf("ResourceManager sees something is done and queue is empty, so something is now idle\n");
-#line 69 "hello.ceu"
-    }
-#line 69 "hello.ceu"
-/* CLEAR: Block (69) */
-#line 69 "hello.ceu"
-    }
-#line 69 "hello.ceu"
-    /* switch to 1st trail */
-/* TODO: only if not joining with outer prio */
-/*_ceu_go->trl = &_ceu_go->org->trls[ 4 ]; */
-}
-
-#line 59 "hello.ceu"
-    }
-#line 59 "hello.ceu"
-/* CLEAR: Block (59) */
-#line 59 "hello.ceu"
-    }
-#line 59 "hello.ceu"
-    /* switch to 1st trail */
-/* TODO: only if not joining with outer prio */
-/*_ceu_go->trl = &_ceu_go->org->trls[ 4 ]; */
-
-#line 58 "hello.ceu"
-    }
-#line 58 "hello.ceu"
-    }
-
-#line 58 "hello.ceu"
-    }
-#line 58 "hello.ceu"
-/* CLEAR: Block (58) */
-#line 58 "hello.ceu"
     }
 #line 36 "hello.ceu"
     }
@@ -4336,101 +4346,101 @@ case Class_Main:;
     #ifdef CEU_IFCS
 _ceu_go->org->cls = 3;
 #endif
-/* NODE: Block 333 */
+/* NODE: Block 346 */
 
 #line 1 "_ceu_cpp_hello.ceu.in"
-    {/* NODE: Stmts 332 */
+    {/* NODE: Stmts 345 */
 
 #line 1 "_ceu_cpp_hello.ceu.in"
-    {/* NODE: Nothing 223 */
-/* NODE: Block 217 */
+    {/* NODE: Nothing 235 */
+/* NODE: Block 229 */
 
 #line 1 "_ceu_cpp_hello.ceu.in"
     {
 #line 1 "_ceu_cpp_hello.ceu.in"
     int __ceu__ret_0
 #line 1 "_ceu_cpp_hello.ceu.in"
-    ;/* NODE: Stmts 216 */
+    ;/* NODE: Stmts 228 */
 
 #line 1 "_ceu_cpp_hello.ceu.in"
-    {/* NODE: Dcl_var 213 */
-/* NODE: SetBlock 215 */
-/* NODE: Block 211 */
+    {/* NODE: Dcl_var 225 */
+/* NODE: SetBlock 227 */
+/* NODE: Block 223 */
 
 #line 1 "_ceu_cpp_hello.ceu.in"
     {
 #line 1 "_ceu_cpp_hello.ceu.in"
     /* TODO: CEU_OS */
-ceu_out_org_trail(_ceu_go->org, 1, (tceu_org_lnk*) &((CEU_Main*)_ceu_go->org)->__lnks_211_1);
+ceu_out_org_trail(_ceu_go->org, 1, (tceu_org_lnk*) &((CEU_Main*)_ceu_go->org)->__lnks_223_1);
 
 #line 1 "_ceu_cpp_hello.ceu.in"
     /* switch to blk trail */
 _ceu_go->trl = &_ceu_go->org->trls[ 2 ];
-/* NODE: Stmts 210 */
+/* NODE: Stmts 222 */
 
 #line 1 "_ceu_cpp_hello.ceu.in"
-    {/* NODE: Stmts 207 */
+    {/* NODE: Stmts 219 */
 
 #line 1 "hello.ceu"
-    {/* NODE: Stmts 228 */
+    {/* NODE: Stmts 240 */
 
 #line 1 "hello.ceu"
-    {/* NODE: Nothing 336 */
+    {/* NODE: Nothing 349 */
 
 #line 1 "hello.ceu"
-    }/* NODE: Stmts 230 */
-
-#line 2 "hello.ceu"
-    {/* NODE: Nothing 337 */
-
-#line 2 "hello.ceu"
-    }/* NODE: Stmts 232 */
-
-#line 3 "hello.ceu"
-    {/* NODE: Nothing 338 */
-
-#line 3 "hello.ceu"
-    }/* NODE: Stmts 234 */
-
-#line 4 "hello.ceu"
-    {/* NODE: Nothing 339 */
-
-#line 4 "hello.ceu"
-    }/* NODE: Stmts 236 */
-
-#line 5 "hello.ceu"
-    {/* NODE: Nothing 340 */
-
-#line 5 "hello.ceu"
-    }/* NODE: Stmts 238 */
-
-#line 6 "hello.ceu"
-    {/* NODE: Nothing 341 */
-
-#line 6 "hello.ceu"
-    }/* NODE: Stmts 240 */
-
-#line 7 "hello.ceu"
-    {/* NODE: Nothing 342 */
-
-#line 7 "hello.ceu"
     }/* NODE: Stmts 242 */
 
-#line 8 "hello.ceu"
-    {/* NODE: Nothing 343 */
+#line 2 "hello.ceu"
+    {/* NODE: Nothing 350 */
+
+#line 2 "hello.ceu"
+    }/* NODE: Stmts 244 */
+
+#line 3 "hello.ceu"
+    {/* NODE: Nothing 351 */
+
+#line 3 "hello.ceu"
+    }/* NODE: Stmts 246 */
+
+#line 4 "hello.ceu"
+    {/* NODE: Nothing 352 */
+
+#line 4 "hello.ceu"
+    }/* NODE: Stmts 248 */
+
+#line 5 "hello.ceu"
+    {/* NODE: Nothing 353 */
+
+#line 5 "hello.ceu"
+    }/* NODE: Stmts 250 */
+
+#line 6 "hello.ceu"
+    {/* NODE: Nothing 354 */
+
+#line 6 "hello.ceu"
+    }/* NODE: Stmts 252 */
+
+#line 7 "hello.ceu"
+    {/* NODE: Nothing 355 */
+
+#line 7 "hello.ceu"
+    }/* NODE: Stmts 254 */
 
 #line 8 "hello.ceu"
-    }/* NODE: Nothing 344 */
-/* NODE: Nothing 345 */
-/* NODE: Nothing 346 */
-/* NODE: Stmts 320 */
+    {/* NODE: Nothing 356 */
 
-#line 75 "hello.ceu"
-    {/* NODE: Dcl_var 319 */
+#line 8 "hello.ceu"
+    }/* NODE: Nothing 357 */
+/* NODE: Nothing 358 */
+/* NODE: Nothing 359 */
+/* NODE: Stmts 333 */
 
-#line 75 "hello.ceu"
+#line 78 "hello.ceu"
+    {/* NODE: Dcl_var 332 */
+
+#line 78 "hello.ceu"
 /* start org: r */
-#line 75 "hello.ceu"
+#line 78 "hello.ceu"
     /* each org has its own trail on enclosing block */
 {
     int i;
@@ -4446,69 +4456,69 @@ _ceu_go->org, 1);
  * are all together there. When we have separate trls for pools, we'll have to 
  * indirectly access the offset in the interface. */
 
-#line 75 "hello.ceu"
+#line 78 "hello.ceu"
         }
 }
 
-#line 75 "hello.ceu"
+#line 78 "hello.ceu"
     /* TODO: CEU_OS */
     return ceu_out_org_spawn(_ceu_go, Main_Start_cnt_17,((tceu_org*) (&((CEU_Main*)_ceu_go->org)->r)),Class_ResourceManager);
 case Main_Start_cnt_17:;
 
-#line 75 "hello.ceu"
-    }/* NODE: Stmts 322 */
-
-#line 77 "hello.ceu"
-    {/* NODE: Dcl_var 321 */
-
-#line 77 "hello.ceu"
-    }/* NODE: Loop 326 */
-
 #line 78 "hello.ceu"
+    }/* NODE: Stmts 335 */
+
+#line 80 "hello.ceu"
+    {/* NODE: Dcl_var 334 */
+
+#line 80 "hello.ceu"
+    }/* NODE: Loop 339 */
+
+#line 81 "hello.ceu"
     for (;;) {
-/* NODE: Stmts 325 */
+/* NODE: Stmts 338 */
 
-#line 78 "hello.ceu"
-    {/* NODE: Stmts 327 */
+#line 81 "hello.ceu"
+    {/* NODE: Stmts 340 */
 
-#line 78 "hello.ceu"
-    {/* NODE: AwaitExt 323 */
+#line 81 "hello.ceu"
+    {/* NODE: AwaitExt 336 */
 
-#line 78 "hello.ceu"
+#line 81 "hello.ceu"
         _ceu_go->trl->evt = CEU_IN_USER_TASK;
     _ceu_go->trl->lbl = Main_Awake_USER_TASK_18;
 
-#line 78 "hello.ceu"
+#line 81 "hello.ceu"
     	return RET_HALT;
-#line 78 "hello.ceu"
+#line 81 "hello.ceu"
     case Main_Awake_USER_TASK_18:;
 
-#line 78 "hello.ceu"
+#line 81 "hello.ceu"
     #ifdef CEU_DEBUG_TRAILS
 #ifndef CEU_OS
 fprintf(stderr, "\tOK!\n");
 #endif
 #endif
-/* NODE: SetExp 329 */
+/* NODE: SetExp 342 */
 
-#line 78 "hello.ceu"
+#line 81 "hello.ceu"
 /* SET: details */
-#line 78 "hello.ceu"
+#line 81 "hello.ceu"
     ((CEU_Main*)_ceu_go->org)->details = (_ceu_go->evtp.v);
-#line 78 "hello.ceu"
-    }/* NODE: Block 205 */
+#line 81 "hello.ceu"
+    }/* NODE: Block 217 */
 
-#line 79 "hello.ceu"
-    {/* NODE: Stmts 204 */
+#line 82 "hello.ceu"
+    {/* NODE: Stmts 216 */
 
-#line 79 "hello.ceu"
-    {/* NODE: Stmts 331 */
+#line 82 "hello.ceu"
+    {/* NODE: Stmts 344 */
 
-#line 79 "hello.ceu"
-    {/* NODE: EmitNoTmp 330 */
-/* NODE: EmitInt 203 */
+#line 82 "hello.ceu"
+    {/* NODE: EmitNoTmp 343 */
+/* NODE: EmitInt 215 */
 
-#line 79 "hello.ceu"
+#line 82 "hello.ceu"
     _ceu_go->stk[_ceu_go->stki].evtp = _ceu_go->evtp;
 #ifdef CEU_INTS
 #ifdef CEU_ORGS
@@ -4527,10 +4537,10 @@ _ceu_go->evt  = 2;
 _ceu_go->evto = (tceu_org*) (&((CEU_Main*)_ceu_go->org)->r);
 #endif
 
-#line 79 "hello.ceu"
+#line 82 "hello.ceu"
     _ceu_go->evtp.v = ((CEU_Main*)_ceu_go->org)->details;
 
-#line 79 "hello.ceu"
+#line 82 "hello.ceu"
     #ifdef CEU_ORGS
 _ceu_go->org = _ceu_app->data;   /* TODO(speed): check if is_ifc */
 #endif
@@ -4539,22 +4549,22 @@ return RET_ORG;
 
 case Main_EmitInt_cont_19:;
 
-#line 79 "hello.ceu"
+#line 82 "hello.ceu"
     }
-#line 79 "hello.ceu"
+#line 82 "hello.ceu"
     }
-#line 79 "hello.ceu"
-/* CLEAR: Block (79) */
-#line 79 "hello.ceu"
+#line 82 "hello.ceu"
+/* CLEAR: Block (82) */
+#line 82 "hello.ceu"
     }
-#line 79 "hello.ceu"
+#line 82 "hello.ceu"
     /* switch to 1st trail */
 /* TODO: only if not joining with outer prio */
 /*_ceu_go->trl = &_ceu_go->org->trls[ 2 ]; */
 
-#line 78 "hello.ceu"
+#line 81 "hello.ceu"
     }
-#line 78 "hello.ceu"
+#line 81 "hello.ceu"
     }
 
 #line 1 "hello.ceu"

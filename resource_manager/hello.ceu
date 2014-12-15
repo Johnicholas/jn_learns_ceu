@@ -18,7 +18,7 @@ class Worker with
   var int details;
   var int id;
 do
-  _printf("Worker starts a remote task working on %d\n", details);
+  _printf("Worker #%d starts a remote task working on %d\n", id, details);
   var int reply_to;
   loop do
     reply_to = await REMOTE_WORKER_DONE;
@@ -35,20 +35,22 @@ class ResourceManager with
 do
   var Channel c;
   pool Worker[6] resources;
-  var int nextid = 0;
+  var int count = 0;
+  var int nextid = 1;
   var _Queue queue;
   _init(&queue);
 
   par do
     var int details;
     every details in this.go_task do
-      var Worker* foo = spawn Worker in resources with
-        this.id = nextid + 1;
-        this.details = details;
-        this.done_channel = c;
-      end;
-      if foo then
+      if count < 5 then
+        spawn Worker in resources with
+          this.id = nextid;
+          this.details = details;
+          this.done_channel = c;
+        end;
         nextid = nextid + 1;
+        count = count + 1;
       else
         _printf("All workers are unavailable, so ResourceManager stores the task in a queue\n");
         _push(&queue, details);
@@ -67,6 +69,7 @@ do
         nextid = nextid + 1;
       else
         _printf("ResourceManager sees something is done and queue is empty, so something is now idle\n");
+        count = count - 1;
       end
     end
   end

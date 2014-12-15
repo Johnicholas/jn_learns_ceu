@@ -26,7 +26,7 @@ void init(Queue* q) {
 #include "_ceu_app.h"
 #include "_ceu_app.c"
 
-#define PROGRAM "aaaaaabbbbbbccccccdddddd"
+#define PROGRAM "abaabbaaabbbaaaabbbbaaaaabbbbbaaaaaabbbbbbaaaaaaabbbbbbb"
 
 int main (int argc, char *argv[])
 {
@@ -37,20 +37,16 @@ int main (int argc, char *argv[])
     app.init = &ceu_app_init;
 
     app.init(&app);
+    int details = 123;
+    int id = 1;
 
     for (i = 0; i < sizeof(PROGRAM) && PROGRAM[i]; i += 1) {
       switch (PROGRAM[i]) {
         case 'a':
-          ceu_sys_go(&app, CEU_IN_USER_TASK, (tceu_evtp)123);
+          ceu_sys_go(&app, CEU_IN_USER_TASK, (tceu_evtp)details++);
           break;
         case 'b':
-          ceu_sys_go(&app, CEU_IN_USER_TASK, (tceu_evtp)234);
-          break;
-        case 'c':
-          ceu_sys_go(&app, CEU_IN_REMOTE_WORKER_DONE, (tceu_evtp)1);
-          break;
-        case 'd':
-          ceu_sys_go(&app, CEU_IN_REMOTE_WORKER_DONE, (tceu_evtp)2);
+          ceu_sys_go(&app, CEU_IN_REMOTE_WORKER_DONE, (tceu_evtp)id++);
           break;
         default:
           printf("From C: %c\n", PROGRAM[i]);
