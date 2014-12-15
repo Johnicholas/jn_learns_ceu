@@ -69,9 +69,6 @@ class Object with
   var int objid;
   var float x;
   var float y;
-  var bool moving;
-  var int dest_x;
-  var int dest_y;
 do
   par/or do
     var int incoming_id = await DESTROY until incoming_id == this.objid;
@@ -80,16 +77,18 @@ do
       kind.render_at(x, y);
     end
   with
-    var int dt;
-    every dt in SDL_DT do
-      if this.moving then
+    loop do
+      var int incoming_id, dest_x, dest_y;
+      (incoming_id, dest_x, dest_y) = await MOVE until incoming_id == this.objid;
+      var int dt;
+      every dt in SDL_DT do
         var int dx = dest_x - x;
         var int dy = dest_y - y;
         var float f = (kind.speed * dt) / _sqrt(dx * dx + dy * dy);
         if f >= 1 then
           x = dest_x;
           y = dest_y;
-          moving = false;
+          break;
         else
           x = x + dx * f;
           y = y + dy * f;
@@ -98,26 +97,8 @@ do
     end
   with
     loop do
-      var int incoming_id, new_dest_x, new_dest_y;
-      loop do
-        (incoming_id, new_dest_x, new_dest_y) = await MOVE;
-        if incoming_id == this.objid then
-          break;
-        end
-      end
-      dest_x = new_dest_x;
-      dest_y = new_dest_y;
-      moving = true;
-    end
-  with
-    loop do
       var int incoming_id, new_x, new_y;
-      loop do
-         (incoming_id, new_x, new_y) = await PLACE;
-         if incoming_id == this.objid then
-           break;
-         end
-      end
+      (incoming_id, new_x, new_y) = await PLACE until incoming_id == this.objid;
       x = new_x;
       y = new_y;
     end
