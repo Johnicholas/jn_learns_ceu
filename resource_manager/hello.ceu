@@ -5,90 +5,74 @@ native @nohold _init();
 native @nohold _push();
 native @nohold _empty();
 native @nohold _pop();
+native @nohold _assert();
 
-interface Worker with
-  event int go_task;
-  event void ok_done;
+class Channel with
+  event void done;
+do
+  // nothing
+end
+
+class Worker with
+  var Channel& done_channel;
+  var int details;
+  var int id;
+do
+  _printf("Worker starts a remote task working on %d\n", details);
+  var int reply_to;
+  loop do
+    reply_to = await REMOTE_WORKER_DONE;
+    if reply_to == id then
+      break;
+    end
+  end
+  _printf("Worker done with task, looking for new task\n");
+  emit done_channel.done;
 end
 
 class ResourceManager with
   event int go_task;
-  var Worker& a;
-  var Worker& b;
 do
+  var Channel c;
+  pool Worker[6] resources;
+  var int nextid = 0;
   var _Queue queue;
   _init(&queue);
-
-  var bool a_idle = true;
-  var bool b_idle = true;
 
   par do
     var int details;
     every details in this.go_task do
-      if a_idle then
-        _printf("ResourceManager delegates to A\n");
-        emit a.go_task => details;
-        a_idle = false;
-      else/if b_idle then
-        _printf("ResourceManager delegates to B\n");
-        emit b.go_task => details;
-        b_idle = false;
+      var Worker* foo = spawn Worker in resources with
+        this.id = nextid + 1;
+        this.details = details;
+        this.done_channel = c;
+      end;
+      if foo then
+        nextid = nextid + 1;
       else
         _printf("All workers are unavailable, so ResourceManager stores the task in a queue\n");
         _push(&queue, details);
       end;
     end
   with
-    every a.ok_done do
+    every c.done do
       if not _empty(&queue) then
-        _printf("ResourceManager sees A is done and queue is nonempty, starting A working on something\n");
-        emit a.go_task => _pop(&queue);
+        _printf("ResourceManager sees something is done and queue is nonempty, so starting work on something\n");
+        var Worker* foo = spawn Worker in resources with
+          this.id = nextid;
+          this.details = _pop(&queue);
+          this.done_channel = c;
+        end;
+        _assert(foo);
+        nextid = nextid + 1;
       else
-        _printf("ResourceManager sees A is done and queue is empty, so A is now idle\n");
-        a_idle = true;
-      end
-    end
-  with
-    every b.ok_done do
-      if not _empty(&queue) then
-        _printf("ResourceManager sees B is done and queue is nonempty, starting B working on something\n");
-        emit b.go_task => _pop(&queue);
-      else
-        _printf("ResourceManager sees B is done and queue is empty, so B is now idle\n");
-        b_idle = true;
+        _printf("ResourceManager sees something is done and queue is empty, so something is now idle\n");
       end
     end
   end
 end
 
-class MockWorker with
-  interface Worker;
-  var int id;
-do
-  var int details;
-  every details in this.go_task do
-    _printf("MockWorker #%d starts a remote task working on %d\n", id, details);
-    var int reply_to;
-    every reply_to in REMOTE_WORKER_DONE do
-      if reply_to == id then
-        break; // out of inner, reply_to, loop
-      end
-    end
-    _printf("MockWorker #%d done with task, looking for new task\n", id);
-    emit this.ok_done;
-  end
-end
-
-var MockWorker one with
-  this.id = 1;
-end;
-var MockWorker two with
-  this.id = 2;
-end;
-var ResourceManager r with
-  this.a = one;
-  this.b = two;
-end;
+var ResourceManager r;
 
 var int details;
 every details in USER_TASK do

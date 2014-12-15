@@ -26,7 +26,7 @@ void init(Queue* q) {
 #include "_ceu_app.h"
 #include "_ceu_app.c"
 
-#define PROGRAM "aaabbbcccddd"
+#define PROGRAM "aaaaaabbbbbbccccccdddddd"
 
 int main (int argc, char *argv[])
 {
@@ -38,7 +38,7 @@ int main (int argc, char *argv[])
 
     app.init(&app);
 
-    for (i = 0; i < sizeof(PROGRAM); i += 1) {
+    for (i = 0; i < sizeof(PROGRAM) && PROGRAM[i]; i += 1) {
       switch (PROGRAM[i]) {
         case 'a':
           ceu_sys_go(&app, CEU_IN_USER_TASK, (tceu_evtp)123);

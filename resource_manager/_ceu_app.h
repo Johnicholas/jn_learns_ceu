@@ -7,7 +7,8 @@
 #define CEU_EXTS
 #define CEU_ORGS
 #define CEU_CLEAR
-#define CEU_IFCS
+#define CEU_NEWS_POOL
+#define CEU_NEWS
      /* CEU_EXTS, CEU_WCLOCKS, CEU_INTS, ... */
 
 /* TODO: lbl => unsigned */
@@ -21,7 +22,7 @@ typedef s8 tceu_ncls;
 #endif
 
 /* TODO: remove */
-#define CEU_NTRAILS 5
+#define CEU_NTRAILS 3
 
 #ifndef _CEU_OS_H
 #define _CEU_OS_H
@@ -587,6 +588,7 @@ extern void* CEU_SYS_VEC[CEU_SYS_MAX];
 #define CEU_IN_USER_TASK 246
 #define CEU_OUT_n 0
       /* CEU_IN_, CEU_OUT_ */
+#define CEU_FUN_assert
 #define CEU_FUN_printf
 #define CEU_FUN_init
 #define CEU_FUN_pop
