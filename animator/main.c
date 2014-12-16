@@ -13,8 +13,6 @@ SDL_Renderer* REN;
 #include "_ceu_app.h"
 #include "_ceu_app.c"
 
-#define PROGRAM "abracadabra"
-
 int main (int argc, char *argv[])
 {
   int err = SDL_Init(SDL_INIT_EVERYTHING);

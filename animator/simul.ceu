@@ -1,0 +1,33 @@
+#include "animator.ceu"
+
+input (int, int, int) CREATE;
+input (int, int, int) MOVE;
+input (int, int, int) PLACE;
+input int DESTROY;
+
+var SDLAnimator to_test;
+par/or do
+  await to_test.ok;
+with
+  var int id, x, y;
+  every (id, x, y) in CREATE do
+    emit to_test.create => (id, x, y);
+  end
+with
+  var int id, x, y;
+  every (id, x, y) in MOVE do
+    emit to_test.move => (id, x, y);
+  end
+with
+  var int id, x, y;
+  every (id, x, y) in PLACE do
+    emit to_test.place => (id, x, y);
+  end
+with
+  var int id;
+  every id in DESTROY do
+    emit to_test.destroy => id;
+  end
+end
+
+escape 0;
