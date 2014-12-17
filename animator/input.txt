@@ -1,8 +1,308 @@
-create 1 500 500
-create 2 500 100
-move 1 10 10
-move 2 10 10
-dt 1000
+dt 19000
+create 1 10 10
+move 1 400 10
+dt 500
+place 1 400 10
+move 1 400 300
+dt 500
+dt 14500
+move 1 10 580
+dt 500
 destroy 1
-move 2 1000 1000
-dt 10000
+dt 500
+dt 5500
+create 2 10 10
+move 2 400 10
+dt 500
+place 2 400 10
+move 2 400 300
+dt 500
+dt 16500
+move 2 10 580
+dt 500
+destroy 2
+dt 500
+dt 500
+create 3 10 10
+move 3 400 10
+dt 500
+place 3 400 10
+move 3 400 300
+dt 500
+dt 15500
+move 3 10 580
+dt 500
+destroy 3
+dt 500
+dt 1500
+create 4 10 10
+move 4 400 10
+dt 500
+place 4 400 10
+move 4 400 300
+dt 500
+dt 11000
+create 5 10 10
+move 5 400 10
+dt 500
+place 5 400 10
+move 5 780 150
+dt 500
+dt 2500
+move 4 10 580
+place 5 780 150
+move 5 400 300
+dt 500
+destroy 4
+dt 500
+dt 8500
+create 6 10 10
+move 6 400 10
+dt 500
+place 6 400 10
+move 6 780 150
+dt 500
+dt 3500
+move 5 10 580
+place 6 780 150
+move 6 400 300
+dt 500
+destroy 5
+dt 500
+dt 13000
+move 6 10 580
+dt 500
+destroy 6
+create 7 10 10
+move 7 400 10
+dt 500
+place 7 400 10
+move 7 400 300
+dt 500
+dt 16500
+move 7 10 580
+dt 500
+destroy 7
+dt 500
+dt 500
+create 8 10 10
+move 8 400 10
+dt 500
+place 8 400 10
+move 8 400 300
+dt 500
+dt 11500
+move 8 10 580
+dt 500
+destroy 8
+dt 500
+dt 8500
+create 9 10 10
+move 9 400 10
+dt 500
+place 9 400 10
+move 9 400 300
+dt 500
+dt 15500
+move 9 10 580
+dt 500
+destroy 9
+dt 500
+dt 500
+create 10 10 10
+move 10 400 10
+dt 500
+place 10 400 10
+move 10 400 300
+dt 500
+dt 15000
+create 11 10 10
+move 11 400 10
+dt 500
+place 11 400 10
+move 11 780 150
+dt 500
+dt 500
+move 10 10 580
+place 11 780 150
+move 11 400 300
+dt 500
+destroy 10
+dt 500
+dt 14000
+move 11 10 580
+dt 500
+destroy 11
+dt 500
+dt 2500
+create 12 10 10
+move 12 400 10
+dt 500
+place 12 400 10
+move 12 400 300
+dt 500
+dt 13500
+move 12 10 580
+dt 500
+destroy 12
+dt 500
+dt 5500
+create 13 10 10
+move 13 400 10
+dt 500
+place 13 400 10
+move 13 400 300
+dt 500
+dt 13000
+create 14 10 10
+move 14 400 10
+dt 500
+move 13 10 580
+place 14 400 10
+move 14 400 300
+dt 500
+destroy 13
+dt 500
+dt 12000
+move 14 10 580
+dt 500
+destroy 14
+dt 500
+dt 4500
+create 15 10 10
+move 15 400 10
+dt 500
+place 15 400 10
+move 15 400 300
+dt 500
+dt 16500
+move 15 10 580
+dt 500
+destroy 15
+dt 500
+dt 500
+create 16 10 10
+move 16 400 10
+dt 500
+place 16 400 10
+move 16 400 300
+dt 500
+dt 11500
+move 16 10 580
+dt 500
+destroy 16
+dt 500
+dt 4500
+create 17 10 10
+move 17 400 10
+dt 500
+place 17 400 10
+move 17 400 300
+dt 500
+dt 16500
+move 17 10 580
+dt 500
+destroy 17
+create 18 10 10
+move 18 400 10
+dt 500
+place 18 400 10
+move 18 400 300
+dt 500
+dt 12500
+move 18 10 580
+dt 500
+destroy 18
+dt 500
+dt 500
+create 19 10 10
+move 19 400 10
+dt 500
+place 19 400 10
+move 19 400 300
+dt 500
+dt 12500
+move 19 10 580
+dt 500
+destroy 19
+dt 500
+dt 1500
+create 20 10 10
+move 20 400 10
+dt 500
+place 20 400 10
+move 20 400 300
+dt 500
+dt 14500
+move 20 10 580
+dt 500
+destroy 20
+dt 500
+dt 5500
+create 21 10 10
+move 21 400 10
+dt 500
+place 21 400 10
+move 21 400 300
+dt 500
+dt 14500
+move 21 10 580
+dt 500
+destroy 21
+dt 500
+dt 4500
+create 22 10 10
+move 22 400 10
+dt 500
+place 22 400 10
+move 22 400 300
+dt 500
+dt 13500
+move 22 10 580
+dt 500
+destroy 22
+dt 500
+dt 7500
+create 23 10 10
+move 23 400 10
+dt 500
+place 23 400 10
+move 23 400 300
+dt 500
+dt 12000
+create 24 10 10
+move 24 400 10
+dt 500
+place 24 400 10
+move 24 780 150
+dt 500
+dt 500
+move 23 10 580
+place 24 780 150
+move 24 400 300
+dt 500
+destroy 23
+dt 500
+dt 16000
+move 24 10 580
+dt 500
+destroy 24
+dt 500
+dt 500
+create 25 10 10
+move 25 400 10
+dt 500
+place 25 400 10
+move 25 400 300
+dt 500
+dt 16500
+move 25 10 580
+dt 500
+destroy 25
+create 26 10 10
+move 26 400 10
+dt 500
+place 26 400 10
+move 26 400 300
+dt 500
+dt 4000

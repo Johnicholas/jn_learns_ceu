@@ -59,29 +59,29 @@ do
     end
   with
     loop do
-      var int incoming_id, dest_x, dest_y;
-      (incoming_id, dest_x, dest_y) = await context.move until incoming_id == objid;
-      var int delta;
-      every delta in SDL_DT do
-        var int dx = dest_x - x;
-        var int dy = dest_y - y;
-        var float f = (kind.speed * delta) / _sqrt(dx * dx + dy * dy);
-        if f < 1 then
-          x = x + dx * f;
-          y = y + dy * f;
-        else
-          x = dest_x;
-          y = dest_y;
-          break;
+      par/or do
+        var int id, x, y;
+        (id, x, y) = await context.place until id == this.objid;
+        this.x = x;
+        this.y = y;
+      with
+        var int id, x, y;
+        (id, x, y) = await context.move until id == this.objid;
+        var int delta;
+        every delta in SDL_DT do
+          var int dx = x - this.x;
+          var int dy = y - this.y;
+          var float f = (kind.speed * delta) / _sqrt(dx * dx + dy * dy);
+          if f < 1 then
+            this.x = this.x + dx * f;
+            this.y = this.y + dy * f;
+          else
+            this.x = x;
+            this.y = y;
+            break;
+          end
         end
       end
-    end
-  with
-    loop do
-      var int incoming_id, new_x, new_y;
-      (incoming_id, new_x, new_y) = await context.place until incoming_id == objid;
-      x = new_x;
-      y = new_y;
     end
   end
 end
@@ -123,7 +123,7 @@ do
       this.r = 255;
       this.g = 0;
       this.b = 0;
-      this.speed = 0.1;
+      this.speed = 2;
     end;
 
     pool Object[] objects;

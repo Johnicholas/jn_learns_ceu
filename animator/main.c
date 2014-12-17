@@ -38,7 +38,7 @@ int main (int argc, char *argv[])
     int y;
     if (sscanf(line, "dt %d", &delta) == 1) {
       ticks = SDL_GetTicks();  
-      int limit = ticks + delta;
+      int limit = ticks + delta / 10;
       while (ticks < limit) {
         ceu_sys_go(&app, CEU_IN_SDL_REDRAW, (tceu_evtp)0);
         SDL_RenderPresent(REN);

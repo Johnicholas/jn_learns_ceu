@@ -19,26 +19,30 @@ class Customer with
   var Barber& b;
 do
   var int id = b.get_next_id();
-  _printf("customer#%d arrives and starts hanging up their coat\n", id);
+  _printf("create %d 10 10\n", id);
+  _printf("move %d 400 10\n", id);
   await 500ms;
+  _printf("place %d 400 10\n", id);
   // seize
   if b.idle then
-    _printf("customer#%d finishes hanging up their coat, sits down in front of barber\n", id);
     b.idle = false;
   else
-    _printf("customer#%d finishes hanging up their coat, starts waiting\n", id);
+    _printf("move %d 780 150\n", id);
     _push(id);
     var int next = await b.next until next == id;
-    _printf("customer#%d finishes waiting and sits down in front of barber\n", id);
+    _printf("place %d 780 150\n", id);
   end;
+  _printf("move %d 400 300\n", id);
   await (_random_plusminus(15, 3))s; // haircut takes 15+-3 minutes
-  _printf("customer#%d is done with their haircut\n", id);
+  _printf("move %d 10 580\n", id);
   // release
   if _empty() then
     b.idle = true;
   else
     emit b.next => _pop();
   end
+  await 500ms;
+  _printf("destroy %d\n", id);
 end
 
 par/or do
