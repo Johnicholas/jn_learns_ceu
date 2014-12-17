@@ -1,0 +1,13 @@
+FLAGS=""
+FLAGS="$FLAGS -g"
+FLAGS="$FLAGS -Os"
+FLAGS="$FLAGS -lpthread"
+FLAGS="$FLAGS -lm"
+FLAGS="$FLAGS -lSDL2"
+FLAGS="$FLAGS -lSDL2_image"
+FLAGS="$FLAGS -lSDL2_mixer"
+FLAGS="$FLAGS -lSDL2_ttf"
+FLAGS="$FLAGS -lSDL2_net"
+FLAGS="$FLAGS -lSDL2_gfx"
+gcc $FLAGS $@
+

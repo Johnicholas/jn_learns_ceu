@@ -1,0 +1,14 @@
+run: barber
+	./barber
+
+barber: cc barber.c _ceu_app.c _ceu_app.h
+	bash cc barber.c -o barber
+
+_ceu_app.c: barber.ceu
+	ceu barber.ceu
+
+_ceu_app.h: barber.ceu
+	ceu barber.ceu
+
+clean:
+	rm barber _ceu_app.c _ceu_app.h

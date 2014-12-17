@@ -1,0 +1,56 @@
+native _random_plusminus();
+native _push();
+native _empty();
+native _pop();
+
+class Barber with
+  event int next;
+  var bool idle = true;
+  function (void)=>int get_next_id;
+do
+  var int next_id = 1;
+  function (void)=>int get_next_id do
+    next_id = next_id + 1;
+    return next_id - 1;
+  end
+end
+
+class Customer with
+  var Barber& b;
+do
+  var int id = b.get_next_id();
+  _printf("customer#%d arrives and starts hanging up their coat\n", id);
+  await 500ms;
+  // seize
+  if b.idle then
+    _printf("customer#%d finishes hanging up their coat, sits down in front of barber\n", id);
+    b.idle = false;
+  else
+    _printf("customer#%d finishes hanging up their coat, starts waiting\n", id);
+    _push(id);
+    var int next = await b.next until next == id;
+    _printf("customer#%d finishes waiting and sits down in front of barber\n", id);
+  end;
+  await (_random_plusminus(15, 3))s; // haircut takes 15+-3 minutes
+  _printf("customer#%d is done with their haircut\n", id);
+  // release
+  if _empty() then
+    b.idle = true;
+  else
+    emit b.next => _pop();
+  end
+end
+
+par/or do
+  await 480s;
+with
+  var Barber joe;
+  loop do
+    await (_random_plusminus(18, 6))s; // new arrivals every 18 +- 6 minutes
+    spawn Customer with
+      this.b = joe;
+    end;
+  end
+end
+
+escape 0;
