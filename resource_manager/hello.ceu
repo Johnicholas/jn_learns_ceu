@@ -7,35 +7,36 @@ native @nohold _empty();
 native @nohold _pop();
 native @nohold _assert();
 
-class Channel with
-  event void done;
-do
-  // nothing
+interface UnableToName with
+  event Worker* done;
 end
 
 class Worker with
-  var Channel& done_channel;
+  var UnableToName& done_channel;
   var int details;
   var int id;
+  var bool done = false;
 do
-  _printf("Worker #%d starts a remote task working on %d\n", id, details);
-  var int reply_to;
   loop do
-    reply_to = await REMOTE_WORKER_DONE;
-    if reply_to == id then
+    _start_remote_task(details, id);
+    var int reply_to = await REMOTE_WORKER_DONE until reply_to == id;
+    _printf("Worker #%d done with %d\n", id, details);
+    done = true;
+    emit done_channel.done => &this;
+    if done then
+      _printf("Worker #%d done with all tasks\n", id);
       break;
+    else
+      _printf("Worker #%d got new task %d\n", id, details);
     end
   end
-  _printf("Worker done with task, looking for new task\n");
-  emit done_channel.done;
 end
 
 class ResourceManager with
+  interface UnableToName;
   event int go_task;
 do
-  var Channel c;
-  pool Worker[6] resources;
-  var int count = 0;
+  pool Worker[3] resources;
   var int nextid = 1;
   var _Queue queue;
   _init(&queue);
@@ -43,40 +44,34 @@ do
   par do
     var int details;
     every details in this.go_task do
-      if count < 5 then
-        spawn Worker in resources with
-          this.id = nextid;
-          this.details = details;
-          this.done_channel = c;
-        end;
-        nextid = nextid + 1;
-        count = count + 1;
-      else
-        _printf("All workers are unavailable, so ResourceManager stores the task in a queue\n");
-        _push(&queue, details);
+      var Worker* spawned = spawn Worker in resources with
+        this.id = nextid;
+        this.details = details;
+        this.done_channel = outer;
       end;
+      if spawned then
+        nextid = nextid + 1;
+      else
+        _printf("All workers are unavailable, so ResourceManager stores %d in a queue\n", details);
+        _push(&queue, details);
+      end
     end
   with
-    every c.done do
+    var Worker* w;
+    every w in done do
       if not _empty(&queue) then
-        _printf("ResourceManager sees something is done and queue is nonempty, so starting work on something\n");
-        var Worker* foo = spawn Worker in resources with
-          this.id = nextid;
-          this.details = _pop(&queue);
-          this.done_channel = c;
-        end;
-        _assert(foo);
-        nextid = nextid + 1;
+        var int d = _pop(&queue);
+        _printf("ResourceManager sees something is done and queue is nonempty, so starting work on %d\n", d);
+        (*w).details = d;
+        (*w).done = false;
       else
         _printf("ResourceManager sees something is done and queue is empty, so something is now idle\n");
-        count = count - 1;
       end
     end
   end
 end
 
 var ResourceManager r;
-
 var int details;
 every details in USER_TASK do
   emit r.go_task => details;
