@@ -62,6 +62,9 @@ do
       par/or do
         var int id, x, y;
         (id, x, y) = await context.place until id == this.objid;
+        if this.x != x or this.y != y then
+          _printf("warning: place %d %d %d is teleporting\n", id, x, y);
+        end
         this.x = x;
         this.y = y;
       with

@@ -21,7 +21,7 @@ do
   var int id = b.get_next_id();
   _printf("create %d 10 10\n", id);
   _printf("move %d 400 10\n", id);
-  await 500ms;
+  await 2s;
   _printf("place %d 400 10\n", id);
   // seize
   if b.idle then

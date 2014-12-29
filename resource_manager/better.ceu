@@ -1,0 +1,67 @@
+input int REMOTE_WORKER_DONE;
+input int USER_TASK;
+native @plain _Queue;
+native @nohold _init();
+native @nohold _push();
+native @nohold _empty();
+native @nohold _pop();
+native @nohold _assert();
+
+class Context with
+  var bool handled;
+  event int internal_task;
+  var _Queue queue;
+do
+  // nothing
+end
+
+class Worker with
+  var Context& c;
+  var int id;
+do
+  loop do
+    var int details = await c.internal_task until not c.handled;
+    c.handled = true;
+    loop do
+      _start_remote_task(details, id);
+      var int reply_to = await REMOTE_WORKER_DONE until reply_to == id;
+      if _empty(&c.queue) then
+        break;
+      else
+        details = _pop(&c.queue);
+      end
+    end
+  end
+end
+  
+class Manager with
+  // nothing
+do
+  var Context c;
+  _init(&c.queue);
+  par do
+    // intercede between USER_TASK and internal_task, setting handled
+    var int details;
+    every details in USER_TASK do
+      c.handled = false;
+      emit c.internal_task => details;
+    end
+  with
+    var Worker[3] ws;
+    loop i in 3 do
+      ws[i].c = c;
+      ws[i].id = i;
+    end
+    // If no worker is idle, we handle the task by pushing it into the queue.
+    // One of the workers will eventually pick it up.
+    loop do
+      var int details = await c.internal_task until not c.handled;
+      c.handled = true;
+      _push(&c.queue, details);
+    end
+  end
+end
+
+var Manager m;
+await FOREVER;
+
