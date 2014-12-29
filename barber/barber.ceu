@@ -15,32 +15,90 @@ do
   end
 end
 
-class Customer with
-  var Barber& b;
+interface ChairContext with
+  var bool found_seat;
+  event int internal_looks_for_seat;
+end
+
+class Chair with
+  var ChairContext& context;
+  var Barber& barber;
+  var int id;
 do
-  var int id = b.get_next_id();
+  loop do
+    // _printf("chair %d is empty, waiting\n", id);
+    var int who = await context.internal_looks_for_seat until not context.found_seat;
+    context.found_seat = true;
+    // _printf("chair %d is occupied until the barber calls for %d\n", id, who);
+    _printf("move %d 780 %d\n", who, 10+25*id);
+    var int next = await barber.next until next == who;
+  end
+end
+
+class WaitingRoom with
+  interface ChairContext;
+  var Barber& barber;
+  event int looks_for_seat;
+do
+  par do
+    // intercede between looks_for_seat and internal_looks_for_seat
+    var int who;
+    every who in looks_for_seat do
+      // _printf("someone (%d) looks for a seat\n", who);
+      found_seat = false;
+      emit internal_looks_for_seat => who;
+    end
+  with
+    pool Chair[10] chairs;
+    loop i in 10 do
+      spawn Chair in chairs with
+        this.context = outer;
+        this.barber = outer.barber;
+        this.id = i;
+      end;
+    end
+    await FOREVER;
+  end
+end
+
+class Customer with
+  var Barber& barber;
+  var WaitingRoom& w;
+do
+  var int id = barber.get_next_id();
   _printf("create %d 10 10\n", id);
+
+  // go to coat rack
   _printf("move %d 400 10\n", id);
   await 2s;
   _printf("place %d 400 10\n", id);
-  // seize
-  if b.idle then
-    b.idle = false;
-  else
-    _printf("move %d 780 150\n", id);
-    _push(id);
-    var int next = await b.next until next == id;
-    _printf("place %d 780 150\n", id);
-  end;
-  _printf("move %d 400 300\n", id);
-  await (_random_plusminus(15, 3))s; // haircut takes 15+-3 minutes
-  _printf("move %d 10 580\n", id);
-  // release
-  if _empty() then
-    b.idle = true;
-  else
-    emit b.next => _pop();
+
+  var bool barber_was_available = barber.idle;
+  var bool found_seat;
+  if not barber_was_available then
+    emit w.looks_for_seat => id;
+    found_seat = w.found_seat;
+    if found_seat then
+      // _printf("found seat!\n");
+      _push(id);
+      var int next = await barber.next until next == id;
+     end
   end
+
+  if barber_was_available or found_seat then
+    // get a haircut
+    barber.idle = false;
+    _printf("move %d 400 300\n", id);
+    // haircut takes 15 +- 3 minutes
+    await (_random_plusminus(15, 3))s;
+    barber.idle = true;
+    if not _empty() then
+      emit barber.next => _pop();
+    end
+  end
+
+  // leave
+  _printf("move %d 10 580\n", id);
   await 500ms;
   _printf("destroy %d\n", id);
 end
@@ -49,10 +107,14 @@ par/or do
   await 480s;
 with
   var Barber joe;
+  var WaitingRoom w with
+    this.barber = joe;
+  end;
   loop do
-    await (_random_plusminus(18, 6))s; // new arrivals every 18 +- 6 minutes
+    await (_random_plusminus(5, 2))s; // new arrivals every 18 +- 6 minutes
     spawn Customer with
-      this.b = joe;
+      this.barber = joe;
+      this.w = w;
     end;
   end
 end
