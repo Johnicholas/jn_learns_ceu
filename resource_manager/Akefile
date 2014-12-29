@@ -1,8 +1,11 @@
 main: main.c _ceu_app.h _ceu_app.c
 	gcc main.c -o main
 
-_ceu_app.h: better.ceu
-	ceu better.ceu
+_ceu_app.h: hello.ceu
+	ceu hello.ceu
 
-_ceu_app.c: better.ceu
-	ceu better.ceu
+_ceu_app.c: hello.ceu
+	ceu hello.ceu
+
+clean:
+	rm main _ceu_app*
