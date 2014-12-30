@@ -26,7 +26,7 @@ dt 2000
 move 2 400 300
 move 1 10 580
 place 4 400 10
-move 4 780 60
+move 4 780 10
 dt 500
 destroy 1
 dt 500
@@ -35,7 +35,7 @@ create 5 10 10
 move 5 400 10
 dt 2000
 place 5 400 10
-move 5 780 10
+move 5 780 60
 dt 1000
 create 6 10 10
 move 6 400 10
@@ -91,7 +91,7 @@ move 11 400 10
 dt 1000
 dt 1000
 place 11 400 10
-move 11 780 60
+move 11 780 10
 dt 1000
 dt 2000
 create 12 10 10
@@ -114,7 +114,7 @@ dt 2000
 move 5 400 300
 move 4 10 580
 place 14 400 10
-move 14 780 235
+move 14 780 60
 dt 500
 destroy 4
 dt 500
@@ -123,7 +123,7 @@ move 15 400 10
 dt 500
 dt 1500
 place 15 400 10
-move 15 780 10
+move 15 780 235
 dt 1500
 dt 2500
 create 16 10 10
@@ -306,7 +306,7 @@ dt 500
 destroy 10
 dt 500
 place 33 400 10
-move 33 780 60
+move 33 780 10
 dt 500
 dt 3500
 create 34 10 10
@@ -406,7 +406,7 @@ move 43 400 10
 dt 500
 dt 1500
 place 43 400 10
-move 43 780 235
+move 43 780 60
 dt 1500
 dt 1500
 create 44 10 10
@@ -437,7 +437,7 @@ dt 500
 destroy 14
 dt 500
 place 46 400 10
-move 46 780 10
+move 46 780 235
 dt 500
 dt 1500
 create 47 10 10
@@ -620,7 +620,7 @@ dt 500
 destroy 30
 dt 500
 place 64 400 10
-move 64 780 60
+move 64 780 10
 dt 500
 dt 500
 create 65 10 10
@@ -709,23 +709,23 @@ dt 1500
 move 43 400 300
 move 39 10 580
 place 73 400 10
-move 73 10 580
+move 73 780 60
 dt 500
 destroy 39
-destroy 73
 dt 500
 dt 2000
 create 74 10 10
 move 74 400 10
 dt 2000
 place 74 400 10
-move 74 780 235
+move 74 10 580
+dt 500
+destroy 74
+dt 500
 dt 2000
-dt 1000
 create 75 10 10
 move 75 400 10
-dt 1000
-dt 1000
+dt 2000
 place 75 400 10
 move 75 10 580
 dt 500
@@ -743,7 +743,7 @@ move 76 400 10
 dt 1000
 dt 1000
 place 76 400 10
-move 76 780 10
+move 76 780 235
 dt 1000
 dt 2000
 create 77 10 10
@@ -803,10 +803,9 @@ dt 2000
 move 54 400 300
 move 50 10 580
 place 82 400 10
-move 82 10 580
+move 82 780 110
 dt 500
 destroy 50
-destroy 82
 dt 500
 dt 1000
 create 83 10 10
@@ -814,12 +813,14 @@ move 83 400 10
 dt 1000
 dt 1000
 place 83 400 10
-move 83 780 110
-dt 1000
+move 83 10 580
+dt 500
+destroy 83
+dt 500
 create 84 10 10
 move 84 400 10
-dt 1000
-dt 1000
+dt 500
+dt 1500
 place 84 400 10
 move 84 10 580
 dt 500
@@ -947,7 +948,7 @@ dt 500
 destroy 62
 dt 500
 place 96 400 10
-move 96 780 60
+move 96 780 10
 dt 500
 dt 1500
 create 97 10 10

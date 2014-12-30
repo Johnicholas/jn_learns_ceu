@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdio.h>
 
 int random_plusminus(int center, int plusminus) {
@@ -19,6 +20,38 @@ void push(int value) {
 int pop() {
   return buffer[total_popped++];
 }
+
+typedef struct {
+  int count_allocated;
+  int allocated[10];
+} Storage;
+
+int full(Storage* f) {
+  return f->count_allocated == 10;
+}
+
+int enter(Storage* f) {
+  int i;
+
+  assert(!full(f));
+  for (i = 0; i < 10; i += 1) {
+    if (!f->allocated[i]) {
+      f->allocated[i] = 1;
+      f->count_allocated += 1;
+      return i;
+    }
+  }
+  assert(0);
+}
+
+void leave(Storage* f, int which) {
+  assert(f->count_allocated > 0);
+  assert(f->allocated[which]);
+  f->allocated[which] = 0;
+  f->count_allocated -= 1;
+}
+
+
 
 #include "_ceu_app.h"
 
