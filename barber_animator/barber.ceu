@@ -104,44 +104,38 @@ do
   end
 end
 
-class HangCoat with
-  var Animator& animator;
-  var int id;
-  event void ok;
-do
-  await 1ms; // TODO: this is a hack, fix it
-  emit animator.move => (id, 400, 10);
-  await 2s;
-  emit animator.place => (id, 400, 10);
-  emit ok;
-end
-
 class Haircut with
   var Animator& animator;
   var int id;
   var Barber& barber;
   event void ok;
 do
-  await 2ms; // TODO: this is a hack, fix it
+  _printf("haircut emits move %d 400 300\n", id);
+  emit ok;
   emit animator.move => (id, 400, 300);
+  _printf("haircut done emitting move %d 400 300\n", id);
   await (_random_plusminus(15, 3))s;
   if _empty(&barber.queue) then
     barber.idle = true;
   else
     emit barber.next => _pop(&barber.queue);
   end
-  emit ok;
 end
 
-class Depart with
+class DepartHappy with
   var Animator& animator;
   var int id;
   event void ok;
 do
-  await 1ms; // TODO: this is a hack, fix it
-  emit animator.move => (id, 10, 580);
-  await 2s;
-  emit animator.destroy => id;
+  await 1ms; // TODO: this is a hack, fix
+  emit ok;
+end
+
+class Balk with
+  var Animator& animator;
+  var int id;
+  event void ok;
+do
   emit ok;
 end
 
@@ -150,73 +144,53 @@ class Customer with
   var Animator& animator;
 do
   var int id = barber.get_next_id();
-  emit animator.create => (id, 10, 10);
   if barber.idle then
     barber.idle = false;
-    var HangCoat hang_coat with
-      this.animator = animator;
-      this.id = id;
-    end;
-    _printf("customer %d hanging up their coat\n", id);
-    await hang_coat.ok;
-    _printf("customer %d hung up their coat\n", id);
-    var Haircut haircut with
-      this.animator = animator;
-      this.id = id;
-      this.barber = barber;
-    end;
-    _printf("customer %d getting a haircut\n", id);
-    await haircut.ok;
-    _printf("customer %d got a haircut\n", id);
-    var Depart depart with
-      this.animator = animator;
-      this.id = id;
-    end;
-    _printf("customer %d leaving happily\n", id);
-    await depart.ok;
-    _printf("customer %d done leaving\n", id);
+    _printf("customer %d arrives, starts hanging up their coat\n", id);
+    emit animator.create_moving => (id, 10, 10, 400, 10);
+    await 2s;
+    _printf("customer %d hung up their coat, going to get their hair cut\n", id);
+    emit animator.place_and_move => (id, 400, 10, 400, 300);
+    await (_random_plusminus(15, 3))s;
+    if _empty(&barber.queue) then
+      barber.idle = true;
+    else
+      emit barber.next => _pop(&barber.queue);
+    end
+    _printf("customer %d got a haircut, departing happy\n", id);
+    emit animator.place_and_move => (id, 400, 300, 10, 580);
+    await 2s;
+    emit animator.destroy => id;
   else/if _full(&barber.storage) then
-    var Depart depart with
-      this.animator = animator;
-      this.id = id;
-    end;
-    _printf("customer %d leaving in a huff\n", id);
-    await depart.ok;
-    _printf("customer %d done leaving\n", id);
+    _printf("customer %d arrives, sees no seats, leaves in a huff\n", id);
+    emit animator.create_moving => (id, 10, 10, 10, 580);
+    await 2s;
+    emit animator.destroy => id;
   else
     var int which_seat = _enter(&barber.storage);
     _push(&barber.queue, id);
     par/or do
-      var int next = await barber.next until next == id;
-    with
-      var HangCoat hang_coat with
-        this.animator = animator;
-        this.id = id;
-      end;
-      _printf("customer %d hanging up their coat\n", id);
-      await hang_coat.ok;
-      // sit down
-      _printf("customer %d sitting down in seat %d\n", id, which_seat);
-      await 1ms; // TODO: this is a hack, fix it
-      emit animator.move => (id, 780, 10+25*which_seat);
+      _printf("customer %d arrives, starts hanging up their coat\n", id);
+      emit animator.create_moving => (id, 10, 10, 400, 10);
+      await 2s;
+      _printf("customer %d hung up their coat, sitting down in seat %d\n", id, which_seat);
+      emit animator.place_and_move => (id, 400, 10, 780, 10+25*which_seat);
       await FOREVER;
+    with
+      var int next = await barber.next until next == id;
     end
     _leave(&barber.storage, which_seat);
-    var Haircut haircut with
-      this.animator = animator;
-      this.id = id;
-      this.barber = barber;
-    end;
-    _printf("customer %d getting their hair cut\n", id);
-    await haircut.ok;
-    _printf("customer %d done getting their hair cut\n", id);
-    var Depart depart with
-      this.animator = animator;
-      this.id = id;
-    end;
-    _printf("customer %d leaving happily\n", id);
-    await depart.ok;
-    _printf("customer %d done leaving\n", id);
+    emit animator.move => (id, 400, 300);
+    await (_random_plusminus(15, 3))s;
+    if _empty(&barber.queue) then
+      barber.idle = true;
+    else
+      emit barber.next => _pop(&barber.queue);
+    end
+    _printf("customer %d got a haircut, departing happy\n", id);
+    emit animator.place_and_move => (id, 400, 300, 10, 580);
+    await 2s;
+    emit animator.destroy => id;
   end
 end
 

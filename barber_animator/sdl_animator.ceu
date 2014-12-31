@@ -40,6 +40,8 @@ class Object with
   var int objid;
   var float x;
   var float y;
+  var int destx;
+  var int desty;
   var _SDL_Renderer[] ren;
 do
   par/or do
@@ -50,29 +52,48 @@ do
     end
   with
     loop do
+      _printf("object %d top of loop\n", objid);
       par/or do
         var int id, new_x, new_y;
         (id, new_x, new_y) = await context.place until id == this.objid;
-        if this.x != new_x or this.y != new_y then
+        if x != new_x or y != new_y then
           _printf("warning: place %d %d %d is teleporting\n", id, new_x, new_y);
         end
-        this.x = new_x;
-        this.y = new_y;
+        x = new_x;
+        y = new_y;
+        destx = new_x;
+        desty = new_y;
       with
-        var int id, destx, desty;
-        (id, destx, desty) = await context.move until id == this.objid;
-        var int delta;
-        every delta in SDL_DT do
-          var int dx = destx - this.x;
-          var int dy = desty - this.y;
-          var float f = (kind.speed * delta) / _sqrt(dx * dx + dy * dy);
-          if f < 1 then
-            this.x = this.x + dx * f;
-            this.y = this.y + dy * f;
-          else
-            this.x = destx;
-            this.y = desty;
-            break;
+        var int id, new_x, new_y, new_destx, new_desty;
+        (id, new_x, new_y, new_destx, new_desty) = await context.place_and_move until id == this.objid;
+        if x != new_x or y != new_y then
+          _printf("warning: place_and_move %d %d %d %d is teleporting\n", id, new_x, new_y, new_destx, new_desty);
+        end
+        x = new_x;
+        y = new_y;
+        destx = new_destx;
+        desty = new_desty;
+      with
+        if destx == x and desty == y then
+          var int incoming_id, incoming_destx, incoming_desty;
+          (incoming_id, incoming_destx, incoming_desty) = await context.move until incoming_id == objid;
+          _printf("object %d saw move %d %d\n", objid, incoming_destx, incoming_desty);
+          destx = incoming_destx;
+          desty = incoming_desty;
+        else
+          var int delta;
+          every delta in SDL_DT do
+            var int dx = destx - x;
+            var int dy = desty - y;
+            var float f = (kind.speed * delta) / _sqrt(dx * dx + dy * dy);
+            if f < 1 then
+              x = x + dx * f;
+              y = y + dy * f;
+            else
+              x = destx;
+              y = desty;
+              break; // out of every delta in SDL_DT
+            end
           end
         end
       end
@@ -121,17 +142,36 @@ do
     end;
 
     pool Object[] objects;
-    loop do
-      var int id, x, y;
-      (id, x, y) = await create;
-      spawn Object in objects with
-        this.context = outer;
-        this.kind = red;
-        this.objid = id;
-        this.x = x;
-        this.y = y;
-        this.ren = ren;
-      end;
+    par do
+      loop do
+        var int id, x, y;
+        (id, x, y) = await create_stationary;
+        spawn Object in objects with
+          this.context = outer;
+          this.kind = red;
+          this.objid = id;
+          this.x = x;
+          this.y = y;
+          this.destx = x;
+          this.desty = y;
+          this.ren = ren;
+        end;
+      end
+    with
+      loop do
+        var int id, startx, starty, destx, desty;
+        (id, startx, starty, destx, desty) = await create_moving;
+        spawn Object in objects with
+          this.context = outer;
+          this.kind = red;
+          this.objid = id;
+          this.x = startx;
+          this.y = starty;
+          this.destx = destx;
+          this.desty = desty;
+          this.ren = ren;
+        end;
+      end
     end
   with
     every SDL_REDRAW do
