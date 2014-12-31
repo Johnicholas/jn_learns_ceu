@@ -30,7 +30,7 @@ with
     this.speed = 2;
   end;
   loop do
-    await (_random_plusminus(9, 6))s; // new arrivals every 18 +- 6 minutes
+    await (_random_plusminus(2000, 1000))ms; // new arrivals every 18 +- 6 minutes
     spawn Customer with
       this.barber = joe;
       this.kind = red;
