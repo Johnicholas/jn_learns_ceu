@@ -1,19 +1,43 @@
-#include "animator.ceu"
 #include "barber.ceu"
-#include "sdl_animator.ceu"
+
+var _SDL_Window* win;
+finalize
+  win = _SDL_CreateWindow("Animator", 500, 400, 800, 600, _SDL_WINDOW_SHOWN);
+with
+  _SDL_DestroyWindow(win);
+end
+var int ren_w;
+var int ren_h;
+_SDL_GetWindowSize(win, &ren_w, &ren_h);
+
+var _SDL_Renderer[] ren;
+finalize
+  ren = _SDL_CreateRenderer(win, -1, 0);
+with
+  _SDL_DestroyRenderer(ren);
+end
 
 par/or do
+  await SDL_QUIT;
+with
   await 480s;
 with
   var Barber joe;
-  var SDLAnimator a;
+  var SmallSquare red with
+    this.r = 255;
+    this.g = 0;
+    this.b = 0;
+    this.speed = 2;
+  end;
   loop do
     await (_random_plusminus(9, 6))s; // new arrivals every 18 +- 6 minutes
     spawn Customer with
       this.barber = joe;
-      this.animator = a;
+      this.kind = red;
+      this.ren = ren;
     end;
   end
 end
 
 escape 0;
+

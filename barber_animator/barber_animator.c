@@ -18,14 +18,25 @@ int main (int argc, char *argv[])
     printf("SDL_Init failed: %s\n", SDL_GetError());
     return err;
   }
-  char CEU_DATA[sizeof(CEU_Main)];
+  CEU_Main data;
   tceu_app app;
-  app.data = (tceu_org*) &CEU_DATA;
+  app.data = (tceu_org*)&data;
   app.init = &ceu_app_init;
   app.init(&app);
   u32 ticks = SDL_GetTicks();
   while (app.isAlive) {
+    // TODO: surrounding the ceu_sys_go(...REDRAW...) line with stuff like this is a hack
+    // I just don't understand how to get it done on the Ceu side
+    SDL_Rect r;
+    r.x = 0;
+    r.y = 0;
+    r.w = data.ren_w;
+    r.h = data.ren_h;
+    SDL_SetRenderDrawColor(data.ren, 0, 0, 0, 255); // black
+    SDL_RenderFillRect(data.ren, &r);
     ceu_sys_go(&app, CEU_IN_SDL_REDRAW, (tceu_evtp)0);
+    SDL_RenderPresent(data.ren);
+    
     u32 temp = SDL_GetTicks();
     if (ticks == temp) {
       temp += 1;      // force a minimum change

@@ -1,5 +1,3 @@
-#include "animator.ceu"
-
 native @nohold _SDL_DestroyWindow();
 native @nohold _SDL_DestroyRenderer();
 native @nohold _SDL_GetWindowSize();
@@ -35,17 +33,18 @@ do
 end
 
 class Object with
-  var Animator& context;
   var Kind& kind;
-  var int id;
   var float x;
   var float y;
   var int destx;
   var int desty;
   var _SDL_Renderer[] ren;
+  event void destroy; // destroy this object
+  event (int, int) place; // place this object at a location
+  event (int, int) move; // move this to a location
 do
   par/or do
-    var int id = await context.destroy until id == this.id;
+    await destroy;
   with
     every SDL_REDRAW do
       kind.render_at(ren, x, y);
@@ -53,31 +52,19 @@ do
   with
     loop do
       par/or do
-        var int id, new_x, new_y;
-        (id, new_x, new_y) = await context.place until id == this.id;
+        var int new_x, new_y;
+        (new_x, new_y) = await place;
         if x != new_x or y != new_y then
-          _printf("warning: place %d %d %d is teleporting\n", id, new_x, new_y);
+          _printf("warning: place %d %d is teleporting\n", new_x, new_y);
         end
         x = new_x;
         y = new_y;
         destx = new_x;
         desty = new_y;
       with
-        var int id, new_x, new_y, new_destx, new_desty;
-        (id, new_x, new_y, new_destx, new_desty) = await context.place_and_move until id == this.id;
-        if x != new_x or y != new_y then
-          _printf("warning: place_and_move %d %d %d %d %d is teleporting\n", id, new_x, new_y, new_destx, new_desty);
-        else
-          _printf("object %d saw place_and_move %d %d %d %d\n", id, new_x, new_y, new_destx, new_desty);
-        end
-        x = new_x;
-        y = new_y;
-        destx = new_destx;
-        desty = new_desty;
-      with
         if destx == x and desty == y then
-          var int id, new_destx, new_desty;
-          (id, new_destx, new_desty) = await context.move until id == this.id;
+          var int new_destx, new_desty;
+          (new_destx, new_desty) = await move;
           destx = new_destx;
           desty = new_desty;
         else
@@ -97,85 +84,6 @@ do
           end
         end
       end
-    end
-  end
-end
-
-class SDLAnimator with
-  interface Animator;
-  event void ok;
-do
-  var _SDL_Window* win;
-  finalize
-    win = _SDL_CreateWindow("Animator", 500, 400, 800, 600, _SDL_WINDOW_SHOWN);
-  with
-    _SDL_DestroyWindow(win);
-  end
-  var int ren_w;
-  var int ren_h;
-  _SDL_GetWindowSize(win, &ren_w, &ren_h);
-  var _SDL_Renderer[] ren;
-  finalize
-    ren = _SDL_CreateRenderer(win, -1, 0);
-  with
-    _SDL_DestroyRenderer(ren);
-  end
-
-  par/or do
-    await SDL_QUIT;
-  with
-    var _SDL_Rect r;
-    r.x = 0;
-    r.y = 0;
-    r.w = ren_w;
-    r.h = ren_h;
-    every SDL_REDRAW do
-      _SDL_SetRenderDrawColor(ren, 0, 0, 0, 255); // black
-      _SDL_RenderFillRect(ren, &r);
-    end
-  with
-    var SmallSquare red with
-      this.r = 255;
-      this.g = 0;
-      this.b = 0;
-      this.speed = 2;
-    end;
-
-    pool Object[] objects;
-    par do
-      loop do
-        var int id, x, y;
-        (id, x, y) = await create_stationary;
-        spawn Object in objects with
-          this.context = outer;
-          this.kind = red;
-          this.id = id;
-          this.x = x;
-          this.y = y;
-          this.destx = x;
-          this.desty = y;
-          this.ren = ren;
-        end;
-      end
-    with
-      loop do
-        var int id, startx, starty, destx, desty;
-        (id, startx, starty, destx, desty) = await create_moving;
-        spawn Object in objects with
-          this.context = outer;
-          this.kind = red;
-          this.id = id;
-          this.x = startx;
-          this.y = starty;
-          this.destx = destx;
-          this.desty = desty;
-          this.ren = ren;
-        end;
-      end
-    end
-  with
-    every SDL_REDRAW do
-      _SDL_RenderPresent(ren);
     end
   end
 end

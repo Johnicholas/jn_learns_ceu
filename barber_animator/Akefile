@@ -4,10 +4,10 @@ run: barber_animator
 barber_animator: cc barber_animator.c _ceu_app.c _ceu_app.h ceu_types.h
 	bash cc barber_animator.c -o barber_animator
 
-_ceu_app.c: barber_animator.ceu sdl_animator.ceu barber.ceu animator.ceu
+_ceu_app.c: barber_animator.ceu barber.ceu sdl_animator.ceu
 	ceu barber_animator.ceu
 
-_ceu_app.h: barber_animator.ceu sdl_animator.ceu barber.ceu animator.ceu
+_ceu_app.h: barber_animator.ceu barber.ceu sdl_animator.ceu
 	ceu barber_animator.ceu
 
 clean:

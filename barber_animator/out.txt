@@ -1,0 +1,119 @@
+	./barber_animator
+object saw place_and_move 400 10 400 300
+customer 2 emitting -object saw place_and_move 400 10 780 10
+customer 2 done emitting
+customer 3 emitting -object saw place_and_move 400 10 780 35
+customer 3 done emitting
+object saw place_and_move 400 300 10 580
+customer 4 emitting -object saw place_and_move 400 10 780 10
+customer 4 done emitting
+object saw place_and_move 400 300 10 580
+customer 5 emitting -object saw place_and_move 400 10 780 35
+customer 5 done emitting
+object saw place_and_move 400 300 10 580
+customer 6 emitting -object saw place_and_move 400 10 780 10
+customer 6 done emitting
+object saw place_and_move 400 300 10 580
+customer 7 emitting -object saw place_and_move 400 10 780 35
+customer 7 done emitting
+customer 8 emitting -object saw place_and_move 400 10 780 60
+customer 8 done emitting
+object saw place_and_move 400 300 10 580
+customer 9 emitting -object saw place_and_move 400 10 780 85
+customer 9 done emitting
+customer 10 emitting -object saw place_and_move 400 10 780 10
+customer 10 done emitting
+object saw place_and_move 400 300 10 580
+customer 11 emitting -object saw place_and_move 400 10 780 35
+customer 11 done emitting
+customer 12 emitting -object saw place_and_move 400 10 780 110
+customer 12 done emitting
+object saw place_and_move 400 300 10 580
+customer 13 emitting -object saw place_and_move 400 10 780 60
+customer 13 done emitting
+customer 14 emitting -object saw place_and_move 400 10 780 135
+customer 14 done emitting
+customer 15 emitting -object saw place_and_move 400 10 780 160
+customer 15 done emitting
+object saw place_and_move 400 300 10 580
+customer 16 emitting -object saw place_and_move 400 10 780 185
+customer 16 done emitting
+customer 17 emitting -object saw place_and_move 400 10 780 85
+customer 17 done emitting
+object saw place_and_move 400 300 10 580
+customer 18 emitting -object saw place_and_move 400 10 780 10
+customer 18 done emitting
+object saw place_and_move 400 300 10 580
+customer 19 emitting -object saw place_and_move 400 10 780 35
+customer 19 done emitting
+customer 20 emitting -object saw place_and_move 400 10 780 210
+customer 20 done emitting
+customer 21 emitting -object saw place_and_move 400 10 780 235
+customer 21 done emitting
+object saw place_and_move 400 300 10 580
+customer 23 emitting -object saw place_and_move 400 10 780 110
+customer 23 done emitting
+object saw place_and_move 400 300 10 580
+customer 24 emitting -object saw place_and_move 400 10 780 60
+customer 24 done emitting
+object saw place_and_move 400 300 10 580
+customer 26 emitting -object saw place_and_move 400 10 780 135
+customer 26 done emitting
+object saw place_and_move 400 300 10 580
+customer 27 emitting -object saw place_and_move 400 10 780 160
+customer 27 done emitting
+object saw place_and_move 400 300 10 580
+object saw place_and_move 400 300 10 580
+customer 30 emitting -object saw place_and_move 400 10 780 185
+customer 30 done emitting
+customer 31 emitting -object saw place_and_move 400 10 780 85
+customer 31 done emitting
+object saw place_and_move 400 300 10 580
+customer 32 emitting -object saw place_and_move 400 10 780 10
+customer 32 done emitting
+object saw place_and_move 400 300 10 580
+customer 33 emitting -object saw place_and_move 400 10 780 35
+customer 33 done emitting
+object saw place_and_move 400 300 10 580
+customer 34 emitting -object saw place_and_move 400 10 780 210
+customer 34 done emitting
+object saw place_and_move 400 300 10 580
+customer 36 emitting -object saw place_and_move 400 10 780 235
+customer 36 done emitting
+object saw place_and_move 400 300 10 580
+customer 38 emitting -object saw place_and_move 400 10 780 110
+customer 38 done emitting
+object saw place_and_move 400 300 10 580
+customer 41 emitting -object saw place_and_move 400 10 780 60
+customer 41 done emitting
+object saw place_and_move 400 300 10 580
+customer 43 emitting -object saw place_and_move 400 10 780 135
+customer 43 done emitting
+object saw place_and_move 400 300 10 580
+customer 44 emitting -object saw place_and_move 400 10 780 160
+customer 44 done emitting
+object saw place_and_move 400 300 10 580
+customer 46 emitting -object saw place_and_move 400 10 780 185
+customer 46 done emitting
+object saw place_and_move 400 300 10 580
+customer 49 emitting -object saw place_and_move 400 10 780 85
+customer 49 done emitting
+object saw place_and_move 400 300 10 580
+customer 51 emitting -object saw place_and_move 400 10 780 10
+customer 51 done emitting
+object saw place_and_move 400 300 10 580
+customer 53 emitting -object saw place_and_move 400 10 780 35
+customer 53 done emitting
+object saw place_and_move 400 300 10 580
+customer 55 emitting -object saw place_and_move 400 10 780 210
+customer 55 done emitting
+object saw place_and_move 400 300 10 580
+customer 58 emitting -object saw place_and_move 400 10 780 235
+customer 58 done emitting
+object saw place_and_move 400 300 10 580
+customer 61 emitting -object saw place_and_move 400 10 780 110
+customer 61 done emitting
+object saw place_and_move 400 300 10 580
+customer 62 emitting -object saw place_and_move 400 10 780 60
+customer 62 done emitting
+object saw place_and_move 400 300 10 580
