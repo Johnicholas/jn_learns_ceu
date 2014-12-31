@@ -92,7 +92,7 @@ class Barber with
   var _Queue queue;
   var _Storage storage;
   event int next;
-  var bool idle = true;
+  var int current = -1;
   function (void)=>int get_next_id;
 do
   _set_empty_queue(&queue);
@@ -104,65 +104,32 @@ do
   end
 end
 
-class Haircut with
-  var Animator& animator;
-  var int id;
-  var Barber& barber;
-  event void ok;
-do
-  _printf("haircut emits move %d 400 300\n", id);
-  emit ok;
-  emit animator.move => (id, 400, 300);
-  _printf("haircut done emitting move %d 400 300\n", id);
-  await (_random_plusminus(15, 3))s;
-  if _empty(&barber.queue) then
-    barber.idle = true;
-  else
-    emit barber.next => _pop(&barber.queue);
-  end
-end
-
-class DepartHappy with
-  var Animator& animator;
-  var int id;
-  event void ok;
-do
-  await 1ms; // TODO: this is a hack, fix
-  emit ok;
-end
-
-class Balk with
-  var Animator& animator;
-  var int id;
-  event void ok;
-do
-  emit ok;
-end
-
 class Customer with
   var Barber& barber;
   var Animator& animator;
 do
   var int id = barber.get_next_id();
-  if barber.idle then
-    barber.idle = false;
-    _printf("customer %d arrives, starts hanging up their coat\n", id);
+  if barber.current == -1 then
+    barber.current = id;
+    //_printf("customer %d arrives, starts hanging up their coat\n", id);
     emit animator.create_moving => (id, 10, 10, 400, 10);
     await 2s;
-    _printf("customer %d hung up their coat, going to get their hair cut\n", id);
+    // _printf("customer %d hung up their coat, going to get their hair cut\n", id);
     emit animator.place_and_move => (id, 400, 10, 400, 300);
     await (_random_plusminus(15, 3))s;
     if _empty(&barber.queue) then
-      barber.idle = true;
+      barber.current = -1;
     else
-      emit barber.next => _pop(&barber.queue);
+      var int next_id = _pop(&barber.queue);
+      barber.current = next_id;
+      emit barber.next => next_id;
     end
-    _printf("customer %d got a haircut, departing happy\n", id);
+    //_printf("customer %d got a haircut, departing happy\n", id);
     emit animator.place_and_move => (id, 400, 300, 10, 580);
     await 2s;
     emit animator.destroy => id;
   else/if _full(&barber.storage) then
-    _printf("customer %d arrives, sees no seats, leaves in a huff\n", id);
+    //_printf("customer %d arrives, sees no seats, leaves in a huff\n", id);
     emit animator.create_moving => (id, 10, 10, 10, 580);
     await 2s;
     emit animator.destroy => id;
@@ -170,11 +137,13 @@ do
     var int which_seat = _enter(&barber.storage);
     _push(&barber.queue, id);
     par/or do
-      _printf("customer %d arrives, starts hanging up their coat\n", id);
+      //_printf("customer %d arrives, starts hanging up their coat\n", id);
       emit animator.create_moving => (id, 10, 10, 400, 10);
       await 2s;
-      _printf("customer %d hung up their coat, sitting down in seat %d\n", id, which_seat);
+      _printf("customer %d emitting -", id, which_seat);
+      // this emit doesn't always get received, but could the awaiting trail be exhausted? by what?
       emit animator.place_and_move => (id, 400, 10, 780, 10+25*which_seat);
+      _printf("customer %d done emitting\n", id);
       await FOREVER;
     with
       var int next = await barber.next until next == id;
@@ -183,11 +152,13 @@ do
     emit animator.move => (id, 400, 300);
     await (_random_plusminus(15, 3))s;
     if _empty(&barber.queue) then
-      barber.idle = true;
+      barber.current = -1;
     else
-      emit barber.next => _pop(&barber.queue);
+      var int next_id = _pop(&barber.queue);
+      barber.current = next_id;
+      emit barber.next => next_id;
     end
-    _printf("customer %d got a haircut, departing happy\n", id);
+    //_printf("customer %d got a haircut, departing happy\n", id);
     emit animator.place_and_move => (id, 400, 300, 10, 580);
     await 2s;
     emit animator.destroy => id;

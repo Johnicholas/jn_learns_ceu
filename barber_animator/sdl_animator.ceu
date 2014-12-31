@@ -37,7 +37,7 @@ end
 class Object with
   var Animator& context;
   var Kind& kind;
-  var int objid;
+  var int id;
   var float x;
   var float y;
   var int destx;
@@ -45,17 +45,16 @@ class Object with
   var _SDL_Renderer[] ren;
 do
   par/or do
-    var int incoming_id = await context.destroy until incoming_id == objid;
+    var int id = await context.destroy until id == this.id;
   with
     every SDL_REDRAW do
       kind.render_at(ren, x, y);
     end
   with
     loop do
-      _printf("object %d top of loop\n", objid);
       par/or do
         var int id, new_x, new_y;
-        (id, new_x, new_y) = await context.place until id == this.objid;
+        (id, new_x, new_y) = await context.place until id == this.id;
         if x != new_x or y != new_y then
           _printf("warning: place %d %d %d is teleporting\n", id, new_x, new_y);
         end
@@ -65,9 +64,11 @@ do
         desty = new_y;
       with
         var int id, new_x, new_y, new_destx, new_desty;
-        (id, new_x, new_y, new_destx, new_desty) = await context.place_and_move until id == this.objid;
+        (id, new_x, new_y, new_destx, new_desty) = await context.place_and_move until id == this.id;
         if x != new_x or y != new_y then
-          _printf("warning: place_and_move %d %d %d %d is teleporting\n", id, new_x, new_y, new_destx, new_desty);
+          _printf("warning: place_and_move %d %d %d %d %d is teleporting\n", id, new_x, new_y, new_destx, new_desty);
+        else
+          _printf("object %d saw place_and_move %d %d %d %d\n", id, new_x, new_y, new_destx, new_desty);
         end
         x = new_x;
         y = new_y;
@@ -75,11 +76,10 @@ do
         desty = new_desty;
       with
         if destx == x and desty == y then
-          var int incoming_id, incoming_destx, incoming_desty;
-          (incoming_id, incoming_destx, incoming_desty) = await context.move until incoming_id == objid;
-          _printf("object %d saw move %d %d\n", objid, incoming_destx, incoming_desty);
-          destx = incoming_destx;
-          desty = incoming_desty;
+          var int id, new_destx, new_desty;
+          (id, new_destx, new_desty) = await context.move until id == this.id;
+          destx = new_destx;
+          desty = new_desty;
         else
           var int delta;
           every delta in SDL_DT do
@@ -149,7 +149,7 @@ do
         spawn Object in objects with
           this.context = outer;
           this.kind = red;
-          this.objid = id;
+          this.id = id;
           this.x = x;
           this.y = y;
           this.destx = x;
@@ -164,7 +164,7 @@ do
         spawn Object in objects with
           this.context = outer;
           this.kind = red;
-          this.objid = id;
+          this.id = id;
           this.x = startx;
           this.y = starty;
           this.destx = destx;
