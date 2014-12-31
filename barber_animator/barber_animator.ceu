@@ -1,0 +1,19 @@
+#include "animator.ceu"
+#include "barber.ceu"
+#include "sdl_animator.ceu"
+
+par/or do
+  await 480s;
+with
+  var Barber joe;
+  var SDLAnimator a;
+  loop do
+    await (_random_plusminus(9, 6))s; // new arrivals every 18 +- 6 minutes
+    spawn Customer with
+      this.barber = joe;
+      this.animator = a;
+    end;
+  end
+end
+
+escape 0;

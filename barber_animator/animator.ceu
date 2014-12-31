@@ -1,0 +1,15 @@
+#ifndef ANIMATOR
+#define ANIMATOR
+
+interface Animator with
+  // create a named object (from an object class?) at a location
+  event (int, int, int) create;
+  // destroy an object
+  event int destroy;
+  // move an object in a straight line to a destination
+  event (int, int, int) move;
+  // teleport an object to a location
+  event (int, int, int) place; 
+end
+
+#endif
