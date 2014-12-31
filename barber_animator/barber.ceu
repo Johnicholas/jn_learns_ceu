@@ -197,7 +197,7 @@ do
       await hang_coat.ok;
       // sit down
       _printf("customer %d sitting down in seat %d\n", id, which_seat);
-      await 1ms;
+      await 1ms; // TODO: this is a hack, fix it
       emit animator.move => (id, 780, 10+25*which_seat);
       await FOREVER;
     end
