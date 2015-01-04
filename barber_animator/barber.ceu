@@ -6,83 +6,54 @@ native do
   int random_plusminus(int center, int plusminus) {
     return center - plusminus + rand() % (plusminus * 2);
   }
-  
-  typedef struct {
-    int count_allocated;
-    int allocated[10];
-  } Storage;
-
-  void storage_set_empty(Storage* f) {
-    int i;
-
-    f->count_allocated = 0;
-    for (i = 0; i < 10; i += 1) {
-      f->allocated[i] = 0;
-    }
-  }
-
-  int storage_count(Storage* f) {
-    return f->count_allocated;
-  }
-
-  int storage_full(Storage* f) {
-    return f->count_allocated >= 10;
-  }
-
-  int storage_empty(Storage* f) {
-    return f->count_allocated == 0;
-  }
-
-  int storage_enter(Storage* f) {
-    int i;
-    assert(!storage_full(f));
-    for (i = 0; i < 10; i += 1) {
-      if (!f->allocated[i]) {
-        f->allocated[i] = 1;
-        f->count_allocated += 1;
-        return i;
-      }
-    }
-    assert(0);
-  }
-
-  void storage_leave(Storage* f, int which) {
-    assert(f->count_allocated > 0);
-    assert(f->allocated[which]);
-    f->count_allocated -= 1;
-    f->allocated[which] = 0;
-  }
 end
 
 native @nohold _assert();
-
 native _random_plusminus();
 
-native @plain _Storage;
-native @nohold _storage_set_empty();
-native @nohold _storage_full();
-native @nohold _storage_empty();
-native @nohold _storage_count();
-native @nohold _storage_enter();
-native @nohold _storage_leave();
+class Storage with
+  var int count_allocated = 0;
+  var bool[10] allocated;
+  function (void)=>int enter;
+  function (int)=>void leave;
+do
+  function (void)=>int enter do
+    _assert(count_allocated < 10);
+    loop i in 10 do
+      if not allocated[i] then
+        allocated[i] = true;
+        count_allocated = count_allocated + 1;
+        return i;
+      end
+    end
+  end
 
-class Barber with
-  var _Storage chairs;
-  var _Storage barbers;
+  function (int i)=>void leave do
+    count_allocated = count_allocated - 1;
+    allocated[i] = false;
+  end
+
+  loop i in 10 do
+    allocated[i] = false;
+  end
+end
+
+class Queue with
   event void next;
 do
-  _storage_set_empty(&chairs);
-  _storage_set_empty(&barbers);
+  // nothing
 end
 
 class Customer with
-  var Barber& barber;
+  var Storage& chairs;
+  var Storage& barbers;
+  var Queue& barber;
   var Kind& kind;
   var _SDL_Renderer[] ren;
 do
-  if _storage_full(&barber.chairs) then
+  if chairs.count_allocated >= 10 then
     // balk
-    var Object* rep = spawn Object with
+    var Object rep with
       this.kind = kind;
       this.ren = ren;
       this.x = 10;
@@ -90,15 +61,11 @@ do
       this.destx = 10;
       this.desty = 580;
     end;
-    _assert(rep);
-    watching rep do
-      await 2s;
-      emit (*rep).destroy;
-    end
-  else/if not _storage_full(&barber.barbers) and _storage_empty(&barber.chairs) then
+    await 2s;
+  else/if barbers.count_allocated < 10 and chairs.count_allocated == 0 then
     // get a haircut without a wait
-    var int which_barber = _storage_enter(&barber.barbers);
-    var Object* rep = spawn Object with
+    var int which_barber = barbers.enter();
+    var Object rep with
       this.kind = kind;
       this.ren = ren;
       this.x = 10;
@@ -106,26 +73,20 @@ do
       this.destx = 400;
       this.desty = 10;
     end;
-    _assert(rep);
-    watching rep do
-      await 2s;
-      _assert((*rep).x == 400);
-      _assert((*rep).y == 10);
-      emit (*rep).move => (400 + 25 * which_barber, 300);
-      await (_random_plusminus(30000, 6000))ms;
-      _storage_leave(&barber.barbers, which_barber);
-      emit barber.next;
-      _assert((*rep).x == 400 + 25 * which_barber);
-      _assert((*rep).y == 300);
-      emit (*rep).move => (10, 580);
-      await 2s;
-      emit (*rep).destroy;
-    end
+    await 2s;
+    emit rep.move => (400 + 25 * which_barber, 300);
+    await (_random_plusminus(30000, 6000))ms;
+    barbers.leave(which_barber);
+    emit barber.next;
+    _assert(rep.x == 400 + 25 * which_barber);
+    _assert(rep.y == 300);
+    emit rep.move => (10, 580);
+    await 2s;
   else
     // wait for a haircut
-    var int which_seat = _storage_enter(&barber.chairs);
-    var int ahead = _storage_count(&barber.chairs);
-    var Object* rep = spawn Object with
+    var int which_seat = chairs.enter();
+    var int ahead = chairs.count_allocated;
+    var Object rep with
       this.kind = kind;
       this.ren = ren;
       this.x = 10;
@@ -133,31 +94,24 @@ do
       this.destx = 400;
       this.desty = 10;
     end;
-    watching rep do
-      par/or do
-        loop i in ahead do
-           await barber.next;
-        end
-        _assert(not _storage_full(&barber.barbers));
-      with
-        await 2s;
-        (*rep).x = 400;
-        (*rep).y = 10;
-        emit (*rep).move => (780, 10+25*which_seat);
-        await FOREVER;
+    par/or do
+      loop i in ahead do
+         await barber.next;
       end
-      _storage_leave(&barber.chairs, which_seat);
-      var int which_barber = _storage_enter(&barber.barbers);
-      emit (*rep).move => (400 + 25 * which_barber, 300);
-      await (_random_plusminus(30000, 6000))ms;
-      _storage_leave(&barber.barbers, which_barber);
-      emit barber.next;
-      _assert((*rep).x == 400 + 25 * which_barber);
-      _assert((*rep).y == 300);
-      emit (*rep).move => (10, 580);
+      _assert(barbers.count_allocated < 10);
+    with
       await 2s;
-      emit (*rep).destroy;
+      emit rep.move => (780, 10+25*which_seat);
+      await FOREVER;
     end
+    chairs.leave(which_seat);
+    var int which_barber = barbers.enter();
+    emit rep.move => (400 + 25 * which_barber, 300);
+    await (_random_plusminus(30000, 6000))ms;
+    barbers.leave(which_barber);
+    emit barber.next;
+    emit rep.move => (10, 580);
+    await 2s;
   end
 end
 

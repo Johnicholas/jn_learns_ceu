@@ -39,13 +39,10 @@ class Object with
   var int destx;
   var int desty;
   var _SDL_Renderer[] ren;
-  event void destroy; // destroy this object
   event (int, int) place; // place this object at a location
   event (int, int) move; // move this to a location
 do
-  par/or do
-    await destroy;
-  with
+  par do
     every SDL_REDRAW do
       kind.render_at(ren, x, y);
     end

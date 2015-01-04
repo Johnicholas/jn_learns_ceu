@@ -22,7 +22,9 @@ par/or do
 with
   await 480s;
 with
-  var Barber joe;
+  var Storage chairs;
+  var Storage barbers;
+  var Queue barber;
   var SmallSquare red with
     this.r = 255;
     this.g = 0;
@@ -32,7 +34,9 @@ with
   loop do
     await (_random_plusminus(2000, 1000))ms; // new arrivals every 18 +- 6 minutes
     spawn Customer with
-      this.barber = joe;
+      this.chairs = chairs;
+      this.barbers = barbers;
+      this.barber = barber;
       this.kind = red;
       this.ren = ren;
     end;
