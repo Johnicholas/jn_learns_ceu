@@ -1,0 +1,14 @@
+run: waldoes in.txt
+	./waldoes < in.txt
+
+waldoes: cc waldoes.c _ceu_app.c _ceu_app.h ceu_types.h
+	bash cc waldoes.c -o waldoes
+
+_ceu_app.c: waldoes.ceu
+	ceu waldoes.ceu
+
+_ceu_app.h: waldoes.ceu
+	ceu waldoes.ceu
+
+clean:
+	rm waldoes _ceu_app.c _ceu_app.h

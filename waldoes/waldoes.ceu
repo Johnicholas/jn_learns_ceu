@@ -1,0 +1,58 @@
+input void A_DONE;
+input void B_DONE;
+input void C_DONE;
+input void X_DONE;
+input void Y_DONE;
+input void Z_DONE;
+
+#define SYNC(x) if x.waiting then x.waiting = false; emit x.go; else x.waiting = true; await x.go; end
+
+class Reactor with
+  var bool waiting = false;
+  event void go;
+
+  event void beta;
+  event void gamma;
+do
+  // nothing
+end
+
+class RedWaldo with
+  var Reactor& r;
+do
+ loop do
+   _a();
+   await A_DONE;
+   _b();
+   await B_DONE;
+   SYNC(r);
+ end
+end
+
+class BlueWaldo with
+  var Reactor& r;
+do
+  loop do
+    _x();
+    await X_DONE;
+    _y();
+    await Y_DONE;
+    SYNC(r);
+    _z();
+    await Z_DONE;
+    emit r.beta;
+  end
+end
+
+var Reactor r;
+var RedWaldo red with
+  this.r = r;
+end;
+var BlueWaldo blue with
+  this.r = r;
+end;
+loop i in 10 do
+  await r.beta;
+end
+
+escape 0;
