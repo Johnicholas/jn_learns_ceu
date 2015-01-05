@@ -11,47 +11,70 @@ end
 native @nohold _assert();
 native _random_plusminus();
 
-class Storage with
-  var int count_allocated = 0;
-  var bool[10] allocated;
-  function (void)=>int enter;
-  function (int)=>void leave;
-do
-  function (void)=>int enter do
-    _assert(count_allocated < 10);
-    loop i in 10 do
-      if not allocated[i] then
-        allocated[i] = true;
-        count_allocated = count_allocated + 1;
-        return i;
-      end
-    end
-  end
-
-  function (int i)=>void leave do
-    count_allocated = count_allocated - 1;
-    allocated[i] = false;
-  end
-
-  loop i in 10 do
-    allocated[i] = false;
-  end
-end
-
-class Queue with
-  event void next;
+class BarberQueue with
+  var int servers_minus_clients_waiting = 0;
+  // a client sees there are some idle servers and asks for one
+  event BarberCustomer* next_server;
+  // an available server sees that there are some idle clients and asks for one
+  event Barber* next_client;
 do
   // nothing
 end
 
+interface BarberCustomer with
+  var Barber* my_server;
+  var int id;
+end
+
+class Barber with
+  var Kind& kind;
+  var _SDL_Renderer[] ren;
+  var int id;
+  var BarberQueue& queue;
+  var BarberCustomer[] my_client;
+  event void done;
+do
+  var Object rep with
+    this.kind = kind;
+    this.ren = ren;
+    this.x = 400+25*id;
+    this.y = 300;
+    this.destx = 400+25*id;
+    this.desty = 300;
+  end;
+  loop do
+    if queue.servers_minus_clients_waiting >= 0 then
+      var int count = queue.servers_minus_clients_waiting;
+      queue.servers_minus_clients_waiting = queue.servers_minus_clients_waiting + 1;
+      loop i in count do
+        await queue.next_server;
+      end
+      my_client = await queue.next_server;
+      queue.servers_minus_clients_waiting = queue.servers_minus_clients_waiting - 1;
+      my_client:my_server = &this;
+    else
+      emit queue.next_client => &this; // reply by mutating my_client
+      _assert(my_client);
+    end
+    emit rep.move => (rep.x, rep.y - 10);
+    await 2s;
+    _printf("barber %d cuts customer %d's hair\n", id, (*my_client).id);
+    await (_random_plusminus(30000, 6000))ms;
+    emit done;
+    _printf("barber %d is done\n", id);
+    emit rep.move => (rep.x, rep.y + 10);
+    await 2s;
+  end
+end
+
 class Customer with
-  var Storage& chairs;
-  var Storage& barbers;
-  var Queue& barber;
+  interface BarberCustomer;
+  var BarberQueue& barbers;
+  var Barber[] my_server;
   var Kind& kind;
   var _SDL_Renderer[] ren;
 do
-  if chairs.count_allocated >= 10 then
+  if barbers.servers_minus_clients_waiting <= -10 then
     // balk
     var Object rep with
       this.kind = kind;
@@ -62,9 +85,8 @@ do
       this.desty = 580;
     end;
     await 2s;
-  else/if barbers.count_allocated < 10 and chairs.count_allocated == 0 then
-    // get a haircut without a wait
-    var int which_barber = barbers.enter();
+  else/if barbers.servers_minus_clients_waiting > 0 then
+    // go to barber directly, no need to wait
     var Object rep with
       this.kind = kind;
       this.ren = ren;
@@ -73,43 +95,34 @@ do
       this.destx = 400;
       this.desty = 10;
     end;
+    emit barbers.next_server => &this; // mutates my_server
+    _assert(my_server);
     await 2s;
-    emit rep.move => (400 + 25 * which_barber, 300);
-    await (_random_plusminus(30000, 6000))ms;
-    barbers.leave(which_barber);
-    emit barber.next;
-    _assert(rep.x == 400 + 25 * which_barber);
-    _assert(rep.y == 300);
+    emit rep.move => (400+25*my_server:id, 275);
+    await my_server:done;
     emit rep.move => (10, 580);
     await 2s;
   else
-    // wait for a haircut
-    var int which_seat = chairs.enter();
-    var int ahead = chairs.count_allocated;
     var Object rep with
       this.kind = kind;
       this.ren = ren;
       this.x = 10;
       this.y = 10;
-      this.destx = 400;
+      this.destx = 300;
       this.desty = 10;
     end;
-    par/or do
-      loop i in ahead do
-         await barber.next;
-      end
-      _assert(barbers.count_allocated < 10);
-    with
-      await 2s;
-      emit rep.move => (780, 10+25*which_seat);
-      await FOREVER;
+    // TODO: get a chair?
+    await 2s;
+    var int count = -1 * barbers.servers_minus_clients_waiting;
+    barbers.servers_minus_clients_waiting = barbers.servers_minus_clients_waiting - 1;
+    loop i in count do
+      await barbers.next_client;
     end
-    chairs.leave(which_seat);
-    var int which_barber = barbers.enter();
-    emit rep.move => (400 + 25 * which_barber, 300);
-    await (_random_plusminus(30000, 6000))ms;
-    barbers.leave(which_barber);
-    emit barber.next;
+    my_server = await barbers.next_client;
+    my_server:my_client = &this;
+    barbers.servers_minus_clients_waiting = barbers.servers_minus_clients_waiting + 1;
+    emit rep.move => (400+25*my_server:id, 275); 
+    await my_server:done;
     emit rep.move => (10, 580);
     await 2s;
   end

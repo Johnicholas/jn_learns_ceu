@@ -2,7 +2,7 @@
 
 var _SDL_Window* win;
 finalize
-  win = _SDL_CreateWindow("Animator", 500, 400, 800, 600, _SDL_WINDOW_SHOWN);
+  win = _SDL_CreateWindow("Animator", 100, 100, 800, 600, _SDL_WINDOW_SHOWN);
 with
   _SDL_DestroyWindow(win);
 end
@@ -22,21 +22,30 @@ par/or do
 with
   await 480s;
 with
-  var Storage chairs;
-  var Storage barbers;
-  var Queue barber;
+  var BarberQueue queue;
   var SmallSquare red with
     this.r = 255;
     this.g = 0;
     this.b = 0;
     this.speed = 2;
   end;
+  pool Barber[10] barbers;
+  loop i in 10 do
+    spawn Barber in barbers with
+      this.queue = queue;
+      this.id = i;
+      this.kind = red;
+      this.ren = ren;
+    end;
+  end
+  _printf("built the barbers\n");
+  await 1s;
+  _printf("spawning the customers\n");
   loop do
     await (_random_plusminus(2000, 1000))ms; // new arrivals every 18 +- 6 minutes
     spawn Customer with
-      this.chairs = chairs;
-      this.barbers = barbers;
-      this.barber = barber;
+      this.barbers = queue;
+      this.id = _rand() % 10;
       this.kind = red;
       this.ren = ren;
     end;
