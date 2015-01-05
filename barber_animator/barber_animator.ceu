@@ -22,7 +22,8 @@ par/or do
 with
   await 480s;
 with
-  var BarberQueue queue;
+  var BarberQueue barber_queue;
+  var ChairQueue chair_queue;
   var SmallSquare red with
     this.r = 255;
     this.g = 0;
@@ -32,19 +33,30 @@ with
   pool Barber[10] barbers;
   loop i in 10 do
     spawn Barber in barbers with
-      this.queue = queue;
+      this.queue = barber_queue;
       this.id = i;
       this.kind = red;
       this.ren = ren;
     end;
   end
   _printf("built the barbers\n");
+  pool Chair[10] chairs;
+  loop i in 10 do
+    spawn Chair in chairs with
+      this.queue = chair_queue;
+      this.id = i;
+      this.kind = red;
+      this.ren = ren;
+    end;
+  end
+  _printf("built the chairs\n");
   await 1s;
   _printf("spawning the customers\n");
   loop do
     await (_random_plusminus(2000, 1000))ms; // new arrivals every 18 +- 6 minutes
     spawn Customer with
-      this.barbers = queue;
+      this.barbers = barber_queue;
+      this.chairs = chair_queue;
       this.id = _rand() % 10;
       this.kind = red;
       this.ren = ren;
