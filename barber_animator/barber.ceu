@@ -120,14 +120,14 @@ do
     my_client:my_chair = &this;
     watching my_client do
       await my_client:ok_arrived_at_chair;
-      emit rep.go_move => (rep.x - 10, rep.y);
+      emit rep.go_move => (770, rep.y);
       await my_client:ok_standing_up;
     end
-    emit rep.go_move => (rep.x + 10, rep.y);
+    emit rep.go_move => (780, rep.y);
     par/and do
       await 1s;
     with
-      await rep.ok_moved;
+      await rep.ok_moved until rep.x == 780;
     end
   end
 end
