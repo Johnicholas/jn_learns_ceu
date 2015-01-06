@@ -1,0 +1,45 @@
+input void A_DONE;
+input void B_DONE;
+input void C_DONE;
+input void X_DONE;
+input void Y_DONE;
+input void Z_DONE;
+
+class Foo with
+  var int count = 0;
+  event int pop;
+do
+  // nothing
+end
+
+class Bar with
+  var Foo& foo;
+  var char letter;
+do
+  foo.count = foo.count + 1;
+  var int level = foo.count;
+  var int x = await foo.pop until x == level;
+  foo.count = foo.count - 1;
+  _printf("pop %c from level %d\n", letter, level);
+end
+
+var Foo foo;
+par do
+  every A_DONE do
+    spawn Bar with
+      this.foo = foo;
+      this.letter = 'a';
+    end;
+  end
+with
+  every B_DONE do
+    spawn Bar with
+      this.foo = foo;
+      this.letter = 'b';
+    end;
+  end
+with
+  every C_DONE do
+    emit foo.pop => foo.count;
+  end
+end

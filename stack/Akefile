@@ -1,0 +1,14 @@
+run: stack in.txt
+	./stack < in.txt
+
+stack: cc stack.c _ceu_app.c _ceu_app.h ceu_types.h
+	bash cc stack.c -o stack
+
+_ceu_app.c: stack.ceu
+	ceu stack.ceu
+
+_ceu_app.h: stack.ceu
+	ceu stack.ceu
+
+clean:
+	rm stack _ceu_app.c _ceu_app.h
