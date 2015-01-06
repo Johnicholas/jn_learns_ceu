@@ -22,7 +22,7 @@ end
 
 interface BarberCustomer with
   var Barber[] my_barber;
-  var int id;
+  event void ok_arrived;
 end
 
 class Barber with
@@ -31,7 +31,7 @@ class Barber with
   var int id;
   var BarberQueue& queue;
   var BarberCustomer* my_client = null;
-  event void done;
+  event void ok_done;
 do
   var Object rep with
     this.kind = kind;
@@ -55,15 +55,25 @@ do
       emit queue.next_client => &this; // reply by mutating my_client
     end
     watching my_client do
-      emit rep.move => (rep.x, rep.y - 10);
-      await 2s;
-      _printf("barber %d cuts customer %d's hair\n", id, my_client:id);
+      emit rep.go_move => (rep.x, 290);
+      par/and do
+        await 2s;
+      with
+        await rep.ok_moved until rep.y == 290;
+      with
+        await my_client:ok_arrived;
+      end
+      _printf("barber %d starts cutting hair\n", id);
       await (_random_plusminus(30000, 6000))ms;
-      emit done;
-      _printf("barber %d is done cutting customer %d's hair\n", id, my_client:id);
+      emit ok_done;
+      _printf("barber %d is done\n", id);
     end
-    emit rep.move => (rep.x, rep.y + 10);
-    await 2s;
+    emit rep.go_move => (rep.x, 300);
+    par/and do
+      await 2s;
+    with
+      await rep.ok_moved until rep.y == 300;
+    end
   end
 end
 
@@ -78,7 +88,8 @@ do
 end
 
 interface ChairCustomer with
-  event void stand_up;
+  event void ok_standing_up;
+  event void ok_arrived_at_chair;
   var Chair[] my_chair;
 end
 
@@ -107,10 +118,17 @@ do
     my_client = await queue.next_server;
     queue.servers_minus_clients_waiting = queue.servers_minus_clients_waiting - 1;
     my_client:my_chair = &this;
-    emit rep.move => (rep.x - 10, rep.y);
-    await my_client:stand_up;
-    emit rep.move => (rep.x + 10, rep.y);
-    await 1s;
+    watching my_client do
+      await my_client:ok_arrived_at_chair;
+      emit rep.go_move => (rep.x - 10, rep.y);
+      await my_client:ok_standing_up;
+    end
+    emit rep.go_move => (rep.x + 10, rep.y);
+    par/and do
+      await 1s;
+    with
+      await rep.ok_moved;
+    end
   end
 end
 
@@ -135,9 +153,19 @@ do
       this.destx = 400+25*my_barber:id;
       this.desty = 275;
     end;
-    await my_barber:done;
-    emit rep.move => (10, 580);
-    await 2s;
+    par/and do
+      await 2s;
+    with
+      await rep.ok_moved;
+    end
+    emit ok_arrived;
+    await my_barber:ok_done;
+    emit rep.go_move => (10, 580);
+    par/and do
+      await 2s;
+    with
+      await rep.ok_moved;
+    end
   else
     // sit down in a chair until a barber is available
     my_chair = null;
@@ -153,17 +181,33 @@ do
         this.destx = 755;
         this.desty = 10+25*my_chair:id;
       end;
-      loop i in count do
-        await barbers.next_client;
+      par/or do
+        await rep.ok_moved;
+        emit ok_arrived_at_chair;
+        await FOREVER;
+      with
+        loop i in count do
+          await barbers.next_client;
+        end
+        my_barber = await barbers.next_client;
       end
-      my_barber = await barbers.next_client;
       my_barber:my_client = &this;
       barbers.servers_minus_clients_waiting = barbers.servers_minus_clients_waiting + 1;
-      emit stand_up;
-      emit rep.move => (400+25*my_barber:id, 275);
-      await my_barber:done;
-      emit rep.move => (10, 580);
-      await 2s;
+      emit ok_standing_up;
+      emit rep.go_move => (400+25*my_barber:id, 275);
+      par/and do
+        await 2s;
+      with
+        await rep.ok_moved;
+      end
+      emit ok_arrived;
+      await my_barber:ok_done;
+      emit rep.go_move => (10, 580);
+      par/and do
+        await 2s;
+      with
+        await rep.ok_moved;
+      end
     else
       // balk
       var Object rep with
@@ -174,7 +218,11 @@ do
         this.destx = 10;
         this.desty = 580;
       end;
-      await 2s;
+      par/and do
+        await 2s;
+      with
+        await rep.ok_moved;
+      end
     end
   end
 end

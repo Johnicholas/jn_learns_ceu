@@ -28,10 +28,23 @@ with
     this.r = 255;
     this.g = 0;
     this.b = 0;
-    this.speed = 2;
+    this.speed = 0.1;
   end;
-  pool Barber[10] barbers;
-  loop i in 10 do
+  var SmallSquare green with
+    this.r = 0;
+    this.g = 255;
+    this.b = 0;
+    this.speed = 0.1;
+  end;
+  var SmallSquare blue with
+    this.r = 0;
+    this.g = 0;
+    this.b = 255;
+    this.speed = 0.1;
+  end;
+  pool Barber[] barbers;
+  var int barbercount = _random_plusminus(5, 4);
+  loop i in barbercount do
     spawn Barber in barbers with
       this.queue = barber_queue;
       this.id = i;
@@ -40,12 +53,13 @@ with
     end;
   end
   _printf("built the barbers\n");
-  pool Chair[10] chairs;
-  loop i in 10 do
+  pool Chair[] chairs;
+  var int chaircount = _random_plusminus(5, 4);
+  loop i in chaircount do
     spawn Chair in chairs with
       this.queue = chair_queue;
       this.id = i;
-      this.kind = red;
+      this.kind = green;
       this.ren = ren;
     end;
   end
@@ -57,8 +71,7 @@ with
     spawn Customer with
       this.barbers = barber_queue;
       this.chairs = chair_queue;
-      this.id = _rand() % 10;
-      this.kind = red;
+      this.kind = blue;
       this.ren = ren;
     end;
   end

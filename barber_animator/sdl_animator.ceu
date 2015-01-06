@@ -39,8 +39,9 @@ class Object with
   var int destx;
   var int desty;
   var _SDL_Renderer[] ren;
-  event (int, int) place; // place this object at a location
-  event (int, int) move; // move this to a location
+  event (int, int) go_place; // place this object at a location
+  event (int, int) go_move; // move this to a location
+  event void ok_moved;
 do
   par do
     every SDL_REDRAW do
@@ -50,7 +51,7 @@ do
     loop do
       par/or do
         var int new_x, new_y;
-        (new_x, new_y) = await place;
+        (new_x, new_y) = await go_place;
         if x != new_x or y != new_y then
           _printf("warning: place %d %d is teleporting\n", new_x, new_y);
         end
@@ -61,7 +62,7 @@ do
       with
         if destx == x and desty == y then
           var int new_destx, new_desty;
-          (new_destx, new_desty) = await move;
+          (new_destx, new_desty) = await go_move;
           destx = new_destx;
           desty = new_desty;
         else
@@ -76,6 +77,7 @@ do
             else
               x = destx;
               y = desty;
+              emit ok_moved;
               break; // out of every delta in SDL_DT
             end
           end
