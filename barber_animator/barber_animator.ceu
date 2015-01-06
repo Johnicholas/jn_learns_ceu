@@ -40,7 +40,7 @@ with
     this.r = 0;
     this.g = 0;
     this.b = 255;
-    this.speed = 0.1;
+    this.speed = 1;
   end;
   pool Barber[] barbers;
   var int barbercount = _random_plusminus(5, 4);
