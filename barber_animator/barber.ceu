@@ -10,13 +10,11 @@ end
 
 native @nohold _assert();
 
-#define SYNC(c) \
-  if c.ready_waiting then c.ready_waiting = false; emit c.ready; else c.ready_waiting = true; await c.ready; end
+#define SYNC(r) \
+  if r.waiting then r.waiting = false; emit r.ready; else r.waiting = true; await r.ready; end
 
-class Contract with
-  var int x = 50;
-  var int y = 50;
-  var bool ready_waiting = false;
+class Rendesvous with
+  var bool waiting = false;
   event void ready;
   event void over;
 do
@@ -24,11 +22,9 @@ do
 end
 
 class Queue with
-  // this is a count of servers waiting minus clients waiting.
-  // or equivalently, because there are never both servers and clients waiting,
-  // this is a count of waiting entities that is positive if they are servers and negative if they are clients
   var int waiting = 0;
-  event Contract** next;
+  event (Rendesvous**, int, int) next_client; // sent by servers requesting the next client
+  event (Rendesvous**, int*, int*) next_server; // sent by clients requesting the next server
 do
   // nothing
 end
@@ -49,76 +45,55 @@ do
   end;
   loop do
     await 1ms; // TODO: necessary?
-    if customers.waiting < 0 then
-      // there is at least one client waiting, get them
-      if id == 2 then _printf("if there is at least one client\n"); end
-      var Contract* my_contract = null;
-      emit customers.next => &my_contract;
-      if my_contract == null then
-        _printf("barber %d thought there were clients waiting, but turned out to be mistaken?!?!\n", id);
-        _assert(0);
-      end
-      watching my_contract do
-        my_contract:x = rep.x;
-        my_contract:y = 275;
+    // try to get a client
+    var Rendesvous* contractptr = null;
+    emit customers.next_client => (&contractptr, rep.x, 275);
+    if contractptr then
+      watching contractptr do
+        SYNC((*contractptr));
         // step forward to meet the client
-        emit rep.go_move => (rep.x, 290);
-        loop do
-          if id == 2 then _printf("watching my_contract await ok_moved\n"); end
-          await rep.ok_moved;
-          if rep.y == 290 then
-            break;
-          end
-        end
-        if my_contract:ready_waiting then
-          my_contract:ready_waiting = false;
-          emit my_contract:ready;
-        else
-          my_contract:ready_waiting = true;
-          if id == 2 then _printf("watching my_contract sync *my_contract\n"); end
-          await my_contract:ready;
-        end
-        if id == 2 then _printf("watching my_contract await random\n"); end
+        var int count = 0;
+        emit rep.go_move => (&count, rep.x, 290);
+        _assert(count == 1);
+        await rep.ok_moved;
         await (_random_plusminus(30000, 6000))ms;
-        emit my_contract:over;
-        if id == 2 then _printf("done watching my_contract\n"); end
+        emit contractptr:over;
       end
-      if id == 2 then _printf("done customers.waiting < 0\n"); end
     else
       // there's a line of servers wanting clients
-      if id == 2 then _printf("there is a line of servers\n"); end
-      var int count = customers.waiting;
+      var int ticket = customers.waiting;
       // get in line
       customers.waiting = customers.waiting + 1;
       // wait until we are at the head of the line
-      loop i in count do
-        await customers.next;
+      loop i in ticket do
+        await customers.next_server;
       end
       // when a client asks for a server, volunteer self
-      var Contract my_contract with
-        this.x = rep.x;
-        this.y = 275;
-      end;
-      do
-        var Contract** mailbox = await customers.next;
-        *mailbox = &my_contract;
-      end
+      var Rendesvous** contract_mailbox = null;
+      var int* x_mailbox = null;
+      var int* y_mailbox = null;
+      (contract_mailbox, x_mailbox, y_mailbox) = await customers.next_server;
       // leave the line
       customers.waiting = customers.waiting - 1;
+      var Rendesvous contract;
+      *contract_mailbox = &contract;
+      *x_mailbox = rep.x;
+      *y_mailbox = 275;
       await 1ms; // TODO: necessary?
+      SYNC(contract);
       // step forward to meet the client
-      emit rep.go_move => (rep.x, 290);
-      if id == 2 then _printf("await ok_moved\n"); end
-      await rep.ok_moved until rep.y == 290;
-      if id == 2 then _printf("sync\n"); end
-      SYNC(my_contract);
+      var int count = 0;
+      emit rep.go_move => (&count, rep.x, 290);
+      _assert(count == 1);
+      await rep.ok_moved;
       await (_random_plusminus(30000, 6000))ms;
-      emit my_contract.over;
+      emit contract.over;
     end
     // step back and clean up the station
-    emit rep.go_move => (rep.x, 300);
-    if id == 2 then _printf("await ok_moved back\n"); end
-    await rep.ok_moved until rep.y == 300;
+    var int count = 0;
+    emit rep.go_move => (&count, rep.x, 300);
+    _assert(count == 1);
+    await rep.ok_moved;
   end
 end
 
@@ -136,38 +111,40 @@ do
     this.destx = 780;
     this.desty = 10+25*id;
   end;
-  await 1ms; // TODO: necessary?
   loop do
-    _assert(customers.waiting >= 0);
-    var int count = customers.waiting;
+    _printf("Chair %d top of loop\n", id);
+    await 1ms; // TODO: necessary?
+    var int ticket = customers.waiting;
     customers.waiting = customers.waiting + 1;
-    loop i in count do
-      await customers.next;
+    loop i in ticket do
+      await customers.next_server;
     end
     // when a client asks for a server, volunteer self
-    var Contract my_contract with
-      this.x = 755;
-      this.y = rep.y;
-    end;
-    do
-      var Contract** mailbox = await customers.next;
-      *mailbox = &my_contract;
-    end
+    var Rendesvous contract;
+    var Rendesvous** contract_mailbox = null;
+    var int* x_mailbox = null;
+    var int* y_mailbox = null;
+    (contract_mailbox, x_mailbox, y_mailbox) = await customers.next_server;
     // leave the line
     customers.waiting = customers.waiting - 1;
+    _printf("Chair %d finally has a customer!\n", id);
+    *contract_mailbox = &contract;
+    *x_mailbox = 755;
+    *y_mailbox = rep.y;
     await 1ms; // TODO: necessary?
-    emit rep.go_move => (770, rep.y);
-    await rep.ok_moved until rep.x == 770;
-    if my_contract.ready_waiting then
-      my_contract.ready_waiting = false;
-      emit my_contract.ready;
-    else
-      my_contract.ready_waiting = true;
-      await my_contract.ready;
+    SYNC(contract);
+    par/and do
+      await contract.over;
+    with
+      var int count = 0;
+      emit rep.go_move => (&count, 770, rep.y);
+      _assert(count == 1);
+      await rep.ok_moved;
     end
-    await my_contract.over;
-    emit rep.go_move => (780, rep.y);
-    await rep.ok_moved until rep.x == 780;
+    var int count = 0;
+    emit rep.go_move => (&count, 780, rep.y);
+    _assert(count == 1);
+    await rep.ok_moved;
   end
 end
 
@@ -187,73 +164,71 @@ do
     this.destx = 400;
     this.desty = 10;
   end;
-  await rep.ok_moved until rep.x == 400 and rep.y == 10;
+  await rep.ok_moved;
   await 1ms; // TODO: necessary?
-  if barbers.waiting <= 0 and chairs.waiting <= 0 then
-    // no barbers and no chairs - balk
-  else/if barbers.waiting <= 0 and chairs.waiting > 0 then
-    // no barbers but there are chairs
-    var Contract my_barber;
-    var Contract* my_chair = null;
-    emit chairs.next => &my_chair;
-    if my_chair == null then
-      _printf("Customer %d thought there were chairs, but there aren't chairs!?!?\n", id);
+  // try to get a barber
+  var Rendesvous* barberptr = null;
+  var int barberx, barbery;
+  emit barbers.next_server => (&barberptr, &barberx, &barbery);
+  if barberptr then
+    watching barberptr do
+      // go to the barber
+      var int count = 0;
+      emit rep.go_move => (&count, barberx, barbery);
+      _assert(count == 1);
+      await rep.ok_moved;
+      SYNC((*barberptr));
+      await barberptr:over;
     end
-    watching my_chair do
-      par/or do
+  else
+    var Rendesvous* chairptr = null;
+    var int chairx, chairy;
+    emit chairs.next_server => (&chairptr, &chairx, &chairy);
+    if chairptr then
+      var bool done_watching_happily = false;
+      var Rendesvous barber;
+      watching chairptr do
         // go to the chair
-        emit rep.go_move => (my_chair:x, my_chair:y);
+        var int count = 0;
+        emit rep.go_move => (&count, chairx, chairy);
+        _assert(count == 1);
         await rep.ok_moved;
         // sit down
-        if my_chair:ready_waiting then
-          emit my_chair:ready;
-        else
-          my_chair:ready_waiting = true;
-          await my_chair:ready;
-        end
-        await FOREVER;
-      with
-        // there's a line of customers wanting barbers
-        var int count = -1 * barbers.waiting;
+        _printf("customer %d sitting down\n", id);
+        SYNC((*chairptr));
         // get in line
+        var int ticket = -1 * barbers.waiting;
         barbers.waiting = barbers.waiting - 1;
         // wait until we are at the head of the line
-        loop i in count do
-          await barbers.next;
+        loop i in ticket do
+          await barbers.next_client;
         end
         // volunteer self when a barber asks for a customer
-        do
-          var Contract** mailbox = await barbers.next;
-          *mailbox = &my_barber;
-        end
+        var Rendesvous** barber_mailbox = null;
+        (barber_mailbox, barberx, barbery) = await barbers.next_client;
         // leave the line
         barbers.waiting = barbers.waiting + 1;
-        await 1ms; // TODO: necessary?
-        emit my_chair:over;
+        *barber_mailbox = &barber;
+        // stand up
+        done_watching_happily = true;
+        emit chairptr:over;
       end
-    end
-    // go to the barber
-    emit rep.go_move => (my_barber.x, my_barber.y);
-    await rep.ok_moved until rep.x == my_barber.x and rep.y == my_barber.y;
-    SYNC(my_barber);
-    await my_barber.over;
-  else
-    // there is at least one barber, get them
-    var Contract* my_barber = null;
-    emit barbers.next => &my_barber;
-    _assert(my_barber);
-    watching my_barber do
-      // go to the barber
-      emit rep.go_move => (my_barber:x, my_barber:y);
+      _assert(done_watching_happily);
+      await 1ms; // TODO: necessary?
+      var int count = 0;
+      emit rep.go_move => (&count, barberx, barbery);
+      _assert(count == 1);
       await rep.ok_moved;
-      SYNC((*my_barber));
-      await my_barber:over;
+      SYNC(barber);
+      await barber.over;
     end
   end
 
   // leave
   await 1ms; // TODO: necessary?
-  emit rep.go_move => (10, 580);
+  var int count = 0;
+  emit rep.go_move => (&count, 10, 580);
+  _assert(count == 1);
   await rep.ok_moved;
 end
 
