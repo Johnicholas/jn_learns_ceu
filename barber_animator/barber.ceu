@@ -13,18 +13,66 @@ native @nohold _assert();
 #define SYNC(r) \
   if r.waiting then r.waiting = false; emit r.ready; else r.waiting = true; await r.ready; end
 
-class Rendesvous with
-  var bool waiting = false;
+class BarberCustomerRendesvous with
+  var Barber& barber;
+  var int x;
+  var int y;
+  function (void)=>bool got_accepted;
+  var bool waiting;
   event void ready;
   event void over;
+  function (Customer&)=>bool volunteer;
 do
-  // nothing
+  var bool accepted = false;
+
+  function (void)=>bool was_accepted do
+    return accepted;
+  end
+
+  function (Customer& c)=>bool volunteer do
+    if accepted then
+      return false;
+    else
+      accepted = true;
+      return true;
+    end
+  end
 end
 
-class Queue with
+class CustomerBarberRendesvous with
+  var Customer& customer;
+  function (Barber&, int, int)=>bool volunteer;
+  var bool waiting;
+  event void ready;
+  event void over;
+  function (void)=>bool was_accepted;
+  var int x = 50;
+  var int y = 50;
+do
+  var bool accepted = false;
+
+  function (Barber& b, int x, int y)=>bool volunteer do
+    if accepted then
+      return false;
+    else
+      accepted = true;
+      this.x = x;
+      this.y = y;
+      return true;
+    end
+  end
+
+  function (void)=>bool was_accepted do
+    return accepted;
+  end
+end
+
+class BarberQueue with
   var int waiting = 0;
-  event (Rendesvous**, int, int) next_client; // sent by servers requesting the next client
-  event (Rendesvous**, int*, int*) next_server; // sent by clients requesting the next server
+  // sent by servers requesting the next client
+  event BarberCustomerRendesvous* next_client;
+  // sent by clients requesting the next server
+  event CustomerBarberRendesvous* next_server;
 do
   // nothing
 end
@@ -33,7 +81,7 @@ class Barber with
   var Kind& kind;
   var _SDL_Renderer[] ren;
   var int id;
-  var Queue& customers;
+  var BarberQueue& customers;
 do
   var Object rep with
     this.kind = kind;
@@ -43,52 +91,44 @@ do
     this.destx = 400+25*id;
     this.desty = 300;
   end;
+
   loop do
     await 1ms; // TODO: necessary?
     // try to get a client
-    var Rendesvous* contractptr = null;
-    emit customers.next_client => (&contractptr, rep.x, 275);
-    if contractptr then
-      watching contractptr do
-        SYNC((*contractptr));
-        // step forward to meet the client
-        var int count = 0;
-        emit rep.go_move => (&count, rep.x, 290);
-        _assert(count == 1);
-        await rep.ok_moved;
-        await (_random_plusminus(30000, 6000))ms;
-        emit contractptr:over;
-      end
-    else
-      // there's a line of servers wanting clients
-      var int ticket = customers.waiting;
-      // get in line
-      customers.waiting = customers.waiting + 1;
-      // wait until we are at the head of the line
-      loop i in ticket do
-        await customers.next_server;
-      end
-      // when a client asks for a server, volunteer self
-      var Rendesvous** contract_mailbox = null;
-      var int* x_mailbox = null;
-      var int* y_mailbox = null;
-      (contract_mailbox, x_mailbox, y_mailbox) = await customers.next_server;
-      // leave the line
-      customers.waiting = customers.waiting - 1;
-      var Rendesvous contract;
-      *contract_mailbox = &contract;
-      *x_mailbox = rep.x;
-      *y_mailbox = 275;
-      await 1ms; // TODO: necessary?
-      SYNC(contract);
+    var BarberCustomerRendesvous r with
+      this.barber = outer;
+      this.x = rep.x;
+      this.y = rep.y;
+    end;
+    emit customers.next_client => &r;
+    if r.got_accepted() then
+      SYNC(r);
       // step forward to meet the client
       var int count = 0;
       emit rep.go_move => (&count, rep.x, 290);
       _assert(count == 1);
       await rep.ok_moved;
       await (_random_plusminus(30000, 6000))ms;
-      emit contract.over;
+      emit r.over;
+    else
+      // when a client asks for a server, volunteer self
+      var CustomerBarberRendesvous[] rptr = null;
+      loop do
+        rptr = await customers.next_server;
+        if rptr:volunteer(this, rep.x, 275) then
+          break;
+        end
+      end
+      SYNC((*rptr));
+      // step forward to meet the client
+      var int count = 0;
+      emit rep.go_move => (&count, rep.x, 290);
+      _assert(count == 1);
+      await rep.ok_moved;
+      await (_random_plusminus(30000, 6000))ms;
+      emit rptr:over;
     end
+
     // step back and clean up the station
     var int count = 0;
     emit rep.go_move => (&count, rep.x, 300);
@@ -97,60 +137,9 @@ do
   end
 end
 
-class Chair with
-  var Queue& customers;
-  var Kind& kind;
-  var _SDL_Renderer[] ren;
-  var int id;
-do
-  var Object rep with
-    this.kind = kind;
-    this.ren = ren;
-    this.x = 780;
-    this.y = 10+25*id;
-    this.destx = 780;
-    this.desty = 10+25*id;
-  end;
-  loop do
-    _printf("Chair %d top of loop\n", id);
-    await 1ms; // TODO: necessary?
-    var int ticket = customers.waiting;
-    customers.waiting = customers.waiting + 1;
-    loop i in ticket do
-      await customers.next_server;
-    end
-    // when a client asks for a server, volunteer self
-    var Rendesvous contract;
-    var Rendesvous** contract_mailbox = null;
-    var int* x_mailbox = null;
-    var int* y_mailbox = null;
-    (contract_mailbox, x_mailbox, y_mailbox) = await customers.next_server;
-    // leave the line
-    customers.waiting = customers.waiting - 1;
-    _printf("Chair %d finally has a customer!\n", id);
-    *contract_mailbox = &contract;
-    *x_mailbox = 755;
-    *y_mailbox = rep.y;
-    await 1ms; // TODO: necessary?
-    SYNC(contract);
-    par/and do
-      await contract.over;
-    with
-      var int count = 0;
-      emit rep.go_move => (&count, 770, rep.y);
-      _assert(count == 1);
-      await rep.ok_moved;
-    end
-    var int count = 0;
-    emit rep.go_move => (&count, 780, rep.y);
-    _assert(count == 1);
-    await rep.ok_moved;
-  end
-end
-
 class Customer with
-  var Queue& barbers;
-  var Queue& chairs;
+  var BarberQueue& barbers;
+  // var Queue& chairs;
   var Kind& kind;
   var _SDL_Renderer[] ren;
   var int id;
@@ -167,61 +156,33 @@ do
   await rep.ok_moved;
   await 1ms; // TODO: necessary?
   // try to get a barber
-  var Rendesvous* barberptr = null;
-  var int barberx, barbery;
-  emit barbers.next_server => (&barberptr, &barberx, &barbery);
-  if barberptr then
-    watching barberptr do
-      // go to the barber
-      var int count = 0;
-      emit rep.go_move => (&count, barberx, barbery);
-      _assert(count == 1);
-      await rep.ok_moved;
-      SYNC((*barberptr));
-      await barberptr:over;
-    end
+  var CustomerBarberRendesvous r with
+    this.customer = outer;
+  end;
+  emit barbers.next_server => &r;
+  if r.was_accepted() then
+    // go to the barber
+    var int count = 0;
+    emit rep.go_move => (&count, r.x, r.y);
+    _assert(count == 1);
+    await rep.ok_moved;
+    SYNC(r);
+    await r.over;
   else
-    var Rendesvous* chairptr = null;
-    var int chairx, chairy;
-    emit chairs.next_server => (&chairptr, &chairx, &chairy);
-    if chairptr then
-      var bool done_watching_happily = false;
-      var Rendesvous barber;
-      watching chairptr do
-        // go to the chair
-        var int count = 0;
-        emit rep.go_move => (&count, chairx, chairy);
-        _assert(count == 1);
-        await rep.ok_moved;
-        // sit down
-        _printf("customer %d sitting down\n", id);
-        SYNC((*chairptr));
-        // get in line
-        var int ticket = -1 * barbers.waiting;
-        barbers.waiting = barbers.waiting - 1;
-        // wait until we are at the head of the line
-        loop i in ticket do
-          await barbers.next_client;
-        end
-        // volunteer self when a barber asks for a customer
-        var Rendesvous** barber_mailbox = null;
-        (barber_mailbox, barberx, barbery) = await barbers.next_client;
-        // leave the line
-        barbers.waiting = barbers.waiting + 1;
-        *barber_mailbox = &barber;
-        // stand up
-        done_watching_happily = true;
-        emit chairptr:over;
+    // when a client asks for a server, volunteer self
+    var BarberCustomerRendesvous* rptr = null;
+    loop do
+      rptr = await barbers.next_client;
+      if rptr:volunteer(this, rep.x, 275) then
+        break;
       end
-      _assert(done_watching_happily);
-      await 1ms; // TODO: necessary?
-      var int count = 0;
-      emit rep.go_move => (&count, barberx, barbery);
-      _assert(count == 1);
-      await rep.ok_moved;
-      SYNC(barber);
-      await barber.over;
     end
+    var int count = 0;
+    emit rep.go_move => (&count, r.x, r.y);
+    _assert(count == 1);
+    await rep.ok_moved;
+    SYNC((*rptr));
+    await rptr:over;
   end
 
   // leave

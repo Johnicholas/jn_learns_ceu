@@ -23,8 +23,8 @@ with
   // await 480s;
   await FOREVER;
 with
-  var Queue barber_queue;
-  var Queue chair_queue;
+  var BarberQueue barber_queue;
+  // var Queue chair_queue;
   var SmallSquare red with
     this.r = 255;
     this.g = 0;
@@ -44,7 +44,7 @@ with
     this.speed = 0.1;
   end;
   pool Barber[] barbers;
-  pool Chair[] chairs;
+  // pool Chair[] chairs;
   par do
     loop i in 10 do
       spawn Barber in barbers with
@@ -55,23 +55,23 @@ with
       end;
       await (_random_plusminus(18000+2000*i, 1000))ms; // new arrivals every 18 +- 6 minutes
     end
-  with
-    loop i in 10 do
-      await (_random_plusminus(18000+2000*i, 1000))ms; // new arrivals every 18 +- 6 minutes
-      spawn Chair in chairs with
-        this.customers = chair_queue;
-        this.kind = green;
-        this.ren = ren;
-        this.id = i;
-      end;
-    end
+  // with
+  //   loop i in 10 do
+  //     await (_random_plusminus(18000+2000*i, 1000))ms; // new arrivals every 18 +- 6 minutes
+  //     spawn Chair in chairs with
+  //       this.customers = chair_queue;
+  //       this.kind = green;
+  //       this.ren = ren;
+  //       this.id = i;
+  //     end;
+  //   end
   with
     // every once in a while, a customer enters the shop
     loop i do
       await (_random_plusminus(2000, 1000))ms; // new arrivals every 18 +- 6 minutes
       spawn Customer with
         this.barbers = barber_queue;
-        this.chairs = chair_queue;
+        // this.chairs = chair_queue;
         this.kind = blue;
         this.ren = ren;
         this.id = i;
