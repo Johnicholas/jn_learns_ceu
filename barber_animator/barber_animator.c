@@ -34,7 +34,9 @@ int main (int argc, char *argv[])
     r.h = data.ren_h;
     SDL_SetRenderDrawColor(data.ren, 0, 0, 0, 255); // black
     SDL_RenderFillRect(data.ren, &r);
-    ceu_sys_go(&app, CEU_IN_SDL_REDRAW, (tceu_evtp)0);
+    // printf("barber_animator.c before redraw event\n");
+    ceu_sys_go(&app, CEU_IN_SDL_REDRAW, NULL);
+    //  printf("barber_animator.c after redraw event\n");
     SDL_RenderPresent(data.ren);
     
     u32 temp = SDL_GetTicks();
@@ -43,8 +45,18 @@ int main (int argc, char *argv[])
     }
     s32 dt = temp - ticks;
     ticks = temp;
-    ceu_sys_go(&app, CEU_IN_SDL_DT, (tceu_evtp)(dt));
-    ceu_sys_go(&app, CEU_IN__WCLOCK, (tceu_evtp)(dt*5000));
+    {
+      tceu__int payload = { dt }; 
+      // printf("barber_animator.c before dt event\n");
+      ceu_sys_go(&app, CEU_IN_SDL_DT, &payload);
+      // printf("barber_animator.c after dt event\n");
+    }
+    {
+      s32 dt_scaled = dt * 5000;
+      // printf("barber_animator.c before wclock event\n");
+      ceu_sys_go(&app, CEU_IN__WCLOCK, &dt_scaled);
+      // printf("barber_animator.c after wclock event\n");
+    }
     // clear the event queue
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
