@@ -20,8 +20,7 @@ end
 par/or do
   await SDL_QUIT;
 with
-  // await 480s;
-  await FOREVER;
+  await 480s;
 with
   var Queue barber_queue;
   var Queue chair_queue;
@@ -46,18 +45,18 @@ with
   pool Barber[] barbers;
   pool Chair[] chairs;
   par do
-    loop i in 10 do
+    loop i do
       spawn Barber in barbers with
         this.customers = barber_queue;
         this.kind = red;
         this.ren = ren;
         this.id = i;
       end;
-      // await (_random_plusminus(18000+2000*i, 1000))ms; // new arrivals every 18 +- 6 minutes
+      await (_random_plusminus(18000+2000*i, 1000))ms;
     end
   with
-    loop i in 10 do
-      await (_random_plusminus(18000+2000*i, 1000))ms; // new arrivals every 18 +- 6 minutes
+    loop i do
+      await (_random_plusminus(18000+2000*i, 1000))ms;
       spawn Chair in chairs with
         this.customers = chair_queue;
         this.kind = green;
@@ -68,7 +67,7 @@ with
   with
     // every once in a while, a customer enters the shop
     loop i do
-      await (_random_plusminus(2000, 1000))ms; // new arrivals every 18 +- 6 minutes
+      await (_random_plusminus(2000, 1000))ms;
       spawn Customer with
         this.barbers = barber_queue;
         this.chairs = chair_queue;

@@ -66,25 +66,25 @@ do
   var Object rep with
     this.kind = kind;
     this.ren = ren;
-    this.x = 400+25*id;
-    this.y = 300;
-    this.destx = 400+25*id;
-    this.desty = 300;
+    this.x = 200+25*id;
+    this.y = 400;
+    this.destx = 200+25*id;
+    this.desty = 400;
   end;
 
   loop do
     await 1ms; // TODO: necessary?
     // try to get a client
     var Rendesvous r;
-    r.server_volunteers(rep.x, 275);
+    r.server_volunteers(rep.x, 385);
     emit customers.next => &r;
     if r.was_accepted() then
+      SYNC(r);
       // step forward to meet the client
       var int count = 0;
-      emit rep.go_move => (&count, rep.x, 290);
+      emit rep.go_move => (&count, rep.x, 390);
       _assert(count == 1);
       await rep.ok_moved;
-      SYNC(r);
       await (_random_plusminus(30000, 6000))ms;
       emit r.over;
     else
@@ -92,25 +92,25 @@ do
       var Rendesvous[] rptr = null;
       loop do
         rptr = await customers.next;
-        if rptr:server_volunteers(rep.x, 275) then
+        if rptr:server_volunteers(rep.x, 385) then
           break;
         else
           rptr = null;
         end
       end
+      SYNC((*rptr));
       // step forward to meet the client
       var int count = 0;
-      emit rep.go_move => (&count, rep.x, 290);
+      emit rep.go_move => (&count, rep.x, 390);
       _assert(count == 1);
       await rep.ok_moved;
-      SYNC((*rptr));
       await (_random_plusminus(30000, 6000))ms;
       emit rptr:over;
     end
 
     // step back and clean up the station
     var int count = 0;
-    emit rep.go_move => (&count, rep.x, 300);
+    emit rep.go_move => (&count, rep.x, 400);
     _assert(count == 1);
     await rep.ok_moved;
   end
@@ -144,16 +144,19 @@ do
       end
     end
     // as they sit down, the chair moves forward a little bit.
-    var int count = 0;
-    emit rep.go_move => (&count, 770, rep.y);
-    _assert(count == 1);
-    await rep.ok_moved;
-    SYNC((*rptr));
-    await (_random_plusminus(30000, 6000))ms;
-    emit rptr:over;
-
+    watching rptr do
+      SYNC((*rptr));
+      var int count = 0;
+      emit rep.go_move => (&count, 770, rep.y);
+      _assert(count == 1);
+      par/and do
+        await rep.ok_moved;
+      with
+        await rptr:over;
+      end
+    end
     // as they stand up, the chair moves backward a little bit.
-    count = 0;
+    var int count = 0;
     emit rep.go_move => (&count, 780, rep.y);
     _assert(count == 1);
     await rep.ok_moved;
@@ -171,12 +174,11 @@ do
   var Object rep with
     this.kind = kind;
     this.ren = ren;
-    this.x = 10;
+    this.x = 400;
     this.y = 10;
     this.destx = 400;
     this.desty = 10;
   end;
-  await rep.ok_moved;
   await 1ms; // TODO: necessary?
   // try to get a barber
   var Rendesvous r;
@@ -211,9 +213,14 @@ do
         emit rep.go_move => (&count, chair_r.x, chair_r.y);
         _assert(count == 1);
         await rep.ok_moved;
-        // TODO: go to the chair?
+        SYNC(chair_r);
         await FOREVER;
       end
+      if chair_r.waiting then
+        emit chair_r.ready;
+        await 1ms; // TODO: necessary?
+      end
+      emit chair_r.over;
       var int count = 0;
       emit rep.go_move => (&count, rptr:x, rptr:y);
       _assert(count == 1);
@@ -227,7 +234,7 @@ do
   // leave
   await 1ms; // TODO: necessary?
   var int count = 0;
-  emit rep.go_move => (&count, 10, 580);
+  emit rep.go_move => (&count, 10, 300);
   _assert(count == 1);
   await rep.ok_moved;
 end
