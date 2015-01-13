@@ -137,7 +137,7 @@ do
     var Rendesvous[] rptr = null;
     loop do
       rptr = await customers.next;
-      if rptr:server_volunteers(755, rep.y) then
+      if rptr:server_volunteers(765, rep.y) then
         break;
       else
         rptr = null;
