@@ -1,0 +1,3 @@
+PREFLAGS=""
+POSTFLAGS="-lcurses"
+gcc $PREFLAGS $@ $POSTFLAGS

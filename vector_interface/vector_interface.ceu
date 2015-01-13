@@ -1,0 +1,139 @@
+// This is a port of Steven Fuerst's obfuscated, 512-byte roguelike "Monster Cave"
+input void DRAW;
+input char UPDATE;
+
+#define ROWS 25
+#define COLS 80
+var int rooms = 50;
+#define MONSTERS 10
+
+var char[ROWS*COLS] map;
+var int[MONSTERS+1] loc_row;
+var int[MONSTERS+1] loc_col;
+var int[MONSTERS+1] hp;
+
+function @rec (void)=>void setup do
+  loop row in ROWS do
+    loop col in COLS do
+      map[row*COLS+col] = '#';
+    end
+  end
+  
+  // make a messy cave by opening out a lot of rectangles
+  loop i in rooms do
+    var int height = _rand_between(3, 6);
+    var int width = _rand_between(1, 25);
+    var int top = _rand_between(1, ROWS - height - 1);
+    var int left = _rand_between(1, COLS - width - 1);
+    var int bottom = top + height;
+    var int right = left + width;
+    loop row in height do
+      loop col in width do
+        map[(row+top)*COLS+(left+col)] = '.';
+      end
+    end
+  end
+  
+  // place entities (player and monsters)
+  loop i in MONSTERS+1 do
+    loop do
+      var int row = _rand_between(1, ROWS-1);
+      var int col = _rand_between(1, COLS-1);
+      if map[row*COLS+col] == '.' then
+        loc_row[i] = row;
+        loc_col[i] = col;
+        if i == 0 then
+          // the player
+          map[row*COLS+col] = '@';
+          hp[i] = 5;
+        else
+          // a monster
+          map[row*COLS+col] = 'M';
+          hp[i] = 2;
+        end
+        break;
+      end
+    end
+  end
+  
+  // place the stairway
+  loop do
+    var int row = _rand_between(1, ROWS-1);
+    var int col = _rand_between(1, COLS-1);
+    if map[row*COLS+col] == '.' then
+      map[row*COLS+col] = '>';
+      break;
+    end
+  end
+end
+
+call/rec setup();
+
+par/or do
+  every DRAW do
+    loop row in ROWS do
+      _move(row, 0);
+      loop col in COLS do
+        _addch(map[row*COLS+col]);
+      end
+    end
+    // put the cursor on the player
+    _move(loc_row[0], loc_col[0]);
+  end
+with
+  var int key;
+  every key in UPDATE do
+    if key != _ERR then
+      loop i in MONSTERS+1 do
+        var int oldrow = loc_row[i];
+        var int newrow = oldrow;
+        var int oldcol = loc_col[i];
+        var int newcol = oldcol;
+        if i == 0 then
+          // move the player
+          if key == 'w' then
+            newrow = newrow - 1;
+          else/if key == 'a' then
+            newcol = newcol - 1;
+          else/if key == 's' then
+            newrow = newrow + 1;
+          else/if key == 'd' then
+            newcol = newcol + 1;
+          end
+          if map[newrow*COLS+newcol] == '>' then
+            // going down is just like starting over! :P
+            call/rec setup();
+            break;
+          end
+          loop j in MONSTERS do
+            // something
+          end
+        else
+          if hp[i] > 0 then
+            // move a monster
+            newrow = newrow + _rand_between(0, 3) - 1;
+            newcol = newcol + _rand_between(0, 3) - 1;
+            if newrow == loc_row[0] and newcol == loc_col[0] then
+              // monster stepped on the player
+              hp[0] = hp[0] - 1;
+              if hp[0] == 0 then
+                // monster killed the player
+                _quit();
+              end
+            end
+          end
+        end
+
+        // regardless, if an entity moved, the map needs to be updated
+        if map[newrow*COLS+newcol] == '.' then
+          loc_row[i] = newrow;
+          loc_col[i] = newcol;
+          map[newrow*COLS+newcol] = map[oldrow*COLS+oldcol];
+          map[oldrow*COLS+oldcol] = '.';
+        end
+      end
+    end
+  end
+end
+
+escape 0;

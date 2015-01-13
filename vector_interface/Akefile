@@ -1,0 +1,14 @@
+run: vector_interface
+	./vector_interface
+
+vector_interface: cc vector_interface.c _ceu_app.c _ceu_app.h ceu_types.h
+	bash cc vector_interface.c -o vector_interface
+
+_ceu_app.c: vector_interface.ceu
+	ceu vector_interface.ceu
+
+_ceu_app.h: vector_interface.ceu
+	ceu vector_interface.ceu
+
+clean:
+	rm vector_interface _ceu_app.c _ceu_app.h

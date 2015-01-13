@@ -74,22 +74,15 @@ do
 
   loop do
     await 1ms; // TODO: necessary?
+
     // try to get a client
     var Rendesvous r;
+    var Rendesvous[] rptr = null;
     r.server_volunteers(rep.x, 385);
     emit customers.next => &r;
-    if r.was_accepted() then
-      SYNC(r);
-      // step forward to meet the client
-      var int count = 0;
-      emit rep.go_move => (&count, rep.x, 390);
-      _assert(count == 1);
-      await rep.ok_moved;
-      await (_random_plusminus(30000, 6000))ms;
-      emit r.over;
+    if r.was_accepted then
+      rptr = &r;
     else
-      // when a client asks for a server, volunteer self
-      var Rendesvous[] rptr = null;
       loop do
         rptr = await customers.next;
         if rptr:server_volunteers(rep.x, 385) then
@@ -98,6 +91,10 @@ do
           rptr = null;
         end
       end
+    end
+
+    // cut hair
+    watching rptr do
       SYNC((*rptr));
       // step forward to meet the client
       var int count = 0;
@@ -143,6 +140,7 @@ do
         rptr = null;
       end
     end
+
     // as they sit down, the chair moves forward a little bit.
     watching rptr do
       SYNC((*rptr));
@@ -155,6 +153,7 @@ do
         await rptr:over;
       end
     end
+
     // as they stand up, the chair moves backward a little bit.
     var int count = 0;
     emit rep.go_move => (&count, 780, rep.y);
@@ -182,22 +181,16 @@ do
   await 1ms; // TODO: necessary?
   // try to get a barber
   var Rendesvous r;
+  var Rendesvous[] rptr = null;
   r.client_volunteers();
   emit barbers.next => &r;
   if r.was_accepted() then
-    // go to the barber
-    var int count = 0;
-    emit rep.go_move => (&count, r.x, r.y);
-    _assert(count == 1);
-    await rep.ok_moved;
-    SYNC(r);
-    await r.over;
+    rptr = &r;
   else
     var Rendesvous chair_r;
     chair_r.client_volunteers();
     emit chairs.next => &chair_r;
     if chair_r.was_accepted() then
-      var Rendesvous[] rptr = null;
       par/or do
         // when a client asks for a server, volunteer self
         loop do
@@ -221,16 +214,20 @@ do
         await 1ms; // TODO: necessary?
       end
       emit chair_r.over;
-      var int count = 0;
-      emit rep.go_move => (&count, rptr:x, rptr:y);
-      _assert(count == 1);
-      await rep.ok_moved;
-      SYNC((*rptr));
-      await rptr:over;
     else
       // balk
     end
   end
+
+  if rptr and rptr:was_accepted() then
+    var int count = 0;
+    emit rep.go_move => (&count, rptr:x, rptr:y);
+    _assert(count == 1);
+    await rep.ok_moved;
+    SYNC((*rptr));
+    await rptr:over;
+  end
+
   // leave
   await 1ms; // TODO: necessary?
   var int count = 0;
