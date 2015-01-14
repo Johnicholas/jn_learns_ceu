@@ -2,10 +2,18 @@
 input void DRAW;
 input char UPDATE;
 
-#define ROWS 25
+native @nohold _draw_screen();
+native @nohold _path_screen();
+
+#define ROWS 24
+var int rows = ROWS;
 #define COLS 80
+var int cols = COLS;
 var int rooms = 50;
 #define MONSTERS 10
+var int monsters = MONSTERS;
+var int stair_row;
+var int stair_col;
 
 var char[ROWS*COLS] map;
 var int[MONSTERS+1] loc_row;
@@ -62,6 +70,8 @@ function @rec (void)=>void setup do
     var int col = _rand_between(1, COLS-1);
     if map[row*COLS+col] == '.' then
       map[row*COLS+col] = '>';
+      stair_row = row;
+      stair_col = col;
       break;
     end
   end
@@ -71,68 +81,66 @@ call/rec setup();
 
 par/or do
   every DRAW do
-    loop row in ROWS do
-      _move(row, 0);
-      loop col in COLS do
-        _addch(map[row*COLS+col]);
-      end
-    end
+    _draw_screen(map, rows, cols);
     // put the cursor on the player
     _move(loc_row[0], loc_col[0]);
   end
 with
-  var int key;
-  every key in UPDATE do
-    if key != _ERR then
-      loop i in MONSTERS+1 do
-        var int oldrow = loc_row[i];
-        var int newrow = oldrow;
-        var int oldcol = loc_col[i];
-        var int newcol = oldcol;
-        if i == 0 then
-          // move the player
-          if key == 'w' then
-            newrow = newrow - 1;
-          else/if key == 'a' then
-            newcol = newcol - 1;
-          else/if key == 's' then
-            newrow = newrow + 1;
-          else/if key == 'd' then
-            newcol = newcol + 1;
-          end
-          if map[newrow*COLS+newcol] == '>' then
-            // going down is just like starting over! :P
-            call/rec setup();
-            break;
-          end
-          loop j in MONSTERS do
-            // something
-          end
-        else
-          if hp[i] > 0 then
-            // move a monster
-            newrow = newrow + _rand_between(0, 3) - 1;
-            newcol = newcol + _rand_between(0, 3) - 1;
-            if newrow == loc_row[0] and newcol == loc_col[0] then
-              // monster stepped on the player
-              hp[0] = hp[0] - 1;
-              if hp[0] == 0 then
-                // monster killed the player
-                _quit();
-              end
+  loop do
+    var int key = await UPDATE until key != _ERR;
+    loop i in MONSTERS+1 do
+      var int oldrow = loc_row[i];
+      var int newrow = oldrow;
+      var int oldcol = loc_col[i];
+      var int newcol = oldcol;
+      if i == 0 then
+        // move the player
+        if key == 'w' then
+          newrow = newrow - 1;
+        else/if key == 'a' then
+          newcol = newcol - 1;
+        else/if key == 's' then
+          newrow = newrow + 1;
+        else/if key == 'd' then
+          newcol = newcol + 1;
+        end
+        if map[newrow*COLS+newcol] == '>' then
+          // going down is just like starting over! :P
+          call/rec setup();
+          break;
+        end
+        loop j in MONSTERS do
+          // something
+        end
+      else
+        if hp[i] > 0 then
+          // move a monster
+          newrow = newrow + _rand_between(0, 3) - 1;
+          newcol = newcol + _rand_between(0, 3) - 1;
+          if newrow == loc_row[0] and newcol == loc_col[0] then
+            // monster stepped on the player
+            hp[0] = hp[0] - 1;
+            if hp[0] == 0 then
+              // monster killed the player
+              break;
             end
           end
         end
+       end
 
-        // regardless, if an entity moved, the map needs to be updated
-        if map[newrow*COLS+newcol] == '.' then
-          loc_row[i] = newrow;
-          loc_col[i] = newcol;
-          map[newrow*COLS+newcol] = map[oldrow*COLS+oldcol];
-          map[oldrow*COLS+oldcol] = '.';
-        end
+      // regardless, if an entity moved, the map needs to be updated
+      if map[newrow*COLS+newcol] == '.' or map[newrow*COLS+newcol] == '_' then
+        loc_row[i] = newrow;
+        loc_col[i] = newcol;
+        map[newrow*COLS+newcol] = map[oldrow*COLS+oldcol];
+        map[oldrow*COLS+oldcol] = '.';
       end
     end
+    if hp[0] == 0 then
+      // player is dead
+      break;
+    end
+    _path_screen(map, rows, cols, loc_row[0], loc_col[0], stair_row, stair_col);
   end
 end
 

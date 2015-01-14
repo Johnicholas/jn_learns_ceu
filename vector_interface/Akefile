@@ -1,8 +1,17 @@
 run: vector_interface
-	./vector_interface
+	./vector_interface 2>out.txt
 
-vector_interface: cc vector_interface.c _ceu_app.c _ceu_app.h ceu_types.h
-	bash cc vector_interface.c -o vector_interface
+vector_interface: link_cpp vector_interface.o ceu.o micropather.o
+	bash link_cpp vector_interface.o ceu.o micropather.o -o vector_interface
+
+vector_interface.o: compile_cpp vector_interface.cpp micropather.h _ceu_app.h ceu_types.h
+	bash compile_cpp -c vector_interface.cpp -o vector_interface.o
+
+ceu.o: cc bindings.c _ceu_app.c _ceu_app.h ceu_types.h
+	bash cc -c bindings.c -o ceu.o -o ceu.o
+
+micropather.o: compile_cpp micropather.cpp micropather.h
+	bash compile_cpp -c micropather.cpp -o micropather.o
 
 _ceu_app.c: vector_interface.ceu
 	ceu vector_interface.ceu
@@ -11,4 +20,4 @@ _ceu_app.h: vector_interface.ceu
 	ceu vector_interface.ceu
 
 clean:
-	rm vector_interface _ceu_app.c _ceu_app.h
+	rm vector_interface vector_interface.o ceu.o micropather.o _ceu_app.c _ceu_app.h
