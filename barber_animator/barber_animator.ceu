@@ -46,18 +46,18 @@ with
   pool Customer[] customers;
   pool Barber[] barbers;
   par do
-    loop i do
+    loop i in 20 do
       spawn Barber in barbers with
         this.customers = barber_queue;
         this.kind = red;
         this.ren = ren;
         this.id = i;
       end;
-      await (_random_plusminus(18000+2000*i, 1000))ms;
+      await (_random_plusminus(18+2*i, 1))s;
     end
   with
-    loop i do
-      await (_random_plusminus(18000+2000*i, 1000))ms;
+    loop i in 20 do
+      await (_random_plusminus(18+2*i, 1))s;
       spawn Chair in chairs with
         this.customers = chair_queue;
         this.kind = green;
@@ -68,7 +68,7 @@ with
   with
     // every once in a while, a customer enters the shop
     loop i do
-      await (_random_plusminus(2000, 1000))ms;
+      await (_random_plusminus(4, 2))s;
       spawn Customer in customers with
         this.barbers = barber_queue;
         this.chairs = chair_queue;

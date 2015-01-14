@@ -63,51 +63,45 @@ class Barber with
   var int id;
   var Queue& customers;
 do
+  var int x = 200+25*id;
+  var int y = 500;
   var Object rep with
     this.kind = kind;
     this.ren = ren;
-    this.x = 200+25*id;
-    this.y = 400;
-    this.destx = 200+25*id;
-    this.desty = 400;
+    this.x = x;
+    this.y = y;
+    this.destx = x;
+    this.desty = y;
   end;
 
   loop do
-    await 1ms; // TODO: necessary?
+    await 1ms; // TODO: fix
 
     // try to get a client
     var Rendesvous r;
     var Rendesvous[] rptr = null;
-    r.server_volunteers(rep.x, 385);
+    r.server_volunteers(x, y-15);
     emit customers.next => &r;
-    if r.was_accepted then
+    if r.was_accepted() then
       rptr = &r;
     else
-      loop do
-        rptr = await customers.next;
-        if rptr:server_volunteers(rep.x, 385) then
-          break;
-        else
-          rptr = null;
-        end
-      end
+      rptr = await customers.next until rptr:server_volunteers(x, y-15);
     end
 
-    // cut hair
     watching rptr do
       SYNC((*rptr));
       // step forward to meet the client
       var int count = 0;
-      emit rep.go_move => (&count, rep.x, 390);
+      emit rep.go_move => (&count, x, y-10);
       _assert(count == 1);
       await rep.ok_moved;
-      await (_random_plusminus(30000, 6000))ms;
+      await (_random_plusminus(30, 6))s;
       emit rptr:over;
     end
 
     // step back and clean up the station
     var int count = 0;
-    emit rep.go_move => (&count, rep.x, 400);
+    emit rep.go_move => (&count, x, y);
     _assert(count == 1);
     await rep.ok_moved;
   end
@@ -129,15 +123,13 @@ do
   end;
 
   loop do
-    await 1ms; // TODO: necessary?
+    await 1ms; // TODO: fix
     // when a client asks for a server, volunteer self
     var Rendesvous[] rptr = null;
     loop do
       rptr = await customers.next;
       if rptr:server_volunteers(765, rep.y) then
         break;
-      else
-        rptr = null;
       end
     end
 
@@ -155,6 +147,7 @@ do
     end
 
     // as they stand up, the chair moves backward a little bit.
+    await 1ms; // TODO: fix
     var int count = 0;
     emit rep.go_move => (&count, 780, rep.y);
     _assert(count == 1);
@@ -178,7 +171,7 @@ do
     this.destx = 400;
     this.desty = 10;
   end;
-  await 1ms; // TODO: necessary?
+  await 1ms; // TODO: fix
   // try to get a barber
   var Rendesvous r;
   var Rendesvous[] rptr = null;
@@ -193,14 +186,7 @@ do
     if chair_r.was_accepted() then
       par/or do
         // when a client asks for a server, volunteer self
-        loop do
-          rptr = await barbers.next;
-          if rptr:client_volunteers() then
-            break;
-          else
-            rptr = null;
-          end
-        end
+        rptr = await barbers.next until rptr:client_volunteers();
       with
         var int count = 0;
         emit rep.go_move => (&count, chair_r.x, chair_r.y);
@@ -211,7 +197,7 @@ do
       end
       if chair_r.waiting then
         emit chair_r.ready;
-        await 1ms; // TODO: necessary?
+        _printf("not waiting\n"); // await 1ms; // TODO: necessary?
       end
       emit chair_r.over;
     else
@@ -229,7 +215,7 @@ do
   end
 
   // leave
-  await 1ms; // TODO: necessary?
+  await 1ms; // TODO: fix
   var int count = 0;
   emit rep.go_move => (&count, 10, 300);
   _assert(count == 1);
