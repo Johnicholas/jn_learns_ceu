@@ -26,4 +26,5 @@ extern void path_screen(char* map, int rows, int cols, int startrow, int startco
 
 #include "_ceu_app.c"
 
+const int sizeof_CEU_Main = sizeof(CEU_Main);
 

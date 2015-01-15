@@ -58,8 +58,8 @@ private:
 extern "C" {
 
 #include "_ceu_app.h"
-
 extern void ceu_app_init (tceu_app* app);
+extern const int sizeof_CEU_Main;
 
 void path_screen(char* map, int rows, int cols, int startrow, int startcol, int destrow, int destcol) {
   for (int row = 0; row < rows; row += 1) {
@@ -84,18 +84,14 @@ void path_screen(char* map, int rows, int cols, int startrow, int startcol, int 
         map[row*cols + col] = '_';
       }
     }
-    fprintf(stderr, "end\n");
-  } else {
-    fprintf(stderr, "notsolved\n");
   }
 }
-
-static char data[2048];
 
 }
 
 int main (int argc, char *argv[])
 {
+    int data[sizeof_CEU_Main]; // note variably-sized arrays on the stack is a gnu gcc-ism!
     tceu_app app;
     app.data = (tceu_org*) &data;
     app.init = &ceu_app_init;
