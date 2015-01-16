@@ -19,34 +19,38 @@ var int[MONSTERS+1] loc_row;
 var int[MONSTERS+1] loc_col;
 var int[MONSTERS+1] hp;
 
-/*
-
 interface Nothing with
   // nothing
 end
 
 class Astar with
-  event (int, int, float, bool*) in_open;
-  event (int, int, float, bool*) in_closed;
-  event (float*, Node**) front_open;
+  event (int, int, float, bool*, int*) in_open;
+  event (int, int, float, bool*, int*) in_closed;
+  event (float*, Node**, int*) front_open;
   var int goal_row, goal_col;
-  var char* map;
+  var char[] map;
   pool Nothing[] nodes;
+  event Node* found_goal;
+  var int count_open = 0; // debug
+  var int count_closed = 0; // debug
 do
-  // TODO: maybe something
+  await FOREVER; // TODO: maybe something
 end
 
 class Node with
   interface Nothing;
   var int row, col;
   var Astar& astar;
-  var Node* parent = null;
+  var Node[] parent = null;
   var int g;
   var float f;
-  event void go_pop_open;
+  event int* go_pop_open;
 do
+  // _printf("spawn %d %d\n", row, col);
   if row == astar.goal_row and col == astar.goal_col then
     _printf("Found goal, stop the search!\n");
+    emit astar.found_goal => &this;
+    await FOREVER;
   else
     if parent then
       g = parent:g + 1;
@@ -58,18 +62,25 @@ do
     var float h = _sqrt(deltaRows*deltaRows + deltaCols*deltaCols);
     f = g + h;
     var bool none_found_in_open_list = true;
-    emit astar.in_open => (row, col, f, &none_found_in_open_list);
+    var int count = 0;
+    emit astar.in_open => (row, col, f, &none_found_in_open_list, &count);
     if none_found_in_open_list then
+      _assert(count == astar.count_open);
       var bool none_found_in_closed_list = true;
-      emit astar.in_closed => (row, col, f, &none_found_in_closed_list);
+      count = 0;
+      emit astar.in_closed => (row, col, f, &none_found_in_closed_list, &count);
       if none_found_in_closed_list then
+        _assert(count == astar.count_closed);
+        astar.count_open = astar.count_open + 1;
         par/or do
           loop do
             var int query_row, query_col;
             var float query_f;
             var bool* out = null;
-            (query_row, query_col, query_f, out) = await astar.in_open;
-            if row == query_row and col == query_col and f < query_f then
+            var int* count = null;
+            (query_row, query_col, query_f, out, count) = await astar.in_open;
+            *count = *count + 1;
+            if row == query_row and col == query_col and f <= query_f then
               *out = false;
             end
           end
@@ -77,20 +88,27 @@ do
           loop do
             var float* query_f = null;
             var Node** out = null;
-            (query_f, out) = await astar.front_open;
-            if not *out or f <= *query_f then
+            var int* count = null;
+            (query_f, out, count) = await astar.front_open;
+            *count = *count + 1;
+            if *out == null or f <= *query_f then
               *query_f = f;
               *out = &this;
             end
           end
         with
-          await go_pop_open;
+          var int* count = await go_pop_open;
+          *count = *count + 1;
         end
+        astar.count_open = astar.count_open - 1;
+        astar.count_closed = astar.count_closed + 1;
         loop do
           var int query_row, query_col;
           var float query_f;
           var bool* out = null;
-          (query_row, query_col, query_f, out) = await astar.in_closed;
+          var int* count = null;
+          (query_row, query_col, query_f, out, count) = await astar.in_closed;
+          *count = *count + 1;
           if row == query_row and col == query_col and f < query_f then
             *out = false;
           end
@@ -98,53 +116,10 @@ do
       end
     end
   end
+  // _printf("%d %d dies\n", row, col);
 end
 
-class Driver with
-  var Astar& astar;
-do
-  loop do
-    var float best_f = 0.0;
-    var Node* n = null;
-    emit astar.front_open => (&best_f, &n);
-    _printf("hello world\n");
-    if n == null then
-      // no path?
-      break;
-    else
-      if n:row+1 < ROWS and astar.map[(n:row+1)*COLS+n:col] != '#' then
-        spawn Node in astar.nodes with
-          this.row = n:row+1;
-          this.col = n:col;
-          this.astar = astar;
-          this.parent = n;
-        end;
-      else/if n:row-1 >= 0 and astar.map[(n:row-1)*COLS+n:col] != '#' then
-        spawn Node in astar.nodes with
-          this.row = n:row-1;
-          this.col = n:col;
-          this.astar = astar;
-          this.parent = n;
-        end;
-      else/if n:col+1 < COLS and astar.map[n:row*COLS+n:col+1] != '#' then
-        spawn Node in astar.nodes with
-          this.row = n:row;
-          this.col = n:col+1;
-          this.astar = astar;
-          this.parent = n;
-        end;
-      else/if n:col-1 >= 0 and astar.map[n:row*COLS+n:col-1] != '#' then
-        spawn Node in astar.nodes with
-          this.row = n:row;
-          this.col = n:col-1;
-          this.astar = astar;
-          this.parent = n;
-        end;
-      end
-    end
-  end
-end
-*/
+_srand(_time(null));
 
 function @rec (void)=>void setup do
   loop row in ROWS do
@@ -205,15 +180,10 @@ end
 
 call/rec setup();
 
-/*
-
 var Astar astar with
   this.goal_row = stair_row;
   this.goal_col = stair_col;
   this.map = map;
-end;
-var Driver driver with
-  this.astar = astar;
 end;
 spawn Node in astar.nodes with
   this.row = loc_row[0];
@@ -221,7 +191,89 @@ spawn Node in astar.nodes with
   this.astar = astar;
 end;
 
-*/
+par/or do
+  var Node[] n = await astar.found_goal;
+  loop do
+    if n == null then
+      break;
+    else
+      _assert(map[n:row*COLS+n:col] != '#');
+      if map[n:row*COLS+n:col] == '.' then
+        map[n:row*COLS+n:col] = '_';
+      end
+      n = n:parent;
+    end
+  end
+with
+  loop do
+    await UPDATE; // TODO: fix?
+    // _printf("top of loop\n");
+    var float best_f = 0.0;
+    var Node[] n = null;
+    var int count = 0;
+    emit astar.front_open => (&best_f, &n, &count);
+    _assert(count == astar.count_open);
+    if n == null then
+      // no path?
+      _printf("no path?\n");
+      break;
+    else
+      count = 0;
+      emit n:go_pop_open => &count;
+      _assert(count == 1);
+      // _printf("expanding %d %d\n", n:row, n:col);
+      if n:row+1 < ROWS and astar.map[(n:row+1)*COLS+n:col] != '#' then
+        await UPDATE;
+        // _printf("south\n"); 
+        spawn Node in astar.nodes with
+          this.row = n:row+1;
+          this.col = n:col;
+          this.astar = astar;
+          this.parent = n;
+        end;
+      end
+      if n:row-1 >= 0 and astar.map[(n:row-1)*COLS+n:col] != '#' then
+        await UPDATE;
+        // _printf("north\n"); 
+        spawn Node in astar.nodes with
+          this.row = n:row-1;
+          this.col = n:col;
+          this.astar = astar;
+          this.parent = n;
+        end;
+      end
+      if n:col+1 < COLS and astar.map[n:row*COLS+n:col+1] != '#' then
+        await UPDATE;
+        // _printf("east\n"); 
+        spawn Node in astar.nodes with
+          this.row = n:row;
+          this.col = n:col+1;
+          this.astar = astar;
+          this.parent = n;
+        end;
+      end
+      if n:col-1 >= 0 and astar.map[n:row*COLS+n:col-1] != '#' then
+        await UPDATE;
+        // _printf("west\n"); 
+        spawn Node in astar.nodes with
+          this.row = n:row;
+          this.col = n:col-1;
+          this.astar = astar;
+          this.parent = n;
+        end;
+      end
+    end
+  end
+end
+
+loop row in ROWS do
+  loop col in COLS do
+    _printf("%c", map[row*COLS+col]);
+  end
+  _printf("\n");
+end
+
+/*
 
 _initscr();
 _cbreak();
@@ -301,5 +353,7 @@ with
 end
 
 _endwin();
+
+*/
 
 escape 0;
