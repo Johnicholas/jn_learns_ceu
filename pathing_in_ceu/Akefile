@@ -1,0 +1,20 @@
+run: pathing_in_ceu
+	./pathing_in_ceu
+
+pathing_in_ceu: link_cpp pathing_in_ceu.o ceu.o
+	bash link_cpp pathing_in_ceu.o ceu.o -o pathing_in_ceu
+
+pathing_in_ceu.o: compile_cpp pathing_in_ceu.cpp _ceu_app.h ceu_types.h
+	bash compile_cpp -c pathing_in_ceu.cpp -o pathing_in_ceu.o
+
+ceu.o: cc bindings.c _ceu_app.c _ceu_app.h ceu_types.h
+	bash cc -c bindings.c -o ceu.o -o ceu.o
+
+_ceu_app.c: pathing_in_ceu.ceu
+	ceu pathing_in_ceu.ceu
+
+_ceu_app.h: pathing_in_ceu.ceu
+	ceu pathing_in_ceu.ceu
+
+clean:
+	rm pathing_in_ceu pathing_in_ceu.o ceu.o _ceu_app.c _ceu_app.h

@@ -1,0 +1,305 @@
+// This is a port of Steven Fuerst's obfuscated, 512-byte roguelike "Monster Cave"
+input void DRAW;
+input void UPDATE;
+
+native @nohold _draw_screen();
+
+#define ROWS 24
+var int rows = ROWS;
+#define COLS 80
+var int cols = COLS;
+var int rooms = 50;
+#define MONSTERS 10
+var int monsters = MONSTERS;
+var int stair_row;
+var int stair_col;
+
+var char[ROWS*COLS] map;
+var int[MONSTERS+1] loc_row;
+var int[MONSTERS+1] loc_col;
+var int[MONSTERS+1] hp;
+
+/*
+
+interface Nothing with
+  // nothing
+end
+
+class Astar with
+  event (int, int, float, bool*) in_open;
+  event (int, int, float, bool*) in_closed;
+  event (float*, Node**) front_open;
+  var int goal_row, goal_col;
+  var char* map;
+  pool Nothing[] nodes;
+do
+  // TODO: maybe something
+end
+
+class Node with
+  interface Nothing;
+  var int row, col;
+  var Astar& astar;
+  var Node* parent = null;
+  var int g;
+  var float f;
+  event void go_pop_open;
+do
+  if row == astar.goal_row and col == astar.goal_col then
+    _printf("Found goal, stop the search!\n");
+  else
+    if parent then
+      g = parent:g + 1;
+    else
+      g = 0;
+    end
+    var int deltaRows = astar.goal_row - row;
+    var int deltaCols = astar.goal_col - col;
+    var float h = _sqrt(deltaRows*deltaRows + deltaCols*deltaCols);
+    f = g + h;
+    var bool none_found_in_open_list = true;
+    emit astar.in_open => (row, col, f, &none_found_in_open_list);
+    if none_found_in_open_list then
+      var bool none_found_in_closed_list = true;
+      emit astar.in_closed => (row, col, f, &none_found_in_closed_list);
+      if none_found_in_closed_list then
+        par/or do
+          loop do
+            var int query_row, query_col;
+            var float query_f;
+            var bool* out = null;
+            (query_row, query_col, query_f, out) = await astar.in_open;
+            if row == query_row and col == query_col and f < query_f then
+              *out = false;
+            end
+          end
+        with
+          loop do
+            var float* query_f = null;
+            var Node** out = null;
+            (query_f, out) = await astar.front_open;
+            if not *out or f <= *query_f then
+              *query_f = f;
+              *out = &this;
+            end
+          end
+        with
+          await go_pop_open;
+        end
+        loop do
+          var int query_row, query_col;
+          var float query_f;
+          var bool* out = null;
+          (query_row, query_col, query_f, out) = await astar.in_closed;
+          if row == query_row and col == query_col and f < query_f then
+            *out = false;
+          end
+        end
+      end
+    end
+  end
+end
+
+class Driver with
+  var Astar& astar;
+do
+  loop do
+    var float best_f = 0.0;
+    var Node* n = null;
+    emit astar.front_open => (&best_f, &n);
+    _printf("hello world\n");
+    if n == null then
+      // no path?
+      break;
+    else
+      if n:row+1 < ROWS and astar.map[(n:row+1)*COLS+n:col] != '#' then
+        spawn Node in astar.nodes with
+          this.row = n:row+1;
+          this.col = n:col;
+          this.astar = astar;
+          this.parent = n;
+        end;
+      else/if n:row-1 >= 0 and astar.map[(n:row-1)*COLS+n:col] != '#' then
+        spawn Node in astar.nodes with
+          this.row = n:row-1;
+          this.col = n:col;
+          this.astar = astar;
+          this.parent = n;
+        end;
+      else/if n:col+1 < COLS and astar.map[n:row*COLS+n:col+1] != '#' then
+        spawn Node in astar.nodes with
+          this.row = n:row;
+          this.col = n:col+1;
+          this.astar = astar;
+          this.parent = n;
+        end;
+      else/if n:col-1 >= 0 and astar.map[n:row*COLS+n:col-1] != '#' then
+        spawn Node in astar.nodes with
+          this.row = n:row;
+          this.col = n:col-1;
+          this.astar = astar;
+          this.parent = n;
+        end;
+      end
+    end
+  end
+end
+*/
+
+function @rec (void)=>void setup do
+  loop row in ROWS do
+    loop col in COLS do
+      map[row*COLS+col] = '#';
+    end
+  end
+  
+  // make a messy cave by opening out a lot of rectangles
+  loop i in rooms do
+    var int height = _rand_between(3, 6);
+    var int width = _rand_between(1, 25);
+    var int top = _rand_between(1, ROWS - height - 1);
+    var int left = _rand_between(1, COLS - width - 1);
+    var int bottom = top + height;
+    var int right = left + width;
+    loop row in height do
+      loop col in width do
+        map[(row+top)*COLS+(left+col)] = '.';
+      end
+    end
+  end
+  
+  // place entities (player and monsters)
+  loop i in MONSTERS+1 do
+    loop do
+      var int row = _rand_between(1, ROWS-1);
+      var int col = _rand_between(1, COLS-1);
+      if map[row*COLS+col] == '.' then
+        loc_row[i] = row;
+        loc_col[i] = col;
+        if i == 0 then
+          // the player
+          map[row*COLS+col] = '@';
+          hp[i] = 5;
+        else
+          // a monster
+          map[row*COLS+col] = 'M';
+          hp[i] = 2;
+        end
+        break;
+      end
+    end
+  end
+  
+  // place the stairway
+  loop do
+    var int row = _rand_between(1, ROWS-1);
+    var int col = _rand_between(1, COLS-1);
+    if map[row*COLS+col] == '.' then
+      map[row*COLS+col] = '>';
+      stair_row = row;
+      stair_col = col;
+      break;
+    end
+  end
+end
+
+call/rec setup();
+
+/*
+
+var Astar astar with
+  this.goal_row = stair_row;
+  this.goal_col = stair_col;
+  this.map = map;
+end;
+var Driver driver with
+  this.astar = astar;
+end;
+spawn Node in astar.nodes with
+  this.row = loc_row[0];
+  this.col = loc_col[0];
+  this.astar = astar;
+end;
+
+*/
+
+_initscr();
+_cbreak();
+_noecho();
+_halfdelay(1);
+_keypad(_stdscr, _TRUE);
+
+par/or do
+  every DRAW do
+    _draw_screen(map, rows, cols);
+    // put the cursor on the player
+    _move(loc_row[0], loc_col[0]);
+  end
+with
+  loop do
+    var int key;
+    loop do
+      await UPDATE;
+      key = _getch();
+      if key != _ERR then
+        break;
+      end
+    end
+    loop i in MONSTERS+1 do
+      var int oldrow = loc_row[i];
+      var int newrow = oldrow;
+      var int oldcol = loc_col[i];
+      var int newcol = oldcol;
+      if i == 0 then
+        // move the player
+        if key == 'w' then
+          newrow = newrow - 1;
+        else/if key == 'a' then
+          newcol = newcol - 1;
+        else/if key == 's' then
+          newrow = newrow + 1;
+        else/if key == 'd' then
+          newcol = newcol + 1;
+        end
+        if map[newrow*COLS+newcol] == '>' then
+          // going down is just like starting over! :P
+          call/rec setup();
+          break;
+        end
+        loop j in MONSTERS do
+          // something
+        end
+      else
+        if hp[i] > 0 then
+          // move a monster
+          newrow = newrow + _rand_between(0, 3) - 1;
+          newcol = newcol + _rand_between(0, 3) - 1;
+          if newrow == loc_row[0] and newcol == loc_col[0] then
+            // monster stepped on the player
+            hp[0] = hp[0] - 1;
+            if hp[0] == 0 then
+              // monster killed the player
+              break;
+            end
+          end
+        end
+       end
+
+      // regardless, if an entity moved, the map needs to be updated
+      if map[newrow*COLS+newcol] == '.' or map[newrow*COLS+newcol] == '_' then
+        loc_row[i] = newrow;
+        loc_col[i] = newcol;
+        map[newrow*COLS+newcol] = map[oldrow*COLS+oldcol];
+        map[oldrow*COLS+oldcol] = '.';
+      end
+    end
+    if hp[0] == 0 then
+      // player is dead
+      break;
+    end
+  end
+end
+
+_endwin();
+
+escape 0;
