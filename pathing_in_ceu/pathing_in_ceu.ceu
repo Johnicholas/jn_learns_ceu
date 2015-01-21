@@ -180,7 +180,7 @@ call/rec setup();
 _initscr();
 _cbreak();
 _noecho();
-_timeout(1);
+_timeout(0);
 _keypad(_stdscr, _TRUE);
 
 par/or do
