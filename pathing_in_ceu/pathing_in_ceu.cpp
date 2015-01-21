@@ -20,7 +20,6 @@ int main (int argc, char *argv[])
     assert(app.isAlive);
     while (app.isAlive) {
       ceu_sys_go(&app, CEU_IN_DRAW, NULL);
-      printf(".");
       ceu_sys_go(&app, CEU_IN_UPDATE, NULL);
     }
     return app.ret;
