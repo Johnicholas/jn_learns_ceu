@@ -69,8 +69,9 @@ int main (int argc, char *argv[])
     app.init = &ceu_app_init;
     app.init(&app);
     while (app.isAlive) {
-        printf("dt %d\n", WCLOCK_nxt / 1000);
-	ceu_sys_go(&app, CEU_IN__WCLOCK, (tceu_evtp)WCLOCK_nxt);
+        s32 dt = WCLOCK_nxt;
+        printf("dt %d\n", dt / 1000);
+	ceu_sys_go(&app, CEU_IN__WCLOCK, &dt);
     }
     return app.ret;
 }

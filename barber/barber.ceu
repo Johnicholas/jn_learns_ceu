@@ -1,8 +1,7 @@
-native _random_plusminus();
-native _push();
-native _empty();
-native _pop();
-
+native @nohold _random_plusminus();
+native @nohold _push();
+native @nohold _empty();
+native @nohold _pop();
 native @plain _Storage;
 native @nohold _full();
 native @nohold _enter();
@@ -53,7 +52,8 @@ do
     await (_random_plusminus(15, 3))s;
     barber.idle = true;
     if not _empty() then
-      emit barber.next => _pop();
+      var int nextint = _pop();
+      emit barber.next => nextint;
     end
   end
 
