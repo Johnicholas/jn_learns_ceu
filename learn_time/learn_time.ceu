@@ -1,0 +1,12 @@
+input void FOO;
+
+_printf("one\n");
+await 3s;
+_printf("two\n");
+await FOO;
+_printf("three\n");
+await 5s;
+_printf("four\n");
+
+
+escape 0;

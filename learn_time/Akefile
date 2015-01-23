@@ -1,0 +1,14 @@
+run: learn_time
+	./learn_time
+
+learn_time: cc learn_time.c _ceu_app.c _ceu_app.h
+	bash cc learn_time.c -o learn_time
+
+_ceu_app.c: learn_time.ceu
+	ceu learn_time.ceu
+
+_ceu_app.h: learn_time.ceu
+	ceu learn_time.ceu
+
+clean:
+	rm learn_time _ceu_app.c _ceu_app.h
