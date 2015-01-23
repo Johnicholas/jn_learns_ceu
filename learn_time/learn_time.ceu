@@ -1,12 +1,20 @@
 input void FOO;
 
-_printf("one\n");
-await 3s;
-_printf("two\n");
-await FOO;
-_printf("three\n");
-await 5s;
-_printf("four\n");
-
+par/or do
+  async do
+    loop do
+      _printf(".");
+    end
+  end
+with
+  _printf("one\n");
+  await 3s;
+  _printf("two\n");
+  _reply_foo = true;
+  await FOO;
+  _printf("three\n");
+  await 5s;
+  _printf("four\n");
+end
 
 escape 0;
