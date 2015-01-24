@@ -1,0 +1,14 @@
+run: dijkstra
+	./dijkstra <in.txt
+
+dijkstra: dijkstra.c _ceu_app.c _ceu_app.h
+	gcc dijkstra.c -o dijkstra
+
+_ceu_app.c: dijkstra.ceu
+	ceu dijkstra.ceu
+
+_ceu_app.h: dijkstra.ceu
+	ceu dijkstra.ceu
+
+clean:
+	rm dijkstra _ceu_app.c _ceu_app.h

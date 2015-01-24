@@ -1,0 +1,8 @@
+run: dijkstra
+	./dijkstra <in.txt
+
+dijkstra: dijkstra.c
+	gcc -std=c99 dijkstra.c -o dijkstra
+
+clean:
+	rm dijkstra 
