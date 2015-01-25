@@ -1,9 +1,7 @@
 // Adapted from Rosetta Code: rosettacode.org/wiki/Dijkstra%27s_algorithm
 native @nohold _assert();
-native @nohold _sscanf();
-native @nohold _getline();
-native @nohold _free();
 native @nohold _printf();
+input void TICK;
 
 native do
   // forward declaration
@@ -21,190 +19,157 @@ end
 
 class Node with
   var Edge[] out = null; // singly linked list of outgoing edges from this node
-  var Node[] via = null; // previous node in shortest path
-  var float cost = 0.0; // total cost from origin node
   var char name;
-  var int heap_index; // the position of this node in the heap
 do
   // nothing?
   await FOREVER;
 end
 
-#define ADD_EDGE(a, b, cost)  \
+#define ADD_EDGE(a, b, c)  \
   do \
     var Edge[] new_edge = spawn Edge with \
       this.target = b; \
-      this.cost = cost; \
+      this.cost = c; \
       this.sibling = a:out; \
     end; \
     a:out = new_edge; \
   end 
 
-function @rec (Node*)=>void show_path;
 
-function @rec (Node* n)=>void show_path do
-  if n:via == n then
-    _printf("%c", n:name);
-  else/if n:via == null then
-    _printf("unreached");
-  else
-    call/rec show_path(n:via);
-    _printf("-> %c ", n:name);
-  end
-end
-
-var char* line = null;
-var _size_t len = 0;
-var _ssize_t read;
-finalize 
-  read = _getline(&line, &len, _stdin);
-with
-  _free(line);
-end
-_assert(read != -1);
-var int num_nodes;
-_assert(_sscanf(line, "%d", &num_nodes) == 1);
-_assert(num_nodes > 0);
-_assert(num_nodes < 100);
 pool Node[] nodes;
-loop i in num_nodes do
-  spawn Node in nodes with
-    this.name = 'a' + i;
-  end;
+var Node[] start;
+
+// the graph - mucking about with string parsing was obscuring the substance
+do
+  var Node[] a = spawn Node in nodes with this.name = 'a'; end;
+  var Node[] b = spawn Node in nodes with this.name = 'b'; end;
+  var Node[] c = spawn Node in nodes with this.name = 'c'; end;
+  var Node[] d = spawn Node in nodes with this.name = 'd'; end;
+  var Node[] e = spawn Node in nodes with this.name = 'e'; end;
+  var Node[] f = spawn Node in nodes with this.name = 'f'; end;
+  var Node[] g = spawn Node in nodes with this.name = 'g'; end;
+
+  ADD_EDGE(a, b, 3.0);
+  ADD_EDGE(a, c, 5.0);
+  ADD_EDGE(a, d, 6.0);
+  ADD_EDGE(b, a, 3.0);
+  ADD_EDGE(b, d, 2.0);
+  ADD_EDGE(c, a, 5.0);
+  ADD_EDGE(c, d, 2.0);
+  ADD_EDGE(c, f, 3.0);
+  ADD_EDGE(c, e, 6.0);
+  ADD_EDGE(c, g, 7.0);
+  ADD_EDGE(d, a, 6.0);
+  ADD_EDGE(d, b, 2.0);
+  ADD_EDGE(d, c, 2.0);
+  ADD_EDGE(d, f, 9.0);
+  ADD_EDGE(e, c, 6.0);
+  ADD_EDGE(e, f, 5.0);
+  ADD_EDGE(e, g, 2.0);
+  ADD_EDGE(f, c, 3.0);
+  ADD_EDGE(f, d, 9.0);
+  ADD_EDGE(f, e, 5.0);
+  ADD_EDGE(f, g, 1.0);
+  ADD_EDGE(g, c, 7.0);
+  ADD_EDGE(g, e, 2.0);
+  ADD_EDGE(g, f, 1.0);
+
+  start = a;
 end
-finalize
-  read = _getline(&line, &len, _stdin);
-with
-  // nothing - already being freed
+
+class Dijkstra with
+  event Elem** ok_front;
+do
+  // nothing?
+  await FOREVER;
 end
-_assert(read != -1);
-var int num_edges;
-_assert(_sscanf(line, "%d", &num_edges) == 1);
-loop i in num_edges do
-  var char source_name, target_name;
-  var float cost;
-  finalize
-    read = _getline(&line, &len, _stdin);
+
+class Elem with
+  var Node[] n;
+  var float cost = 0.0; // total cost from origin node
+  event void go_pop;
+  var Dijkstra& context;
+  var Elem[] via = null;
+do
+  par/or do
+    loop do
+      var Elem** candidate = await context.ok_front;
+      if *candidate == null or (*candidate):cost > cost then
+        *candidate = &this;
+      end
+    end
   with
-    // nothing - already being freed
+    await go_pop;
   end
-  _assert(read != -1);
-  _sscanf(line, "%c %c %f", &source_name, &target_name, &cost);
-  var Node[] source = null;
-  var Node[] target = null;
-  // find source by name
-  var bool found = false;
-  loop (Node*)x in nodes do
-    if x:name == source_name then
-      source = x;
-      found = true;
-      break;
-    end
-  end
-  _assert(found);
-  found = false;
-  // find target by name
-  loop (Node*)y in nodes do
-    if y:name == target_name then
-      target = y;
-      found = true;
-      break;
-    end
-  end
-  _assert(found);
-  ADD_EDGE(source, target, cost);
+  await FOREVER;
 end
-var Node[] start = null;
-// find start node by name
-var bool found = false;
-loop (Node*)z in nodes do
-  if z:name == 'a' then
-    start = z;
-    found = true;
-    break;
+
+
+function @rec (Elem*)=>void show_path;
+function @rec (Elem* e)=>void show_path do
+  if e:via == null then
+    _printf("%c", e:n:name);
+  else
+    call/rec show_path(e:via);
+    _printf("-> %c ", e:n:name);
   end
 end
-_assert(found);
+
+var Dijkstra context;
 // a  vector of pointers to node organisms
-var Node*[100] heap; // TODO: this hardcoded 100 seems dubious. Is there a way to get rid of it?
-start:heap_index = 1;
-start:via = start;
-start:cost = 0.0;
-heap[1] = start;
-var int heap_len = 1;
+pool Elem[] heap;
+spawn Elem in heap with
+  this.n = start;
+  this.cost = 0.0;
+  this.context = context;
+end;
 loop do
-  _assert(heap_len >= 0);
-  if heap_len == 0 then
+
+  // pull the thing with the least cost from the heap
+  // TODO: ideally, this would only take logarithmic time, but we're spending linear time
+  await TICK;
+  var Elem[] lead = null;
+  emit context.ok_front => &lead;
+
+  if lead == null then
     // frontier is empty
     break;
   end
-  var Node* lead = heap[1];
-  var Node* temp = heap[heap_len];
-  _assert(temp);
-  heap_len = heap_len - 1;
-  var int i = 1;
-  var int j;
-  loop do
-    if i >= heap_len then
-      break;
-    else
-      j = i * 2;
-      if j > heap_len then
-        break;
-      end
-    end
-    if j < heap_len and heap[j]:cost > heap[j+1]:cost then
-      j = j + 1;
-    end
-    if heap[j]:cost >= temp:cost then
-      break;
-    end
-    heap[i] = heap[j];
-    heap[i]:heap_index = i;
-    i = j;
-  end
-  heap[i] = temp;
-  temp:heap_index = i;
-  var Edge[] e = lead:out;
+
+  var Edge[] e = lead:n:out;
   loop do
     if e == null then
       break;
     end
-    if e:target:via != null and e:target:cost < lead:cost + e:cost then
-      // found a second route, but it is longer
-      e = e:sibling;
-      continue;
-    end
-    e:target:cost = lead:cost + e:cost;
-    e:target:via = lead;
-    i = e:target:heap_index;
-    if i == 0 then
-      i = heap_len + 1;
-      heap_len = heap_len + 1;
-    end
-    loop do
-      if i <= 1 then
+
+    // find e:target's corresponding heap elem, if it has one
+    // TODO: ideally this would take O(1) time, but we're taking linear time
+    var Elem[] corresponding = null;
+    loop (Elem*)x in heap do
+      if x:n == e:target then
+        corresponding = x;
         break;
-      else
-        j = i / 2;
-        if e:target:cost >= heap[j]:cost then
-          break;
-        end
       end
-      heap[i] = heap[j];
-      heap[i]:heap_index = i;
-      i = j;
     end
-    heap[i] = e:target;
-    e:target:heap_index = i;
+    if corresponding == null then
+      // put e:target into the heap
+      spawn Elem in heap with
+        this.n = e:target;
+        this.cost = lead:cost + e:cost;
+        this.context = context;
+        this.via = lead;
+      end;
+    else/if corresponding:cost > lead:cost + e:cost then
+      // we found another way to get here, and it is better
+      corresponding:cost = lead:cost + e:cost;
+      corresponding:via = lead;
+    end
     e = e:sibling;
   end
-end
-
-loop (Node*)node in nodes do
-  _printf("path to %c (total cost %f) ", node:name, node:cost);
-  call/rec show_path(node);
-  _putchar('\n');
+  _printf("path to %c has total cost %f:", lead:n:name, lead:cost);
+  call/rec show_path(lead);
+  _printf("\n");
+  emit lead:go_pop;
 end
 
 escape 0;

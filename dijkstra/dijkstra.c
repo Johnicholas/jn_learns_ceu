@@ -13,8 +13,10 @@ int main(int argc, char* argv) {
   tceu_app app;
   app.data = (tceu_org*) &CEU_DATA;
   app.init = &ceu_app_init;
-  int ret = ceu_go_all(&app);
-  printf("*** END: %d\n", ret);
-  return ret;
+  app.init(&app);
+  while (app.isAlive) {
+    ceu_sys_go(&app, CEU_IN_TICK, NULL);
+  }
+  return app.ret;
 }
 

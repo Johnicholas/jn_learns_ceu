@@ -1,5 +1,5 @@
 run: dijkstra
-	./dijkstra <in.txt
+	./dijkstra
 
 dijkstra: dijkstra.c _ceu_app.c _ceu_app.h
 	gcc dijkstra.c -o dijkstra
