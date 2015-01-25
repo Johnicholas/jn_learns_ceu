@@ -101,6 +101,8 @@ do
   with
     await go_pop;
   end
+  // we stick around to keep n from spawning another elem
+  // now we are "on the closed list"
   await FOREVER;
 end
 
@@ -143,7 +145,7 @@ loop do
     end
 
     // find e:target's corresponding heap elem, if it has one
-    // TODO: ideally this would take O(1) time, but we're taking linear time
+    // TODO: ideally this would take constant time, but I think we're taking linear time
     var Elem[] corresponding = null;
     loop (Elem*)x in heap do
       if x:n == e:target then
@@ -153,6 +155,7 @@ loop do
     end
     if corresponding == null then
       // put e:target into the heap
+      // TODO: I guess this takes constant time now, but I think we want it to take logarithmic time
       spawn Elem in heap with
         this.n = e:target;
         this.cost = lead:cost + e:cost;
@@ -161,6 +164,7 @@ loop do
       end;
     else/if corresponding:cost > lead:cost + e:cost then
       // we found another way to get here, and it is better
+      // TODO: I guess this takes constant time now, but I think we want it to take logarithmic time
       corresponding:cost = lead:cost + e:cost;
       corresponding:via = lead;
     end
@@ -173,3 +177,4 @@ loop do
 end
 
 escape 0;
+
