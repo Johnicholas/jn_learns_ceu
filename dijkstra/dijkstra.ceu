@@ -77,104 +77,105 @@ do
   start = a;
 end
 
-class Dijkstra with
-  event Elem** ok_front;
-do
-  // nothing?
-  await FOREVER;
+interface DijkstraContext with
+  var DijkstraElem[] lead;
+  var bool closed;
+  event void tick;
+  event void checkclosed;
 end
-
-class Elem with
+ 
+class DijkstraElem with
   var Node[] n;
-  var float cost = 0.0; // total cost from origin node
+  var DijkstraElem[] via = null;
+  var float cost; // total cost from origin node
   event void go_pop;
-  var Dijkstra& context;
-  var Elem[] via = null;
+  var DijkstraContext& context;
 do
   par/or do
-    loop do
-      var Elem** candidate = await context.ok_front;
-      if *candidate == null or (*candidate):cost > cost then
-        *candidate = &this;
+    every context.tick do
+      if context.lead == null or context.lead:cost > cost then
+        context.lead = &this;
       end
     end
   with
     await go_pop;
   end
-  // we stick around to keep n from spawning another elem
-  // now we are "on the closed list"
-  await FOREVER;
-end
-
-
-function @rec (Elem*)=>void show_path;
-function @rec (Elem* e)=>void show_path do
-  if e:via == null then
-    _printf("%c", e:n:name);
-  else
-    call/rec show_path(e:via);
-    _printf("-> %c ", e:n:name);
-  end
-end
-
-var Dijkstra context;
-// a  vector of pointers to node organisms
-pool Elem[] heap;
-spawn Elem in heap with
-  this.n = start;
-  this.cost = 0.0;
-  this.context = context;
-end;
-loop do
-
-  // pull the thing with the least cost from the heap
-  // TODO: ideally, this would only take logarithmic time, but we're spending linear time
-  await TICK;
-  var Elem[] lead = null;
-  emit context.ok_front => &lead;
-
-  if lead == null then
-    // frontier is empty
-    break;
-  end
-
-  var Edge[] e = lead:n:out;
-  loop do
-    if e == null then
-      break;
+  // switch from being in "open" to being in "closed"
+  every context.checkclosed do
+    if context.lead:n == n then
+      context.closed = true;
     end
+  end
+end
 
-    // find e:target's corresponding heap elem, if it has one
-    // TODO: ideally this would take constant time, but I think we're taking linear time
-    var Elem[] corresponding = null;
-    loop (Elem*)x in heap do
-      if x:n == e:target then
-        corresponding = x;
+class Dijkstra with
+  interface DijkstraContext;
+  var Node[] start;
+  event void tick;
+  event void ok;
+do
+  par/or do
+    every tick do
+      lead = null;
+    end
+  with
+    pool DijkstraElem[] heap;
+    spawn DijkstraElem in heap with
+      this.n = start;
+      this.cost = 0.0;
+      this.context = outer;
+    end;
+    loop do
+      await tick;
+      if lead == null then
         break;
       end
+      closed = false;
+      emit checkclosed;
+      if closed then
+        emit lead:go_pop;
+        continue;
+      end
+      var Edge[] e = lead:n:out;
+      loop do
+        if e == null then
+          break;
+        end
+        spawn DijkstraElem in heap with
+          this.n = e:target;
+          this.via = lead;
+          this.cost = lead:cost + e:cost;
+          this.context = outer;
+        end;
+        e = e:sibling;
+      end
+      _printf("path to %c found, cost is %f, in reverse is: ", lead:n:name, lead:cost);
+      var DijkstraElem[] cursor = lead:via;
+      loop do
+        if cursor == null then
+          break;
+        end
+        _printf("%c ", cursor:n:name);
+        cursor = cursor:via;
+      end
+      _printf("\n");
+      emit lead:go_pop;
     end
-    if corresponding == null then
-      // put e:target into the heap
-      // TODO: I guess this takes constant time now, but I think we want it to take logarithmic time
-      spawn Elem in heap with
-        this.n = e:target;
-        this.cost = lead:cost + e:cost;
-        this.context = context;
-        this.via = lead;
-      end;
-    else/if corresponding:cost > lead:cost + e:cost then
-      // we found another way to get here, and it is better
-      // TODO: I guess this takes constant time now, but I think we want it to take logarithmic time
-      corresponding:cost = lead:cost + e:cost;
-      corresponding:via = lead;
-    end
-    e = e:sibling;
   end
-  _printf("path to %c has total cost %f:", lead:n:name, lead:cost);
-  call/rec show_path(lead);
-  _printf("\n");
-  emit lead:go_pop;
+  emit ok;
 end
+
+var Dijkstra the_algorithm with
+  this.start = start;
+end;
+par/or do
+  every TICK do
+    emit the_algorithm.tick;
+  end
+with
+  await the_algorithm.ok;
+end
+
 
 escape 0;
 
