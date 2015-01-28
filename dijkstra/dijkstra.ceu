@@ -165,17 +165,24 @@ do
   emit ok;
 end
 
+// This is how a client might use it:
+
+// step 1: start it up
 var Dijkstra the_algorithm with
   this.start = start;
 end;
+
 par/or do
+  // step 2: feed it ticks while doing some idle/thinking behavior
   every TICK do
     emit the_algorithm.tick;
   end
 with
+  // wait for it to be done
   await the_algorithm.ok;
 end
 
+// how can you access the heap to walk the via path? I don't know yet.
 
 escape 0;
 
