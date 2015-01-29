@@ -1,5 +1,5 @@
-run: dijkstra
-	./dijkstra
+run: dijkstra rome99.gr rome99.ss
+	cat rome99.gr rome99.ss | ./dijkstra
 
 dijkstra: dijkstra.c _ceu_app.c _ceu_app.h
 	gcc dijkstra.c -o dijkstra
@@ -11,4 +11,4 @@ _ceu_app.h: dijkstra.ceu
 	ceu dijkstra.ceu
 
 clean:
-	rm dijkstra _ceu_app.c _ceu_app.h
+	rm dijkstra _ceu_app.c _ceu_app.h graph.ceu

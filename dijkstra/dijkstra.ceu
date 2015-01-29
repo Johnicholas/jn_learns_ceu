@@ -1,6 +1,9 @@
 // Adapted from Rosetta Code: rosettacode.org/wiki/Dijkstra%27s_algorithm
 native @nohold _assert();
 native @nohold _printf();
+native @nohold _fgets();
+native @nohold _sscanf();
+
 input void TICK;
 
 native do
@@ -19,63 +22,30 @@ end
 
 class Node with
   var Edge[] out = null; // singly linked list of outgoing edges from this node
-  var char name;
+  var int name;
 do
   // nothing?
   await FOREVER;
 end
 
+#define NODE_BY_NAME(search_target) \
+    do loop (Node*)x in nodes do if x:name == search_target then escape x; end; end; escape null; end;
+
+
 #define ADD_EDGE(a, b, c)  \
   do \
+    var Node[] source = NODE_BY_NAME(a); \
+    _assert(source); \
+    var Node[] target = NODE_BY_NAME(b); \
+    _assert(target); \
     var Edge[] new_edge = spawn Edge with \
-      this.target = b; \
+      this.target = target; \
       this.cost = c; \
-      this.sibling = a:out; \
+      this.sibling = source:out; \
     end; \
-    a:out = new_edge; \
+    source:out = new_edge; \
   end 
 
-
-pool Node[] nodes;
-var Node[] start;
-
-// the graph - mucking about with string parsing was obscuring the substance
-do
-  var Node[] a = spawn Node in nodes with this.name = 'a'; end;
-  var Node[] b = spawn Node in nodes with this.name = 'b'; end;
-  var Node[] c = spawn Node in nodes with this.name = 'c'; end;
-  var Node[] d = spawn Node in nodes with this.name = 'd'; end;
-  var Node[] e = spawn Node in nodes with this.name = 'e'; end;
-  var Node[] f = spawn Node in nodes with this.name = 'f'; end;
-  var Node[] g = spawn Node in nodes with this.name = 'g'; end;
-
-  ADD_EDGE(a, b, 3.0);
-  ADD_EDGE(a, c, 5.0);
-  ADD_EDGE(a, d, 6.0);
-  ADD_EDGE(b, a, 3.0);
-  ADD_EDGE(b, d, 2.0);
-  ADD_EDGE(c, a, 5.0);
-  ADD_EDGE(c, d, 2.0);
-  ADD_EDGE(c, f, 3.0);
-  ADD_EDGE(c, e, 6.0);
-  ADD_EDGE(c, g, 7.0);
-  ADD_EDGE(d, a, 6.0);
-  ADD_EDGE(d, b, 2.0);
-  ADD_EDGE(d, c, 2.0);
-  ADD_EDGE(d, f, 9.0);
-  ADD_EDGE(e, c, 6.0);
-  ADD_EDGE(e, f, 5.0);
-  ADD_EDGE(e, g, 2.0);
-  ADD_EDGE(f, c, 3.0);
-  ADD_EDGE(f, d, 9.0);
-  ADD_EDGE(f, e, 5.0);
-  ADD_EDGE(f, g, 1.0);
-  ADD_EDGE(g, c, 7.0);
-  ADD_EDGE(g, e, 2.0);
-  ADD_EDGE(g, f, 1.0);
-
-  start = a;
-end
 
 interface DijkstraContext with
   var DijkstraElem[] lead;
@@ -88,22 +58,39 @@ class DijkstraElem with
   var Node[] n;
   var DijkstraElem[] via = null;
   var float cost; // total cost from origin node
+  event void go_die;
   event void go_pop;
   var DijkstraContext& context;
 do
   par/or do
-    every context.tick do
-      if context.lead == null or context.lead:cost > cost then
-        context.lead = &this;
-      end
-    end
+    await go_die;
   with
-    await go_pop;
-  end
-  // switch from being in "open" to being in "closed"
-  every context.checkclosed do
-    if context.lead:n == n then
-      context.closed = true;
+    par/or do
+      every context.tick do
+        if context.lead == null or context.lead:cost > cost then
+          context.lead = &this;
+        end
+      end
+    with
+      await go_pop;
+    end
+    
+    _printf("path to %d found, cost is %f, in reverse is: ", n:name, cost);
+    var DijkstraElem[] cursor = via;
+    loop do
+      if cursor == null then
+        break;
+      end
+      _printf(" %d ", cursor:n:name);
+      cursor = cursor:via;
+    end
+    _printf("\n");
+
+
+    every context.checkclosed do
+      if context.lead:n == n then
+        context.closed = true;
+      end
     end
   end
 end
@@ -133,56 +120,64 @@ do
       closed = false;
       emit checkclosed;
       if closed then
+        emit lead:go_die;
+      else
+        var Edge[] e = lead:n:out;
+        loop do
+          if e == null then
+            break;
+          end
+          spawn DijkstraElem in heap with
+            this.n = e:target;
+            this.via = lead;
+            this.cost = lead:cost + e:cost;
+            this.context = outer;
+          end;
+          e = e:sibling;
+        end
         emit lead:go_pop;
-        continue;
       end
-      var Edge[] e = lead:n:out;
-      loop do
-        if e == null then
-          break;
-        end
-        spawn DijkstraElem in heap with
-          this.n = e:target;
-          this.via = lead;
-          this.cost = lead:cost + e:cost;
-          this.context = outer;
-        end;
-        e = e:sibling;
-      end
-      _printf("path to %c found, cost is %f, in reverse is: ", lead:n:name, lead:cost);
-      var DijkstraElem[] cursor = lead:via;
-      loop do
-        if cursor == null then
-          break;
-        end
-        _printf("%c ", cursor:n:name);
-        cursor = cursor:via;
-      end
-      _printf("\n");
-      emit lead:go_pop;
     end
   end
   emit ok;
 end
 
-// This is how a client might use it:
+pool Node[] nodes;
+#define MAXLINE 100
+var char[MAXLINE] line;
+var int n, m, start;
 
-// step 1: start it up
-var Dijkstra the_algorithm with
-  this.start = start;
-end;
-
-par/or do
-  // step 2: feed it ticks while doing some idle/thinking behavior
-  every TICK do
-    emit the_algorithm.tick;
+loop do
+  if _fgets(line, MAXLINE, _stdin) == null then
+    break;
   end
-with
-  // wait for it to be done
-  await the_algorithm.ok;
-end
 
-// how can you access the heap to walk the via path? I don't know yet.
+  if line[0] == 'c' or line[0] == '\n' or line[0] == '\0' then
+    // skip
+  else/if line[0] == 'p' and _sscanf(line, "%*c sp %d %d", &n, &m ) == 2 then
+    loop i in n do
+      spawn Node in nodes with
+        this.name = i + 1;
+      end;
+    end
+  else/if line[0] == 'a' then
+    var int tail, head, length;
+    _assert(_sscanf(line, "%*c %d %d %d", &tail, &head, &length ) == 3);
+    ADD_EDGE(tail, head, length);
+  else/if line[0] == 's' and _sscanf(line, "%*c %d", &start ) == 1 then
+    var Node[] start_node = NODE_BY_NAME(start);
+    var Dijkstra the_algorithm with
+     this.start = start_node;
+    end;
+    par/or do
+      every TICK do
+        emit the_algorithm.tick;
+      end
+    with
+      await the_algorithm.ok;
+    end
+  end
+end
 
 escape 0;
 
