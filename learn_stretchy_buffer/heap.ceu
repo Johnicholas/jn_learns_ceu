@@ -1,0 +1,90 @@
+native @nohold _assert();
+native @nohold _printf();
+
+// These are actually macros, but we're telling Ceu they are functions
+//         sb_free(TYPE *a)           free the array
+//         sb_count(TYPE *a)          the number of elements in the array
+//         sb_push(TYPE *a, TYPE v)   adds v on the end of the array, a la push_back
+//         sb_add(TYPE *a, int n)     adds n uninitialized elements at end of array & returns pointer to first added
+//         sb_last(TYPE *a)           returns an lvalue of the last item in the array
+//         a[n]                       access the nth (counting from 0) element of the array
+native _sb_push();
+native @nohold _sb_free();
+native @nohold _sb_count();
+
+input void TICK;
+
+
+var int[] heap = null;
+
+// we waste a little space in order to get heap indexes that start at 1.
+_sb_push(heap, 12345) finalize with
+  _sb_free(heap);
+end;
+var int heap_size = 0;
+
+#define INSERT(heap, new_value) \
+  do \
+    heap_size = heap_size + 1; \
+    var int i = heap_size; \
+    if heap_size < _sb_count(heap) then \
+      heap[heap_size] = new_value; \
+    else \
+      _sb_push(heap, new_value) finalize with /* nothing? */ end; \
+    end \
+    loop do \
+      if i == 1 then \
+        break; \
+      end \
+      var int parent = i >> 1; \
+      if heap[i] < heap[parent] then \
+        var int temp = heap[parent]; \
+        heap[parent] = heap[i]; \
+        heap[i] = temp; \
+      else \
+        break; \
+      end \
+      i = parent; \
+    end \
+  end
+
+#define FRONT(heap) heap[1]
+
+#define DELETEMIN(heap) \
+  do \
+    var int i = 1; \
+    heap[1] = heap[heap_size]; \
+    var int i = 1; \
+    heap_size = heap_size - 1; \
+    loop do \
+      var int child = i << 1; \
+      if child > heap_size then \
+        break; \
+      end \
+      if child + 1 <= heap_size and heap[child] > heap[child+1] then \
+        child = child + 1; \
+      end \
+      if heap[child] < heap[i] then \
+        var int temp = heap[child]; \
+        heap[child] = heap[i]; \
+        heap[i] = temp; \
+      else \
+        break; \
+      end \
+      i = child; \
+    end \
+  end
+
+loop i in 10000 do
+  if _rand()%(10000-i) > heap_size then
+    var int to_insert = _rand();
+    _printf("insert %d\n", to_insert);
+    INSERT(heap, to_insert);
+  else/if heap_size > 0 then
+    _printf("pop %d\n", FRONT(heap));
+    DELETEMIN(heap);
+  end
+end
+
+escape 0;
+

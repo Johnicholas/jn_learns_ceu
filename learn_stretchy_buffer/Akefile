@@ -1,0 +1,14 @@
+run: heap
+	./heap
+
+heap: heap.c _ceu_app.c _ceu_app.h
+	gcc heap.c -o heap
+
+_ceu_app.c: heap.ceu stretchy_buffer.h
+	ceu heap.ceu
+
+_ceu_app.h: heap.ceu stretchy_buffer.h
+	ceu heap.ceu
+
+clean:
+	rm heap _ceu_app.c _ceu_app.h
