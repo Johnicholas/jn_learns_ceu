@@ -1,5 +1,5 @@
-run: heap
-	./heap
+run: heap barngrader_example.gr barngrader_example.ss
+	cat barngrader_example.gr barngrader_example.ss | ./heap
 
 heap: heap.c _ceu_app.c _ceu_app.h
 	gcc heap.c -o heap

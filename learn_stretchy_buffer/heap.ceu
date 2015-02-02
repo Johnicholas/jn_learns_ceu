@@ -1,6 +1,31 @@
+// Adapted from Rosetta Code: rosettacode.org/wiki/Dijkstra%27s_algorithm
 native @nohold _assert();
 native @nohold _printf();
+native @nohold _fgets();
+native @nohold _sscanf();
 
+native do
+  // forward declaration
+  typedef struct CEU_Node CEU_Node;
+  typedef struct {
+    struct CEU_Node* n;
+    struct heapelem* via;
+    float cost;
+  } heapelem;
+
+  // we're doing a push of a heap elem, but we don't need to grow the stretchy buffer,
+  // because it has already been grown.
+  void repush(heapelem* heap, int heap_size, heapelem new_value) {
+    heap[heap_size] = new_value;
+  }
+
+  // swap two elements in the heap
+  void swap(heapelem* heap, int i, int j) {
+    heapelem temp = heap[i];
+    heap[i] = heap[j];
+    heap[j] = temp;
+  }
+end
 // These are actually macros, but we're telling Ceu they are functions
 //         sb_free(TYPE *a)           free the array
 //         sb_count(TYPE *a)          the number of elements in the array
@@ -8,27 +33,58 @@ native @nohold _printf();
 //         sb_add(TYPE *a, int n)     adds n uninitialized elements at end of array & returns pointer to first added
 //         sb_last(TYPE *a)           returns an lvalue of the last item in the array
 //         a[n]                       access the nth (counting from 0) element of the array
-native _sb_push();
 native @nohold _sb_free();
 native @nohold _sb_count();
+native @nohold _swap();
 
 input void TICK;
 
 
-var int[] heap = null;
+class Edge with
+  var Node[] target; // node you would arrive at if you traversed this edge
+  var float cost; // cost to traverse this edge
+  var Edge[] sibling; // internal linked-list of edges leading out from the same node
+do
+  // nothing?
+  await FOREVER;
+end
 
-// we waste a little space in order to get heap indexes that start at 1.
-_sb_push(heap, 12345) finalize with
+class Node with
+  var Edge[] out = null; // singly linked list of outgoing edges from this node
+  var int name;
+  var bool closed = false;
+do
+  // nothing?
+  await FOREVER;
+end
+
+
+
+var _heapelem[] heap = null;
+// we waste a little space in order to get heap indexes that start at 1
+var _heapelem initial;
+_sb_push(heap, initial) finalize with
   _sb_free(heap);
 end;
 var int heap_size = 0;
 
-#define INSERT(heap, new_value) \
+
+// TODO: should take a heap as the first argument
+// TODO: heaps don't have a front if they are empty
+#define FRONT() heap[1]
+
+// TODO: the backing array and the heap size should both be in a structure termed the heap,
+// which should be the first argument of the INSERT macro
+// TODO: VIA should work somehow.
+#define INSERT(N, VIA, COST) \
   do \
     heap_size = heap_size + 1; \
     var int i = heap_size; \
+    var _heapelem new_value; \
+    new_value.n = N; \
+    new_value.cost = COST; \
     if heap_size < _sb_count(heap) then \
-      heap[heap_size] = new_value; \
+      _repush(heap, heap_size, new_value) finalize with /* nothing? */ end; \
     else \
       _sb_push(heap, new_value) finalize with /* nothing? */ end; \
     end \
@@ -37,10 +93,8 @@ var int heap_size = 0;
         break; \
       end \
       var int parent = i >> 1; \
-      if heap[i] < heap[parent] then \
-        var int temp = heap[parent]; \
-        heap[parent] = heap[i]; \
-        heap[i] = temp; \
+      if heap[i].cost < heap[parent].cost then \
+        _swap(heap, i, parent); \
       else \
         break; \
       end \
@@ -48,9 +102,9 @@ var int heap_size = 0;
     end \
   end
 
-#define FRONT(heap) heap[1]
 
-#define DELETEMIN(heap) \
+// TODO: should take a heap as the first argument
+#define DELETEMIN() \
   do \
     var int i = 1; \
     heap[1] = heap[heap_size]; \
@@ -61,13 +115,11 @@ var int heap_size = 0;
       if child > heap_size then \
         break; \
       end \
-      if child + 1 <= heap_size and heap[child] > heap[child+1] then \
+      if child + 1 <= heap_size and heap[child].cost > heap[child+1].cost then \
         child = child + 1; \
       end \
-      if heap[child] < heap[i] then \
-        var int temp = heap[child]; \
-        heap[child] = heap[i]; \
-        heap[i] = temp; \
+      if heap[child].cost < heap[i].cost then \
+        _swap(heap, child, i); \
       else \
         break; \
       end \
@@ -75,16 +127,78 @@ var int heap_size = 0;
     end \
   end
 
-loop i in 10000 do
-  if _rand()%(10000-i) > heap_size then
-    var int to_insert = _rand();
-    _printf("insert %d\n", to_insert);
-    INSERT(heap, to_insert);
-  else/if heap_size > 0 then
-    _printf("pop %d\n", FRONT(heap));
-    DELETEMIN(heap);
+#define NODE_BY_NAME(search_target) \
+    do loop (Node*)x in nodes do if x:name == search_target then escape x; end; end; escape null; end;
+
+
+#define ADD_EDGE(a, b, c)  \
+  do \
+    var Node[] source = NODE_BY_NAME(a); \
+    _assert(source); \
+    var Node[] target = NODE_BY_NAME(b); \
+    _assert(target); \
+    var Edge[] new_edge = spawn Edge with \
+      this.target = target; \
+      this.cost = c; \
+      this.sibling = source:out; \
+    end; \
+    source:out = new_edge; \
+  end 
+
+
+pool Node[] nodes;
+#define MAXLINE 100
+var char[MAXLINE] line;
+var int n, m, start;
+
+loop do
+  if _fgets(line, MAXLINE, _stdin) == null then
+    break;
+  end
+
+  if line[0] == 'c' or line[0] == '\n' or line[0] == '\0' then
+    // skip
+  else/if line[0] == 'p' and _sscanf(line, "%*c sp %d %d", &n, &m ) == 2 then
+    loop i in n do
+      spawn Node in nodes with
+        this.name = i + 1;
+      end;
+    end
+  else/if line[0] == 'a' then
+    var int tail, head, length;
+    _assert(_sscanf(line, "%*c %d %d %d", &tail, &head, &length ) == 3);
+    ADD_EDGE(tail, head, length);
+  else/if line[0] == 's' and _sscanf(line, "%*c %d", &start ) == 1 then
+    var Node[] start_node = NODE_BY_NAME(start);
+
+    //  push the start node, with cost 0, into the heap
+    INSERT(start_node, null, 0.0);
+
+    // while the heap is not empty
+    loop do
+      if heap_size <= 0 then
+        _assert(heap_size == 0);
+        break;
+      else/if not FRONT().n:closed then
+        // enumerate the node's out list
+        var Edge[] e = FRONT().n:out;
+        loop do
+          if e == null then
+            break;
+          end
+          // TODO: get via working
+          INSERT(e:target, null, FRONT().cost + e:cost);
+          e = e:sibling;
+        end
+        _printf("path to %d found, with total cost %f\n", FRONT().n:name, FRONT().cost); 
+
+        FRONT().n:closed = true; // TODO: get some sort of closed set data structure working
+      end
+      DELETEMIN();
+    end
   end
 end
+
 
 escape 0;
 
