@@ -39,29 +39,29 @@ end
   end
 
 pool T[] thepool;
-var _heap foo;
-foo.backing = null;
-foo.size = 0;
+var _heap theheap;
+theheap.backing = null;
+theheap.size = 0;
 // we put one "wasted" element into the stretchy buffer,
 // so that the heap indexes can start with 1 rather than 0.
 var T[] wasted = spawn T with
   this.cost = 123456;
 end;
-_sb_push(foo.backing, wasted) finalize with
-  _sb_free(foo.backing);
+_sb_push(theheap.backing, wasted) finalize with
+  _sb_free(theheap.backing);
 end;
 
 
 #define BIG 10000
 loop i in BIG do
-  if _rand()%(BIG-i) > foo.size then
+  if _rand()%(BIG-i) > theheap.size then
     var int to_insert = _rand() % 100000;
     _printf("insert %05d\n", to_insert);
-    INSERT(foo, to_insert);
-  else/if foo.size > 0 then
-    var T[] front = foo.backing[1];
+    INSERT(theheap, to_insert);
+  else/if theheap.size > 0 then
+    var T[] front = theheap.backing[1];
     _printf("pop    %05d\n", front:cost);
-    DELETEMIN(foo);
+    DELETEMIN(theheap);
   end
 end
 
