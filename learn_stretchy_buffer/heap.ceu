@@ -1,6 +1,9 @@
-
+// Adapted from Rosetta Code: rosettacode.org/wiki/Dijkstra%27s_algorithm
 native do
+  // forward declarations
+  typedef struct CEU_Node CEU_Node;
   typedef struct CEU_T CEU_T;
+
   typedef struct {
     struct CEU_T** backing;
     int size;
@@ -13,20 +16,26 @@ native @plain _heap;
 native _insert();
 native _deletemin();
 native @nohold _sb_free();
+native @nohold _assert();
+native @nohold _printf();
+native @nohold _fgets();
+native @nohold _sscanf();
 
 input void TICK;
 
 class T with
   var int cost;
+  var Node* n;
   event void go_kill;
 do
   await go_kill;
 end
 
-#define INSERT(HEAP, COST) \
+#define INSERT(HEAP, COST, N) \
   do \
     var T[] newt = spawn T in thepool with \
       this.cost = COST; \
+      this.n = N; \
     end; \
     _insert(&HEAP, newt) finalize with /* nothing? */ end; \
   end
@@ -38,33 +47,101 @@ end
     _deletemin(&HEAP) finalize with /* nothing? */ end; \
   end
 
+class Edge with
+  var Node[] target; // node you would arrive at if you traversed this edge
+  var int cost; // cost to traverse this edge
+  var Edge[] sibling; // internal linked-list of edges leading out from the same node
+do
+  // nothing?
+  await FOREVER;
+end
+
+class Node with
+  var Edge[] out = null; // singly linked list of outgoing edges from this node
+  var int name;
+  var bool open = true;
+do
+  // nothing?
+  await FOREVER;
+end
+
+#define NODE_BY_NAME(search_target) \
+    do loop (Node*)x in nodes do if x:name == search_target then escape x; end; end; escape null; end;
+
+#define ADD_EDGE(a, b, c)  \
+  do \
+    var Node[] source = NODE_BY_NAME(a); \
+    _assert(source); \
+    var Node[] target = NODE_BY_NAME(b); \
+    _assert(target); \
+    var Edge[] new_edge = spawn Edge with \
+      this.target = target; \
+      this.cost = c; \
+      this.sibling = source:out; \
+    end; \
+    source:out = new_edge; \
+  end 
+
+
 pool T[] thepool;
-var _heap foo;
-foo.backing = null;
-foo.size = 0;
+var _heap theheap;
+theheap.backing = null;
+theheap.size = 0;
 // we put one "wasted" element into the stretchy buffer,
 // so that the heap indexes can start with 1 rather than 0.
 var T[] wasted = spawn T with
   this.cost = 123456;
 end;
-_sb_push(foo.backing, wasted) finalize with
-  _sb_free(foo.backing);
+_sb_push(theheap.backing, wasted) finalize with
+  _sb_free(theheap.backing);
 end;
 
+pool Node[] nodes;
+#define MAXLINE 100
+var char[MAXLINE] line;
+var int n, m, start;
 
-#define BIG 10000
-loop i in BIG do
-  if _rand()%(BIG-i) > foo.size then
-    var int to_insert = _rand() % 100000;
-    _printf("insert %05d\n", to_insert);
-    INSERT(foo, to_insert);
-  else/if foo.size > 0 then
-    var T[] front = foo.backing[1];
-    _printf("pop    %05d\n", front:cost);
-    DELETEMIN(foo);
+loop do
+  if _fgets(line, MAXLINE, _stdin) == null then
+    break;
+  end
+
+  if line[0] == 'c' or line[0] == '\n' or line[0] == '\0' then
+    // skip
+  else/if line[0] == 'p' and _sscanf(line, "%*c sp %d %d", &n, &m ) == 2 then
+    loop i in n do
+      spawn Node in nodes with
+        this.name = i + 1;
+      end;
+    end
+  else/if line[0] == 'a' then
+    var int tail, head, length;
+    _assert(_sscanf(line, "%*c %d %d %d", &tail, &head, &length ) == 3);
+    ADD_EDGE(tail, head, length);
+  else/if line[0] == 's' and _sscanf(line, "%*c %d", &start ) == 1 then
+    var Node[] start_node = NODE_BY_NAME(start);
+    INSERT(theheap, 0, start_node);
+    loop do
+      if theheap.size == 0 then
+        break;
+      end
+      var T[] front = theheap.backing[1];
+      if front:n:open then
+        _printf("shortest path to %d has cost %d\n", front:n:name, front:cost);
+        front:n:open = false;
+        var Edge[] e = front:n:out;
+        loop do
+          if e == null then
+            break;
+          end
+          INSERT(theheap, front:cost + e:cost, e:target);
+          e = e:sibling;
+        end
+      end
+      DELETEMIN(theheap);
+    end
   end
 end
-
 
 escape 0;
 
