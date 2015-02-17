@@ -1,0 +1,14 @@
+run: tuples
+	./tuples
+
+tuples: tuples.c _ceu_app.c _ceu_app.h
+	gcc tuples.c -o tuples
+
+_ceu_app.c: tuples.ceu
+	ceu tuples.ceu
+
+_ceu_app.h: tuples.ceu
+	ceu tuples.ceu
+
+clean:
+	rm tuples _ceu_app.c _ceu_app.h
