@@ -1,0 +1,141 @@
+
+native @nohold _printf();
+input bool* SCHEDULE;
+
+class DeviceFn with
+  var char[] to_print;
+  var int mailbox;
+  event void go_release;
+do
+  var int v1 = 0;
+  loop do
+    _printf("%s\n", to_print);
+    if mailbox == 0 then
+      if v1 == 0 then
+        // wait for a packet
+        var bool* handled = await SCHEDULE until not *handled and mailbox > 0;
+        *handled = true;
+      else
+        // TODO: send v1 outward
+        v1 = v1 - 1;     
+      end
+    else
+      // TODO: if tracing then _printf("%c", mailbox.a1)
+      await go_release;
+    end
+  end
+end
+
+class HandlerFn with
+  var char[] to_print;
+  var int mailbox;
+  var DeviceFn& device;
+do
+  var int v1 = 0;
+  var int v2 = 0;
+  loop do
+    // wait for a packet
+    var bool* handled = await SCHEDULE until not *handled and mailbox > 0;
+    *handled = true;
+    _printf("%s\n", to_print);
+    if mailbox != 0 then
+      // TODO: move pkt from mailbox to v1 or v2
+    end
+    if v1 != 0 then
+      //if something then
+        // TODO: send v1 back
+      //else/if v2 != 0 then 
+        // TODO: load something from v1 into v2 and send it to the device
+      //end
+    end
+  end
+end
+
+class WorkFn with
+  var char[] to_print;
+  var int mailbox;
+  var HandlerFn& handlera;
+  var HandlerFn& handlerb;
+do
+  var int v1 = 3; // I_HANDLERA;
+  loop do
+    // wait for a packet
+    var bool* handled = await SCHEDULE until not *handled and mailbox > 0;
+    *handled = true;
+    _printf("%s\n", to_print);
+    v1 = 3 + 4 - v1; //  I_HANDLERA + I_HANDLERB - v1; // swap back and forth between A and B
+    // TODO: load up this incoming packet
+    // TODO: send the packet off to the appropriate handler
+    if v1 == 3 then
+      handlera.mailbox = handlera.mailbox + 1;
+    else/if v1 == 4 then
+      handlerb.mailbox = handlerb.mailbox + 1;
+    end
+    mailbox = mailbox - 1;
+  end
+end
+
+class IdleFn with
+  var char[] to_print;
+  var DeviceFn& deva;
+  var DeviceFn& devb;
+  event void ok;
+do
+  var int v1 = 1;
+  loop i in 10000 do
+    var bool* handled = await SCHEDULE until not *handled;
+    *handled = true;
+    if v1 % 2 == 0 then
+      v1 = (v1 >> 1);
+      emit deva.go_release;
+    else
+      v1 = (v1 >> 1) ^ 0xD008;
+      emit devb.go_release;
+    end
+  end
+  _printf("Idle is done\n");
+  emit ok;
+end
+
+par/or do
+  var DeviceFn devb with
+    this.to_print = "I_DEVB";
+    this.mailbox = 0;
+  end;
+  var DeviceFn deva with
+    this.to_print = "I_DEVA";
+    this.mailbox = 0;
+  end;
+  var HandlerFn handlerb with
+    this.to_print = "I_HANDLERB";
+    this.mailbox = 0;
+    this.device = devb;
+  end;
+  var HandlerFn handlera with
+    this.to_print = "I_HANDLERA";
+    this.mailbox = 0;
+    this.device = deva;
+  end;
+  var WorkFn work with
+    this.to_print = "I_WORK";
+    this.mailbox = 0;
+    this.handlera = handlera;
+    this.handlerb = handlerb;
+  end;
+  var IdleFn idle with
+    this.to_print = "I_IDLE";
+    this.deva = deva;
+    this.devb = devb;
+  end;
+  await idle.ok;
+with
+  async do
+    loop do
+      var bool handled = false; 
+      emit SCHEDULE => &handled;
+    end
+  end
+end
+
+escape 0;
+

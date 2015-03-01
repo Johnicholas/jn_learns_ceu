@@ -1,0 +1,291 @@
+input void TICK;
+
+#define BUFSIZE 4;
+
+native do
+  char alphabet[] = "0abcdefghijklmnopqrstuvwxyz";
+end
+
+interface IdleFn with
+  event void ok_release;
+end
+
+class DeviceFn with
+  var IdleFn& idle;
+  var char id;
+  var char task;
+  event void ok;
+do
+  // _printf("device %c works on %c\n", id, task);
+  _printf("%c", task);
+  await idle.ok_release;
+  // _printf("%s %d\n", __FILE__, __LINE__);
+  await TICK;
+  emit ok;
+end
+
+class HandlerFn with
+  var IdleFn& idle;
+  var char id;
+  var char* task;
+  event void ok;
+do
+  loop i in 4 do
+    var DeviceFn d with
+      this.idle = idle;
+      this.id = id;
+      this.task = task[i];
+    end;
+    await d.ok;
+  end
+  emit ok;
+end
+
+class WorkerFn with
+  var IdleFn& idle;
+do
+  var int v2 = 0;
+  par do
+    loop do
+      var char[4] task;
+      loop i do
+        if i > 4 then
+          break;
+        end
+        v2 = v2 + 1;
+        if v2 > 26 then
+          v2 = 1;
+        end
+        task[i] = _alphabet[v2];
+      end
+      var HandlerFn a with
+        this.idle = idle;
+        this.id = 'a';
+        this.task = task;
+      end;
+      await a.ok;
+    end
+  with
+    loop do
+      var char[4] task;
+      loop i do
+        if i > 4 then
+          break;
+        end
+        v2 = v2 + 1;
+        if v2 > 26 then
+          v2 = 1;
+        end
+        task[i] = _alphabet[v2];
+      end
+      var HandlerFn b with
+        this.idle = idle;
+        this.id = 'b';
+        this.task = task;
+      end;
+      await b.ok;
+    end
+  end
+end
+
+class RealIdleFn with
+  interface IdleFn;
+  event void ok;
+do
+  par/or do
+    var WorkerFn w with
+      this.idle = outer;
+    end;
+    await FOREVER;
+  with
+    loop v2 in 10000 do
+      // _printf("%s %d\n", __FILE__, __LINE__);
+      await TICK;
+      // _printf("%s %d\n", __FILE__, __LINE__);
+      emit ok_release;
+    end
+  end
+  emit ok;
+end
+
+
+par/or do
+  var RealIdleFn richards;
+  await richards.ok;
+with
+  async do
+    loop do
+      emit TICK;
+    end
+  end
+end
+ 
+
+/*
+
+#define N 5
+
+// Knuth's Algorithm H (Loopless reflected mixed-radix Gray generation).
+var int[N] m;
+m[0] = 2;
+m[1] = 2;
+m[2] = 3;
+m[3] = 4;
+m[4] = 6;
+var int[N] a;
+var int[N] o;
+var int[N+1] f;
+// H1. [Initialize.]
+loop j in N do
+  a[j] = 0;
+  o[j] = 1;
+  f[j] = j;
+end
+f[N] = N;
+
+loop do
+  // H2. [Visit.]
+  await TICK;
+  _printf("(");
+  loop j in N do
+    _printf("%d", a[j]);
+    if j+1 < N then
+      _printf(", ");
+    end
+  end
+  _printf(")\n");
+  // H3. [Choose j.]
+  var int j = f[0];
+  f[0] = 0;
+  // H4. [Change coordinate j.]
+  if j == N then
+    break;
+  else
+    a[j] = a[j] + o[j];
+    // j was the rightmost active coordinate;
+    // all elements to its right have now been activated
+  end
+  // H5. [Reflect?]
+  if a[j] == 0 or a[j] == m[j] - 1 then
+    o[j] = -1 * o[j];
+    f[j] = f[j+1];
+    f[j+1] = j+1;
+    // Coordinate j has become passive
+  end
+end
+
+
+// Knuth's Algorithm L (Loopless Gray binary generation).
+var int[N] a;
+var int[N+1] f;
+// L1. [Initialize.]
+loop j in N do
+  a[j] = 0;
+end
+loop j in N+1 do
+  f[j] = j;
+end
+loop do
+  // L2. [Visit.]
+  await TICK;
+  _printf("(");
+  loop j in N do
+    _printf("%d", a[j]);
+    if j+1 < N then
+      _printf(", ");
+    end
+  end
+  _printf(")\n");
+  // L3. [Choose j.]
+  var int j = f[0];
+  f[0] = 0;
+  if j == N then
+    break;
+  else
+    f[j] = f[j+1];
+    f[j+1] = j+1;
+  end
+  // L4. [Complement coordinate j.]
+  a[j] = 1 - a[j];
+end
+
+// Knuth's Algorithm G (Gray binary generation).
+var int[N] a;
+var int a_inf;
+// G1. [Initialize.]
+loop j in N do
+  a[j] = 0;
+end
+a_inf = 0;
+loop do
+  // G2. [Visit.]
+  await TICK;
+  _printf("(%d, %d, %d)\n", a[0], a[1], a[2]);
+  // G3. [Change parity.]
+  a_inf = 1 - a_inf;
+  // G4. [Choose.]
+  var int j = 0;
+  if a_inf != 1 then
+    loop do
+      j = j + 1;
+      if a[j-1] == 1 then
+        break;
+      end
+    end
+  end
+  // G5. [Complement coordinate j.]
+  if j == N then
+    break;
+  else
+    a[j] = 1 - a[j];
+  end
+end
+
+
+var int[4] a;
+
+// Knuth's Algorithm M (Mixed-radix generation)
+
+// M1 [Initialize.]
+loop j in N+1 do
+  a[j] = 0;
+end
+m[0] = 2;
+
+loop do
+  // M2 [Visit.]
+  await TICK;
+  _printf("(%d, %d, %d)\n", a[1], a[2], a[3]);
+  // M3 [Prepare to add one.]
+  var int j = N;
+  // M4 [Carry if necessary.]
+  loop do
+    if a[j] == m[j] - 1 then
+      a[j] = 0;
+      j = j - 1;
+    else
+      break;
+    end
+  end
+  // M5 [Increase, unless done.]
+  if j == 0 then
+    break;
+  else
+    a[j] = a[j] + 1;
+  end
+end
+*/
+
+/*
+// Knuth's simpler alternative to Algorithm M when N is a fairly small constant
+loop i in 3 do
+  loop j in 4 do
+    loop k in 5 do
+      await TICK;
+      _printf("(%d, %d, %d)\n", i, j, k);
+    end
+  end
+end
+*/
+
+escape 0;
