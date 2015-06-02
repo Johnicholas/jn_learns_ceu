@@ -21,46 +21,48 @@ do
 end
 
 class Customer with
-  var Barber& barber;
+  var Barber* barber;
 do
-  var int id = barber.get_next_id();
-  _printf("create %d 10 10\n", id);
+  watching barber do
+    var int id = barber:get_next_id();
+    _printf("create %d 10 10\n", id);
 
-  // go to coat rack
-  _printf("move %d 400 10\n", id);
-  await 2s;
-  _printf("place %d 400 10\n", id);
+    // go to coat rack
+    _printf("move %d 400 10\n", id);
+    await 2s;
+    _printf("place %d 400 10\n", id);
 
-  var bool barber_was_available = barber.idle;
-  var bool found_seat;
-  if not barber_was_available then
-    found_seat = not _full(&barber.waiting_area);
-    if found_seat then
-      var int which_seat = _enter(&barber.waiting_area);
-      _printf("move %d 780 %d\n", id, 10+25*which_seat);
-      _push(id);
-      var int next = await barber.next until next == id;
-      _leave(&barber.waiting_area, which_seat);
-     end
-  end
-
-  if barber_was_available or found_seat then
-    // get a haircut
-    barber.idle = false;
-    _printf("move %d 400 300\n", id);
-    // haircut takes 15 +- 3 minutes
-    await (_random_plusminus(15, 3))s;
-    barber.idle = true;
-    if not _empty() then
-      var int nextint = _pop();
-      emit barber.next => nextint;
+    var bool barber_was_available = barber:idle;
+    var bool found_seat;
+    if not barber_was_available then
+      found_seat = not _full(&barber:waiting_area);
+      if found_seat then
+        var int which_seat = _enter(&barber:waiting_area);
+        _printf("move %d 780 %d\n", id, 10+25*which_seat);
+        _push(id);
+        var int next = await barber:next until next == id;
+        _leave(&barber:waiting_area, which_seat);
+       end
     end
-  end
 
-  // leave
-  _printf("move %d 10 580\n", id);
-  await 500ms;
-  _printf("destroy %d\n", id);
+    if barber_was_available or found_seat then
+      // get a haircut
+      barber:idle = false;
+      _printf("move %d 400 300\n", id);
+      // haircut takes 15 +- 3 minutes
+      await (_random_plusminus(15, 3))s;
+      barber:idle = true;
+      if not _empty() then
+        var int nextint = _pop();
+        emit barber:next => nextint;
+      end
+    end
+
+    // leave
+    _printf("move %d 10 580\n", id);
+    await 500ms;
+    _printf("destroy %d\n", id);
+  end
 end
 
 par/or do
@@ -70,7 +72,7 @@ with
   loop do
     await (_random_plusminus(5, 2))s; // new arrivals every 18 +- 6 minutes
     spawn Customer with
-      this.barber = joe;
+      this.barber = &joe;
     end;
   end
 end
