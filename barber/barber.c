@@ -26,6 +26,8 @@ typedef struct {
   int allocated[10];
 } Storage;
 
+static Storage zero_storage;
+
 int full(Storage* f) {
   return f->count_allocated == 10;
 }
@@ -51,7 +53,8 @@ void leave(Storage* f, int which) {
   f->count_allocated -= 1;
 }
 
-
+#define ceu_out_assert(X) assert(X)
+#define ceu_out_log(X) printf(X)
 
 #include "_ceu_app.h"
 

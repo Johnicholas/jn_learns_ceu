@@ -1,5 +1,9 @@
 #include <stdio.h>
 #include <assert.h>
+
+#define ceu_out_assert(X) assert(X)
+#define ceu_out_log(X) printf(X)
+
 #include "_ceu_app.h"
 #include "_ceu_app.c"
 
@@ -18,13 +22,13 @@ int main (int argc, char *argv[])
     for (i = 0; i < sizeof(PROGRAM); i += 1) {
       switch (PROGRAM[i]) {
         case 'a':
-          ceu_sys_go(&app, CEU_IN_A, (tceu_evtp)0);
+          ceu_sys_go(&app, CEU_IN_A, NULL);
           break;
         case 'b':
-          ceu_sys_go(&app, CEU_IN_B, (tceu_evtp)0);
+          ceu_sys_go(&app, CEU_IN_B, NULL);
           break;
         case 'c':
-          ceu_sys_go(&app, CEU_IN_C, (tceu_evtp)0);
+          ceu_sys_go(&app, CEU_IN_C, NULL);
           break;
         default:
           printf("From C++: %c\n", PROGRAM[i]);
@@ -32,5 +36,3 @@ int main (int argc, char *argv[])
       }
     }
 }
-
-
