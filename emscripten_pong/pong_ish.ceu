@@ -1,18 +1,112 @@
-native do
-
 // width of the screen
-#define W 640
+var int w = 640;
 // height of the screen
-#define H 480
+var int h = 480;
+
 // paddle thickness
-#define PT 10
+var int pt = 10;
+
 // paddle height
-#define PH 100
+var int ph = 100;
 
-end
+input (int, int) SDL_MOUSEMOTION;
+input void SDL_REDRAW;
 
+// paddle 1
 var int p1x = 0;
 var int p1y = 40;
 
-loop do
-  every 
+// paddle 2
+var int p2x = w - pt;
+var int p2y = 40;
+
+// ball position
+var float bx = 50;
+var float by = 50;
+// ball dimension
+var int bd = 6;
+// ball momentum
+var float xv = 4;
+var float yv = 4;
+
+var int score1 = 0;
+var int score2 = 0;
+
+var int ais = 2;
+
+par do
+  loop do
+    // player control
+    var int mx;
+    var int my;
+    (mx, my) = await SDL_MOUSEMOTION;
+    p1y = my;
+  end
+with
+  loop do
+    // update
+    await 10ms;
+
+    // ball physics
+    bx = bx + xv;
+    by = by + yv;
+
+    if by < 0 and yv < 0 then
+      // bounce off top edge of screen
+      yv = yv * -1;
+    end
+    if by > h and yv > 0 then
+      // bounce off bottom edge of the screen
+      yv = yv * -1;
+    end
+    if bx < 0 then
+      // ball goes off left side of screen
+      if by > p1y and by < p1y + ph then
+        // bounce off the left paddle
+        xv = -xv;
+        var int dy = by - (p1y + ph/2);
+        yv = dy * 0.3;
+      else
+        // missed it
+        score2 = score2 + 1;
+        // reset();
+      end
+    end
+    if bx > w then
+      // ball goes off left side of screen
+      if by > p2y and by < p2y + ph then
+        // bounce off the left paddle
+        xv = -xv;
+        var int dy = by - (p2y + ph/2);
+        yv = dy * 0.3;
+      else
+        // missed it
+        score1 = score1 + 1;
+        // reset();
+      end
+    end
+
+    if p2y + ph/2 < by then
+      p2y = p2y + ais;
+    else
+      p2y = p2y - ais;
+    end
+  end
+with
+  loop do
+    await SDL_REDRAW;
+
+    _boxRGBA(_screen, 0, 0, w, h, 0, 0, 0, 0xff);
+    _boxRGBA(_screen, 0, p1y, pt, p1y + ph,
+    		  0xff, 0xff, 0xff, 0xff);
+    _boxRGBA(_screen, w - pt, p2y, w, p2y + ph,
+    		  0xff, 0xff, 0xff, 0xff);
+    _boxRGBA(_screen, bx - bd / 2, by - bd / 2, bx + bd / 2, by + bd / 2,
+    		  0xff, 0xff, 0xff, 0xff);
+    // TODO: Draw score1 at x=100, 100
+    // TODO: Draw score2 at x = W - 100, 100
+    _SDL_UpdateRect(_screen, 0, 0, 0, 0);
+  end
+end
+
+// escape 0;
