@@ -1,0 +1,18 @@
+native do
+
+// width of the screen
+#define W 640
+// height of the screen
+#define H 480
+// paddle thickness
+#define PT 10
+// paddle height
+#define PH 100
+
+end
+
+var int p1x = 0;
+var int p1y = 40;
+
+loop do
+  every 
